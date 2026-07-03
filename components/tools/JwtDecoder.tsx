@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { OutputPane } from "@/components/ui/OutputPane";
+import { useErrorToast } from "@/components/ui/Toaster";
 import { decodeJWT } from "@/lib/tools/jwt";
 
 export function JwtDecoder() {
@@ -11,6 +12,7 @@ export function JwtDecoder() {
   const trimmed = input.trim();
   const result = trimmed ? decodeJWT(input) : { header: "", payload: "", err: "" };
   const isValid = !!result.header && !result.err;
+  useErrorToast(result.err);
 
   return (
     <ToolPanel path="~/encode/jwt" description="decodifica JWT — header e payload visíveis">
@@ -24,7 +26,6 @@ export function JwtDecoder() {
           className="surface jwt-textarea"
         />
       </div>
-      {trimmed && result.err && <pre className="jwt-error-box">{result.err}</pre>}
       {trimmed && isValid && (
         <div className="grid-2col">
           <OutputPane

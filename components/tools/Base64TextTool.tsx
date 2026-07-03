@@ -6,6 +6,7 @@ import { SplitPane } from "@/components/ui/SplitPane";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { OutputPane } from "@/components/ui/OutputPane";
 import { ToggleButton } from "@/components/ui/ToggleButton";
+import { useErrorToast } from "@/components/ui/Toaster";
 import { b64Encode, b64Decode } from "@/lib/tools/base64";
 
 type Mode = "encode" | "decode";
@@ -14,7 +15,16 @@ export function Base64TextTool() {
   const [mode, setMode] = useState<Mode>("encode");
   const [input, setInput] = useState("");
 
-  const output = input ? (mode === "encode" ? b64Encode(input) : b64Decode(input)) : "";
+  let output = "";
+  let error = "";
+  if (input) {
+    try {
+      output = mode === "encode" ? b64Encode(input) : b64Decode(input);
+    } catch (e) {
+      error = "Base64 inválido: " + (e as Error).message;
+    }
+  }
+  useErrorToast(error);
 
   return (
     <ToolPanel path="~/encode/base64" description="codifica ou decodifica Base64 em tempo real">

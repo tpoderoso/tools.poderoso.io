@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { Toaster } from "@/components/ui/Toaster";
 import { DEFAULT_TOOL, type ToolId } from "@/lib/nav";
 import { JsonFormatter } from "./JsonFormatter";
 import { JsonValidator } from "./JsonValidator";
@@ -80,6 +81,7 @@ export function ToolsApp() {
           </Slot>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

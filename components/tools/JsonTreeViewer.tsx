@@ -7,6 +7,7 @@ import { SplitPane } from "@/components/ui/SplitPane";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { ToggleButton } from "@/components/ui/ToggleButton";
+import { toastError } from "@/components/ui/Toaster";
 import { tryParseJson } from "@/lib/tools/json";
 
 const INITIAL_INPUT = `{
@@ -95,12 +96,18 @@ export function JsonTreeViewer() {
     setTreeVersion((v) => v + 1);
   };
 
+  const view = () => {
+    const r = tryParseJson(input);
+    if (r.ok) setResult(r);
+    else toastError("JSON inválido: " + r.error);
+  };
+
   return (
     <ToolPanel path="~/format/json-tree" description="visualiza JSON em árvore navegável, expandindo e recolhendo nós">
       <SplitPane>
         <div className="field-col">
           <TextAreaField label="// entrada" value={input} onChange={setInput} />
-          <PrimaryButton onClick={() => setResult(tryParseJson(input))}>Visualizar →</PrimaryButton>
+          <PrimaryButton onClick={view}>Visualizar →</PrimaryButton>
         </div>
         <div className="field-col">
           <div className="label-row--between">
@@ -115,10 +122,8 @@ export function JsonTreeViewer() {
             </div>
           </div>
           <div className="surface jt-tree">
-            {result.ok ? (
+            {result.ok && (
               <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} />
-            ) : (
-              <pre className="jt-error">// Erro: {result.error}</pre>
             )}
           </div>
         </div>

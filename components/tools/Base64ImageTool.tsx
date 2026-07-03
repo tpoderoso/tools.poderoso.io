@@ -6,6 +6,7 @@ import { ImageIcon, ExternalLink } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { ToggleButton } from "@/components/ui/ToggleButton";
+import { useErrorToast } from "@/components/ui/Toaster";
 
 type Mode = "encode" | "decode";
 
@@ -38,6 +39,8 @@ export function Base64ImageTool() {
       <ExternalLink size={13} strokeWidth={2} />
     </button>
   );
+
+  useErrorToast(decodeError ? "Base64 de imagem inválido" : "");
 
   const trimmed = decodeInput.trim();
   // ponytail: mime fixo image/png para base64 cru — browsers fazem sniff do conteúdo em <img>

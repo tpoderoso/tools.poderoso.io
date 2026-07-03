@@ -1,10 +1,6 @@
-/** Parses and re-serializes JSON with 2-space indentation. Returns a `// Erro:` string instead of throwing. */
+/** Parses and re-serializes JSON with 2-space indentation. Throws on invalid JSON (caller catches and toasts). */
 export function fmtJSON(s: string): string {
-  try {
-    return JSON.stringify(JSON.parse(s), null, 2);
-  } catch (e) {
-    return "// Erro: " + (e as Error).message;
-  }
+  return JSON.stringify(JSON.parse(s), null, 2);
 }
 
 export type JsonParseResult = { ok: true; value: unknown } | { ok: false; error: string };

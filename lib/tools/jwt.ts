@@ -10,7 +10,7 @@ export function decodeJWT(token: string): JwtResult {
   if (!t) return { header: "", payload: "", err: "" };
   const parts = t.split(".");
   if (parts.length !== 3) {
-    return { header: "", payload: "", err: "// JWT inválido — esperado formato: header.payload.signature" };
+    return { header: "", payload: "", err: "JWT inválido — esperado formato: header.payload.signature" };
   }
   try {
     const b64url = (str: string) => {
@@ -26,6 +26,6 @@ export function decodeJWT(token: string): JwtResult {
       err: "",
     };
   } catch (e) {
-    return { header: "", payload: "", err: "// Erro ao decodificar: " + (e as Error).message };
+    return { header: "", payload: "", err: "Erro ao decodificar JWT: " + (e as Error).message };
   }
 }
