@@ -27,7 +27,10 @@ export function XmlFormatter() {
   };
 
   return (
-    <ToolPanel path="~/format/xml" description="formata XML com indentação correta">
+    <ToolPanel
+      path="~/format/xml"
+      description="formata XML com indentação correta"
+    >
       <SplitPane>
         <div className="field-col">
           <TextAreaField label="// entrada" value={input} onChange={setInput} />
@@ -35,7 +38,7 @@ export function XmlFormatter() {
         </div>
         <OutputPane
           label="// saída"
-          text={output || "// cole XML aqui e clique Formatar"}
+          text={output || "// o xml formatado aparecerá aqui"}
           copyText={output}
           color="var(--color-accent-cyan)"
         />

@@ -4,7 +4,12 @@
       "Skill(run)",
       "Skill(run:*)",
       "Skill(code-review)",
-      "Skill(code-review:*)"
+      "Skill(code-review:*)",
+      "Read(//home/tpoderoso/.hermes/hermes-agent/**)",
+      "Read(//home/tpoderoso/DEV/poderoso.io/src/components/home/layout/**)"
+    ],
+    "additionalDirectories": [
+      "/home/tpoderoso/.hermes/hermes-agent"
     ]
   }
 }

@@ -25,7 +25,10 @@ export function SqlFormatter() {
   };
 
   return (
-    <ToolPanel path="~/format/sql" description="formata queries SQL com quebras de linha">
+    <ToolPanel
+      path="~/format/sql"
+      description="formata queries SQL com quebras de linha"
+    >
       <SplitPane>
         <div className="field-col">
           <TextAreaField label="// entrada" value={input} onChange={setInput} />
@@ -33,7 +36,7 @@ export function SqlFormatter() {
         </div>
         <OutputPane
           label="// saída"
-          text={output || "-- cole SQL aqui e clique Formatar"}
+          text={output || "-- o sql formatado aparecerá aqui"}
           copyText={output}
           color="var(--color-accent-yellow)"
         />

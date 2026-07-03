@@ -31,21 +31,35 @@ export function JsonValidator() {
   };
 
   return (
-    <ToolPanel path="~/format/json-validate" description="valida JSON, aponta linha do erro e corrige automaticamente">
+    <ToolPanel
+      path="~/format/json-validate"
+      description="valida JSON, aponta linha do erro e corrige automaticamente"
+    >
       <SplitPane>
         <div className="field-col">
           <TextAreaField label="// entrada" value={input} onChange={setInput} />
-          <PrimaryButton onClick={() => validate(input)}>Validar →</PrimaryButton>
+          <PrimaryButton onClick={() => validate(input)}>
+            Validar →
+          </PrimaryButton>
         </div>
         <div className="field-col">
           {result === null && (
-            <OutputPane label="// resultado" text="// cole JSON aqui e clique Validar" copyText="" color="var(--color-muted)" />
+            <OutputPane
+              label="// resultado"
+              text="// o resultado da validação aparecerá aqui"
+              copyText=""
+              color="var(--color-muted)"
+            />
           )}
           {result?.ok && (
             <OutputPane
               label="// resultado"
               labelColor="var(--color-primary)"
-              text={fixedOutput ? `✓ JSON corrigido e válido — pronto!\n\n${fixedOutput}` : "✓ JSON válido"}
+              text={
+                fixedOutput
+                  ? `✓ JSON corrigido e válido — pronto!\n\n${fixedOutput}`
+                  : "✓ JSON válido"
+              }
               copyText={fixedOutput}
               color="var(--color-primary)"
             />
@@ -53,7 +67,10 @@ export function JsonValidator() {
           {result && !result.ok && (
             <>
               <div className="label-row">
-                <span className="mono-label" style={{ color: "var(--color-danger)" }}>
+                <span
+                  className="mono-label"
+                  style={{ color: "var(--color-danger)" }}
+                >
                   {"// resultado"}
                 </span>
               </div>
@@ -72,9 +89,13 @@ export function JsonValidator() {
                 {`✗ JSON inválido\n\nlinha ${result.line}, coluna ${result.column}\nproblema: ${result.message}`}
               </pre>
               {result.fixed ? (
-                <PrimaryButton onClick={() => applyFix(result.fixed!)}>Corrigir ✨</PrimaryButton>
+                <PrimaryButton onClick={() => applyFix(result.fixed!)}>
+                  Corrigir ✨
+                </PrimaryButton>
               ) : (
-                <span className="mono-label">não foi possível corrigir automaticamente</span>
+                <span className="mono-label">
+                  não foi possível corrigir automaticamente
+                </span>
               )}
             </>
           )}

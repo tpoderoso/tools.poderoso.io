@@ -29,7 +29,10 @@ export function JsonFormatter() {
   };
 
   return (
-    <ToolPanel path="~/format/json" description="formata e valida JSON com indentação">
+    <ToolPanel
+      path="~/format/json"
+      description="formata e valida JSON com indentação"
+    >
       <SplitPane>
         <div className="field-col">
           <TextAreaField label="// entrada" value={input} onChange={setInput} />
@@ -37,7 +40,7 @@ export function JsonFormatter() {
         </div>
         <OutputPane
           label="// saída"
-          text={output || "// cole JSON aqui e clique Formatar"}
+          text={output || "// o JSON formatado aparecerá aqui"}
           copyText={output}
           color="var(--color-primary)"
         />
