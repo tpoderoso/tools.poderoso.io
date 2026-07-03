@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { OutputPane } from "@/components/ui/OutputPane";
+import { LinedTextarea } from "@/components/ui/LinedTextarea";
 import { useErrorToast } from "@/components/ui/Toaster";
 import { decodeJWT } from "@/lib/tools/jwt";
 
@@ -18,7 +19,7 @@ export function JwtDecoder() {
     <ToolPanel path="~/encode/jwt" description="decodifica JWT — header e payload visíveis">
       <div className="field-col">
         <div className="mono-label">{"// cole seu token jwt"}</div>
-        <textarea
+        <LinedTextarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signature"

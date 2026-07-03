@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { LinedTextarea } from "./LinedTextarea";
 
 interface TextAreaFieldProps {
   label?: string;
@@ -30,7 +31,7 @@ export function TextAreaField({
           {labelRight}
         </div>
       )}
-      <textarea
+      <LinedTextarea
         value={value}
         onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         readOnly={!onChange}

@@ -326,12 +326,53 @@ textarea {
   border-radius: 10px;
 }
 
-.surface:focus {
+.surface:focus,
+.surface:focus-within {
   border-color: var(--color-primary);
 }
 
-.surface--danger:focus {
+.surface--danger:focus,
+.surface--danger:focus-within {
   border-color: var(--color-danger);
+}
+
+/* ============ lined textarea (números de linha no gutter) ============ */
+/* O wrapper carrega as classes surface/textarea; font/cor herdam pro filho. */
+
+.lined-wrap {
+  display: flex;
+  overflow: hidden;
+  resize: vertical;
+  font-family: var(--font-mono);
+}
+
+.lined-gutter {
+  flex: none;
+  position: relative;
+  margin-right: 12px;
+  overflow: hidden;
+  text-align: right;
+  color: var(--color-line);
+  user-select: none;
+}
+
+/* absoluto: a altura dos números não pode esticar o wrapper — quem manda é o textarea */
+.lined-gutter > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.lined-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  resize: none;
 }
 
 .textarea {

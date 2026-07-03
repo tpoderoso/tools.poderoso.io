@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { LinedTextarea } from "@/components/ui/LinedTextarea";
 import { computeDiff, pairSideBySide, type DiffLine } from "@/lib/tools/diff";
 
 function lineStyle(type: DiffLine["type"] | "empty") {
@@ -54,7 +55,7 @@ export function TextDiffTool() {
       <div className="grid-2col">
         <div className="field-col">
           <div className="mono-label">{"// texto original"}</div>
-          <textarea
+          <LinedTextarea
             value={left}
             onChange={(e) => {
               setLeft(e.target.value);
@@ -66,7 +67,7 @@ export function TextDiffTool() {
         </div>
         <div className="field-col">
           <div className="mono-label">{"// texto modificado"}</div>
-          <textarea
+          <LinedTextarea
             value={right}
             onChange={(e) => {
               setRight(e.target.value);

@@ -7,6 +7,7 @@ import { ToolPanel } from "@/components/ui/ToolPanel";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { ToggleButton } from "@/components/ui/ToggleButton";
 import { useErrorToast } from "@/components/ui/Toaster";
+import { LinedTextarea } from "@/components/ui/LinedTextarea";
 
 type Mode = "encode" | "decode";
 
@@ -88,7 +89,7 @@ export function Base64ImageTool() {
                   <span className="mono-label">{"// data url (base64)"}</span>
                   <CopyButton text={dataUrl} />
                 </div>
-                <textarea value={dataUrl} readOnly className="surface b64img-data-area" />
+                <LinedTextarea value={dataUrl} readOnly className="surface b64img-data-area" />
               </div>
             </div>
           )}
@@ -118,7 +119,7 @@ export function Base64ImageTool() {
           </div>
           <div className="field-col">
             <div className="mono-label">{"// data url ou base64"}</div>
-            <textarea
+            <LinedTextarea
               value={decodeInput}
               onChange={(e) => {
                 setDecodeInput(e.target.value);

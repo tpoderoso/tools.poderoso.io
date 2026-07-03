@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { LinedTextarea } from "@/components/ui/LinedTextarea";
 import { loremText, LOREM_MIN, LOREM_MAX } from "@/lib/tools/lorem";
 import { useOnActivate } from "@/lib/hooks/useOnActivate";
 
@@ -31,7 +32,7 @@ export function LoremGenerator({ active }: { active: boolean }) {
           <CopyButton variant="text" text={text} style={{ padding: "8px 18px" }} />
         </div>
       </div>
-      <textarea value={text} readOnly className="surface lorem-output" />
+      <LinedTextarea value={text} readOnly className="surface lorem-output" />
     </ToolPanel>
   );
 }
