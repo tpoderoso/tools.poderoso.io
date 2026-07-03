@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { DEFAULT_TOOL, type ToolId } from "@/lib/nav";
 import { JsonFormatter } from "./JsonFormatter";
+import { JsonValidator } from "./JsonValidator";
 import { JsonTreeViewer } from "./JsonTreeViewer";
 import { XmlFormatter } from "./XmlFormatter";
 import { SqlFormatter } from "./SqlFormatter";
@@ -34,6 +35,9 @@ export function ToolsApp() {
         <div className="app-main">
           <Slot active={tool === "json"}>
             <JsonFormatter />
+          </Slot>
+          <Slot active={tool === "jsonval"}>
+            <JsonValidator />
           </Slot>
           <Slot active={tool === "jsontree"}>
             <JsonTreeViewer />

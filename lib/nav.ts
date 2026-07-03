@@ -1,5 +1,6 @@
 export type ToolId =
   | "json"
+  | "jsonval"
   | "jsontree"
   | "xml"
   | "sql"
@@ -29,6 +30,7 @@ export const NAV_GROUPS: NavGroup[] = [
     heading: "~/format",
     items: [
       { id: "json", label: "JSON Formatter" },
+      { id: "jsonval", label: "JSON Validator" },
       { id: "jsontree", label: "JSON Viewer" },
       { id: "xml", label: "XML Formatter" },
       { id: "sql", label: "SQL Formatter" },
