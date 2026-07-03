@@ -14,7 +14,6 @@ import { UuidGenerator } from "./UuidGenerator";
 import { PasswordGenerator } from "./PasswordGenerator";
 import { LoremGenerator } from "./LoremGenerator";
 import { QrCodeGenerator } from "./QrCodeGenerator";
-import { CurlConverter } from "./CurlConverter";
 import { Base64TextTool } from "./Base64TextTool";
 import { Base64ImageTool } from "./Base64ImageTool";
 import { JwtDecoder } from "./JwtDecoder";
@@ -62,9 +61,6 @@ export function ToolsApp() {
           </Slot>
           <Slot active={tool === "qr"}>
             <QrCodeGenerator active={tool === "qr"} />
-          </Slot>
-          <Slot active={tool === "curl"}>
-            <CurlConverter />
           </Slot>
           <Slot active={tool === "b64"}>
             <Base64TextTool />

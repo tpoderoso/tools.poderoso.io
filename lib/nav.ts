@@ -9,7 +9,6 @@ export type ToolId =
   | "pwd"
   | "lorem"
   | "qr"
-  | "curl"
   | "b64"
   | "b64img"
   | "jwt"
@@ -45,10 +44,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: "lorem", label: "Lorem Ipsum" },
       { id: "qr", label: "QR Code" },
     ],
-  },
-  {
-    heading: "~/convert",
-    items: [{ id: "curl", label: "cURL → fetch()" }],
   },
   {
     heading: "~/encode",
