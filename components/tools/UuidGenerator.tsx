@@ -41,25 +41,6 @@ export function UuidGenerator({ active }: { active: boolean }) {
           ))}
         </div>
 
-        <div className={`uuid-name-fields${showName ? "" : " uuid-name-fields--hidden"}`} aria-hidden={!showName}>
-          <input
-            value={namespace}
-            onChange={(e) => { setNamespace(e.target.value); regenerate(version, e.target.value, name); }}
-            placeholder="namespace UUID"
-            className="surface text-input"
-            tabIndex={showName ? 0 : -1}
-            disabled={!showName}
-          />
-          <input
-            value={name}
-            onChange={(e) => { setName(e.target.value); regenerate(version, namespace, e.target.value); }}
-            placeholder="nome"
-            className="surface text-input"
-            tabIndex={showName ? 0 : -1}
-            disabled={!showName}
-          />
-        </div>
-
         <div className="uuid-result-slot">
           {err ? (
             <div className="gen-footnote" style={{ color: "var(--color-danger)" }}>{err}</div>
@@ -74,6 +55,26 @@ export function UuidGenerator({ active }: { active: boolean }) {
               onRegenerate={() => regenerate(version, namespace, name)}
             />
           )}
+        </div>
+
+        <div className={`uuid-name-fields${showName ? "" : " uuid-name-fields--off"}`}>
+          <div className="mono-label mono-label--wide">// namespace + nome (apenas v3/v5)</div>
+          <div className="uuid-name-row">
+            <input
+              value={namespace}
+              onChange={(e) => { setNamespace(e.target.value); regenerate(version, e.target.value, name); }}
+              placeholder="namespace UUID"
+              className="surface text-input"
+              disabled={!showName}
+            />
+            <input
+              value={name}
+              onChange={(e) => { setName(e.target.value); regenerate(version, namespace, e.target.value); }}
+              placeholder="nome"
+              className="surface text-input"
+              disabled={!showName}
+            />
+          </div>
         </div>
       </CenteredColumn>
     </ToolPanel>
