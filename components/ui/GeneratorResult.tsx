@@ -32,7 +32,7 @@ export function GeneratorResult({
   return (
     <CenteredColumn>
       <div className="mono-label mono-label--wide">{label}</div>
-      <div className="gen-value" style={{ fontSize: valueSize, color: valueColor, letterSpacing: valueLetterSpacing }}>
+      <div style={{ fontWeight: 500, fontSize: valueSize, color: valueColor, letterSpacing: valueLetterSpacing }}>
         {value}
       </div>
       <div className="gen-actions">

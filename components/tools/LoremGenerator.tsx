@@ -16,12 +16,12 @@ export function LoremGenerator({ active }: { active: boolean }) {
 
   return (
     <ToolPanel path="~/generate/lorem" description="gera texto placeholder Lorem Ipsum">
-      <div className="lorem-toolbar">
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <span className="text-muted-sm">parágrafos:</span>
         <button type="button" className="lorem-step-btn" onClick={() => setCount((c) => Math.max(LOREM_MIN, c - 1))}>
           −
         </button>
-        <span className="lorem-count">{count}</span>
+        <span style={{ fontSize: 15, color: "var(--color-fg)", width: 22, textAlign: "center" }}>{count}</span>
         <button type="button" className="lorem-step-btn" onClick={() => setCount((c) => Math.min(LOREM_MAX, c + 1))}>
           +
         </button>
@@ -32,7 +32,12 @@ export function LoremGenerator({ active }: { active: boolean }) {
           <CopyButton variant="text" text={text} style={{ padding: "8px 18px" }} />
         </div>
       </div>
-      <LinedTextarea value={text} readOnly className="surface lorem-output" />
+      <LinedTextarea
+        value={text}
+        readOnly
+        className="surface"
+        style={{ flex: 1, width: "100%", padding: 16, fontSize: 13, lineHeight: 1.8, color: "#cdd0de", minHeight: 380 }}
+      />
     </ToolPanel>
   );
 }

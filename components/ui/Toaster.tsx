@@ -35,9 +35,33 @@ export function Toaster() {
   }, []);
 
   return (
-    <div className="toast-stack">
+    <div
+      style={{
+        position: "fixed",
+        bottom: 20,
+        right: 20,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        zIndex: 100,
+      }}
+    >
       {toasts.map((t) => (
-        <div key={t.id} className="toast-error">
+        <div
+          key={t.id}
+          style={{
+            background: "var(--color-bg-alt)",
+            border: "1px solid var(--color-danger-tint-border)",
+            borderLeft: "3px solid var(--color-danger)",
+            borderRadius: 7,
+            padding: "10px 14px",
+            fontSize: 12,
+            color: "var(--color-danger)",
+            maxWidth: 380,
+            wordBreak: "break-word",
+            animation: "toast-in 0.15s ease-out",
+          }}
+        >
           {t.message}
         </div>
       ))}

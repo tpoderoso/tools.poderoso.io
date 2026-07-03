@@ -1,22 +1,47 @@
 import Link from "next/link";
 
+const DOT = { width: 12, height: 12, borderRadius: "50%", display: "block" } as const;
+
 export function Header() {
   return (
-    <header className="header">
-      <div className="header-dots">
-        <span className="header-dot" style={{ background: "var(--color-danger)" }} />
-        <span className="header-dot" style={{ background: "var(--color-accent-yellow)" }} />
-        <span className="header-dot" style={{ background: "var(--color-primary)" }} />
+    <header
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        padding: "0 20px",
+        height: 52,
+        background: "var(--color-bg-alt)",
+        borderBottom: "1px solid var(--color-border)",
+        flexShrink: 0,
+      }}
+    >
+      <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
+        <span style={{ ...DOT, background: "var(--color-danger)" }} />
+        <span style={{ ...DOT, background: "var(--color-accent-yellow)" }} />
+        <span style={{ ...DOT, background: "var(--color-primary)" }} />
       </div>
-      <div className="header-brand">
+      <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
         <span style={{ color: "var(--color-primary)" }}>tools</span>
         <span style={{ color: "var(--color-muted)" }}>.</span>
         <span style={{ color: "var(--color-accent-cyan)" }}>poderoso</span>
         <span style={{ color: "var(--color-muted)" }}>.io</span>
-        <span className="header-caret" />
+        <span
+          style={{
+            display: "inline-block",
+            width: 7,
+            height: 14,
+            background: "var(--color-primary)",
+            marginLeft: 3,
+            transform: "translateY(1px)",
+            animation: "caret 1s steps(1) infinite",
+          }}
+        />
       </div>
-      <div className="header-right">
-        <span className="header-tagline">ferramentas para devs</span>
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
+        <span style={{ fontSize: 11, color: "var(--color-line)", letterSpacing: "0.06em" }}>
+          ferramentas para devs
+        </span>
         <Link href="https://poderoso.io" className="header-back-link">
           ← poderoso.io
         </Link>

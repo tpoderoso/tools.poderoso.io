@@ -57,7 +57,18 @@ export function JsonValidator() {
                   {"// resultado"}
                 </span>
               </div>
-              <pre className="jwt-error-box" style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+              <pre
+                style={{
+                  background: "var(--color-danger-tint)",
+                  border: "1px solid var(--color-danger-tint-border)",
+                  borderRadius: 10,
+                  padding: 14,
+                  fontSize: 12,
+                  color: "var(--color-danger)",
+                  whiteSpace: "pre-wrap",
+                  margin: 0,
+                }}
+              >
                 {`✗ JSON inválido\n\nlinha ${result.line}, coluna ${result.column}\nproblema: ${result.message}`}
               </pre>
               {result.fixed ? (

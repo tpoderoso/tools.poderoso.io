@@ -24,6 +24,10 @@ const INITIAL_INPUT = `{
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
+const ROW = { whiteSpace: "nowrap" } as const;
+const KEY = { color: "var(--color-accent-cyan)" } as const;
+const BRACKET = { color: "var(--color-line)" } as const;
+
 function isContainer(value: JsonValue): value is JsonValue[] | { [key: string]: JsonValue } {
   return value !== null && typeof value === "object";
 }
@@ -47,8 +51,8 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
 
   if (!isContainer(value)) {
     return (
-      <div className="jt-row">
-        {label !== null && <span className="jt-key">{label}: </span>}
+      <div style={ROW}>
+        {label !== null && <span style={KEY}>{label}: </span>}
         <span style={{ color: valueColor(value) }}>{valuePreview(value)}</span>
       </div>
     );
@@ -60,25 +64,42 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
     : Object.entries(value as { [key: string]: JsonValue });
   const [open, close] = isArray ? ["[", "]"] : ["{", "}"];
 
+  const chevronProps = { size: 12, color: "var(--color-muted)", style: { flexShrink: 0 } } as const;
+
   return (
-    <div className="jt-row">
-      <button type="button" className="jt-toggle" onClick={() => setExpanded((e) => !e)}>
-        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        {label !== null && <span className="jt-key">{label}: </span>}
-        <span className="jt-bracket">{open}</span>
+    <div style={ROW}>
+      <button
+        type="button"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 3,
+          background: "transparent",
+          border: "none",
+          padding: 0,
+          fontFamily: "var(--font-mono)",
+          fontSize: 12,
+          color: "inherit",
+          cursor: "pointer",
+        }}
+        onClick={() => setExpanded((e) => !e)}
+      >
+        {expanded ? <ChevronDown {...chevronProps} /> : <ChevronRight {...chevronProps} />}
+        {label !== null && <span style={KEY}>{label}: </span>}
+        <span style={BRACKET}>{open}</span>
         {!expanded && (
           <>
-            <span className="jt-count">{entries.length}</span>
-            <span className="jt-bracket">{close}</span>
+            <span style={{ color: "var(--color-muted)", fontSize: 10.5, padding: "0 2px" }}>{entries.length}</span>
+            <span style={BRACKET}>{close}</span>
           </>
         )}
       </button>
       {expanded && (
-        <div className="jt-children">
+        <div style={{ marginLeft: 8, paddingLeft: 10, borderLeft: "1px dashed var(--color-border)" }}>
           {entries.map(([k, v]) => (
             <JsonNode key={k} label={isArray ? null : k} value={v} expandKey={expandKey} />
           ))}
-          <span className="jt-bracket">{close}</span>
+          <span style={BRACKET}>{close}</span>
         </div>
       )}
     </div>
@@ -112,7 +133,7 @@ export function JsonTreeViewer() {
         <div className="field-col">
           <div className="label-row--between">
             <span className="mono-label">// árvore</span>
-            <div className="jt-actions">
+            <div style={{ display: "flex", gap: 8 }}>
               <ToggleButton active={expandAll} onClick={() => setAllExpanded(true)}>
                 Expandir tudo
               </ToggleButton>
@@ -121,7 +142,10 @@ export function JsonTreeViewer() {
               </ToggleButton>
             </div>
           </div>
-          <div className="surface jt-tree">
+          <div
+            className="surface"
+            style={{ flex: 1, padding: 14, fontSize: 12, lineHeight: 1.7, overflow: "auto", minHeight: 380 }}
+          >
             {result.ok && (
               <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} />
             )}

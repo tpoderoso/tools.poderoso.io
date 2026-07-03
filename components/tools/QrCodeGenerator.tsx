@@ -18,7 +18,7 @@ export function QrCodeGenerator({ active }: { active: boolean }) {
 
   return (
     <ToolPanel path="~/generate/qr" description="gera QR Code a partir de texto ou URL">
-      <div className="qr-input-row">
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -31,15 +31,43 @@ export function QrCodeGenerator({ active }: { active: boolean }) {
         </PrimaryButton>
       </div>
       {committed ? (
-        <div className="qr-result">
-          <div className="qr-image-frame">
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "24px 0" }}>
+          <div
+            style={{
+              background: "white",
+              borderRadius: 14,
+              padding: 14,
+              display: "inline-block",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+            }}
+          >
             <Image src={qrUrl} alt="QR Code" width={240} height={240} unoptimized />
           </div>
-          <div className="qr-caption">{committed}</div>
+          <div
+            style={{
+              fontSize: 11,
+              color: "var(--color-muted)",
+              maxWidth: 400,
+              textAlign: "center",
+              wordBreak: "break-all",
+            }}
+          >
+            {committed}
+          </div>
         </div>
       ) : (
-        <div className="qr-empty">
-          <div className="qr-empty-box">
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 0" }}>
+          <div
+            style={{
+              border: "1px dashed var(--color-border)",
+              borderRadius: 14,
+              padding: "52px 64px",
+              textAlign: "center",
+              color: "var(--color-line)",
+              fontSize: 12,
+              lineHeight: 2.2,
+            }}
+          >
             Digite um texto ou URL acima
             <br />e clique &quot;Gerar QR&quot;
           </div>

@@ -28,14 +28,41 @@ function lineStyle(type: DiffLine["type"] | "empty") {
   return { bg: "transparent", border: "transparent", pc: "var(--color-line)", tc: "var(--color-muted-soft)", prefix: " " };
 }
 
-function DiffCell({ line }: { line: DiffLine | null }) {
+function DiffCell({ line, divider }: { line: DiffLine | null; divider?: boolean }) {
   const s = lineStyle(line?.type ?? "empty");
   return (
-    <div className="diff-line" style={{ background: s.bg, borderLeft: `2px solid ${s.border}` }}>
-      <span className="diff-prefix" style={{ color: s.pc }}>
+    <div
+      style={{
+        display: "flex",
+        background: s.bg,
+        borderLeft: `2px solid ${s.border}`,
+        borderRight: divider ? "1px solid var(--color-border)" : undefined,
+      }}
+    >
+      <span
+        style={{
+          fontSize: 11,
+          userSelect: "none",
+          width: 28,
+          flexShrink: 0,
+          textAlign: "right",
+          padding: "1px 8px 1px 0",
+          lineHeight: 1.75,
+          color: s.pc,
+        }}
+      >
         {s.prefix}
       </span>
-      <span className="diff-text" style={{ color: s.tc }}>
+      <span
+        style={{
+          fontSize: 12,
+          whiteSpace: "pre",
+          padding: "1px 12px",
+          lineHeight: 1.75,
+          fontFamily: "var(--font-mono)",
+          color: s.tc,
+        }}
+      >
         {line?.text ?? ""}
       </span>
     </div>
@@ -62,7 +89,8 @@ export function TextDiffTool() {
               setLines(null);
             }}
             placeholder="Texto original..."
-            className="surface surface--danger textarea textarea--short"
+            className="surface surface--danger textarea"
+            style={{ minHeight: 180 }}
           />
         </div>
         <div className="field-col">
@@ -74,11 +102,12 @@ export function TextDiffTool() {
               setLines(null);
             }}
             placeholder="Texto modificado..."
-            className="surface textarea textarea--short"
+            className="surface textarea"
+            style={{ minHeight: 180 }}
           />
         </div>
       </div>
-      <div className="diff-actions-row">
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <PrimaryButton style={{ padding: "9px 22px" }} onClick={() => setLines(computeDiff(left, right))}>
           Comparar →
         </PrimaryButton>
@@ -90,12 +119,28 @@ export function TextDiffTool() {
         )}
       </div>
       {lines !== null && (
-        <div className="diff-result-box">
-          <div className="diff-result-header mono-label">{"// resultado"}</div>
-          <div className="diff-result-body diff-result-body--split">
+        <div
+          style={{
+            background: "var(--color-bg-alt)",
+            border: "1px solid var(--color-border)",
+            borderRadius: 10,
+            overflow: "hidden",
+          }}
+        >
+          <div className="mono-label" style={{ padding: "8px 14px", borderBottom: "1px solid var(--color-border)" }}>
+            {"// resultado"}
+          </div>
+          <div style={{ overflowY: "auto", maxHeight: 360 }}>
             {pairSideBySide(lines).map((p, i) => (
-              <div key={i} className="diff-row">
-                <DiffCell line={p.left} />
+              <div
+                key={i}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  borderTop: i > 0 ? "1px solid var(--color-border)" : undefined,
+                }}
+              >
+                <DiffCell line={p.left} divider />
                 <DiffCell line={p.right} />
               </div>
             ))}

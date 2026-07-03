@@ -33,8 +33,8 @@ export function CopyButton({ text, variant = "icon", style }: CopyButtonProps) {
       <button type="button" onClick={handleClick} className="btn-copy-text" style={style}>
         {copied ? (
           <>
-            <Check size={13} className="icon-primary" strokeWidth={2.5} />
-            <span className="copied-label">Copiado</span>
+            <Check size={13} color="var(--color-primary)" strokeWidth={2.5} />
+            Copiado
           </>
         ) : (
           <>
@@ -48,7 +48,7 @@ export function CopyButton({ text, variant = "icon", style }: CopyButtonProps) {
 
   return (
     <button type="button" onClick={handleClick} title="Copiar" className="btn-copy-icon">
-      {copied ? <Check size={13} className="icon-primary" strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
+      {copied ? <Check size={13} color="var(--color-primary)" strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
     </button>
   );
 }

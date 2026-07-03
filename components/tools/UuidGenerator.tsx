@@ -33,7 +33,7 @@ export function UuidGenerator({ active }: { active: boolean }) {
   return (
     <ToolPanel path="~/generate/uuid" description="gera UUID nas versões v3, v4, v5, v6 e v7">
       <CenteredColumn style={{ padding: "32px 0", gap: 20 }}>
-        <div className="uuid-version-grid">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, width: "100%", maxWidth: 500 }}>
           {UUID_VERSIONS.map((v) => (
             <ToggleButton key={v} active={version === v} onClick={() => { setVersion(v); regenerate(v, namespace, name); }}>
               {v}
@@ -41,7 +41,7 @@ export function UuidGenerator({ active }: { active: boolean }) {
           ))}
         </div>
 
-        <div className="uuid-result-slot">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: 140 }}>
           {err ? (
             <div className="gen-footnote" style={{ color: "var(--color-danger)" }}>{err}</div>
           ) : (
@@ -57,9 +57,20 @@ export function UuidGenerator({ active }: { active: boolean }) {
           )}
         </div>
 
-        <div className={`uuid-name-fields${showName ? "" : " uuid-name-fields--off"}`}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 10,
+            width: "100%",
+            maxWidth: 500,
+            transition: "opacity 0.15s ease",
+            opacity: showName ? 1 : 0.35,
+          }}
+        >
           <div className="mono-label mono-label--wide">// namespace + nome (apenas v3/v5)</div>
-          <div className="uuid-name-row">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%" }}>
             <input
               value={namespace}
               onChange={(e) => { setNamespace(e.target.value); regenerate(version, e.target.value, name); }}

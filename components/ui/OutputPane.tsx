@@ -20,7 +20,22 @@ export function OutputPane({ label, labelColor, text, copyText, color, style }: 
         </span>
         <CopyButton text={copyText ?? text} />
       </div>
-      <pre className="surface output-pre" style={{ color, ...style }}>
+      <pre
+        className="surface"
+        style={{
+          flex: 1,
+          padding: 14,
+          fontSize: 12,
+          lineHeight: 1.65,
+          overflow: "auto",
+          margin: 0,
+          minHeight: 380,
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          color,
+          ...style,
+        }}
+      >
         {text}
       </pre>
     </div>

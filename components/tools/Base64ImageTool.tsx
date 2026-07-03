@@ -11,6 +11,18 @@ import { LinedTextarea } from "@/components/ui/LinedTextarea";
 
 type Mode = "encode" | "decode";
 
+const GRID = { display: "grid", gridTemplateColumns: "220px 1fr", gap: 20, alignItems: "start" } as const;
+const PREVIEW_FRAME = { position: "relative", width: "100%", height: 180, overflow: "hidden" } as const;
+const DATA_AREA = {
+  width: "100%",
+  padding: 14,
+  fontSize: 10.5,
+  lineHeight: 1.55,
+  color: "var(--color-primary)",
+  minHeight: 280,
+  wordBreak: "break-all",
+} as const;
+
 export function Base64ImageTool() {
   const [mode, setMode] = useState<Mode>("encode");
   const [dataUrl, setDataUrl] = useState("");
@@ -73,35 +85,35 @@ export function Base64ImageTool() {
             <input type="file" accept="image/*" onChange={handleUpload} style={{ display: "none" }} />
           </label>
           {dataUrl && (
-            <div className="b64img-grid">
+            <div style={GRID}>
               <div className="field-col">
                 <div className="label-row--between">
                   <span className="mono-label">{"// preview"}</span>
                   <OpenButton url={dataUrl} />
                 </div>
-                <div className="surface b64img-preview-frame">
+                <div className="surface" style={PREVIEW_FRAME}>
                   <Image src={dataUrl} alt="preview" fill unoptimized style={{ objectFit: "contain" }} />
                 </div>
-                <div className="b64img-filename">{name}</div>
+                <div style={{ fontSize: 10.5, color: "var(--color-muted)", wordBreak: "break-all" }}>{name}</div>
               </div>
               <div className="field-col">
                 <div className="label-row--between">
                   <span className="mono-label">{"// data url (base64)"}</span>
                   <CopyButton text={dataUrl} />
                 </div>
-                <LinedTextarea value={dataUrl} readOnly className="surface b64img-data-area" />
+                <LinedTextarea value={dataUrl} readOnly className="surface" style={DATA_AREA} />
               </div>
             </div>
           )}
         </>
       ) : (
-        <div className="b64img-grid">
+        <div style={GRID}>
           <div className="field-col">
             <div className="label-row--between">
               <span className="mono-label">{"// preview"}</span>
               {decodedUrl && !decodeError && <OpenButton url={decodedUrl} />}
             </div>
-            <div className="surface b64img-preview-frame">
+            <div className="surface" style={PREVIEW_FRAME}>
               {decodedUrl && !decodeError && (
                 <Image
                   src={decodedUrl}
@@ -126,7 +138,8 @@ export function Base64ImageTool() {
                 setDecodeError(false);
               }}
               placeholder="cole aqui o data URL ou a string base64 da imagem"
-              className="surface b64img-data-area"
+              className="surface"
+              style={DATA_AREA}
             />
           </div>
         </div>

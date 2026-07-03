@@ -28,12 +28,22 @@ function Slot({ active, children }: { active: boolean; children: ReactNode }) {
 export function ToolsApp() {
   const [tool, setTool] = useState<ToolId>(DEFAULT_TOOL);
 
+  const fillRow = { display: "flex", flex: 1, overflow: "hidden" } as const;
+
   return (
-    <div className="app-shell">
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        background: "var(--color-bg)",
+        color: "var(--color-fg)",
+      }}
+    >
       <Header />
-      <div className="app-body">
+      <div style={fillRow}>
         <Sidebar active={tool} onSelect={setTool} />
-        <div className="app-main">
+        <div style={fillRow}>
           <Slot active={tool === "json"}>
             <JsonFormatter />
           </Slot>

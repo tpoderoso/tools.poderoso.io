@@ -24,7 +24,15 @@ export function JwtDecoder() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signature"
           rows={4}
-          className="surface jwt-textarea"
+          className="surface"
+          style={{
+            width: "100%",
+            padding: 14,
+            fontSize: 11.5,
+            lineHeight: 1.55,
+            color: "var(--color-accent-yellow)",
+            wordBreak: "break-all",
+          }}
         />
       </div>
       {trimmed && isValid && (

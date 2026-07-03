@@ -58,15 +58,44 @@ export function LinedTextarea({ className = "", style, ...rest }: TextareaHTMLAt
   };
 
   return (
-    <div className={`lined-wrap ${className}`} style={style}>
-      <div className="lined-gutter" style={{ width: `${String(lines.length).length}ch` }}>
-        <div ref={numsRef}>
+    <div
+      className={className}
+      style={{ display: "flex", overflow: "hidden", resize: "vertical", fontFamily: "var(--font-mono)", ...style }}
+    >
+      <div
+        style={{
+          flex: "none",
+          position: "relative",
+          marginRight: 12,
+          overflow: "hidden",
+          textAlign: "right",
+          color: "var(--color-line)",
+          userSelect: "none",
+          width: `${String(lines.length).length}ch`,
+        }}
+      >
+        {/* absoluto: a altura dos números não pode esticar o wrapper — quem manda é o textarea */}
+        <div ref={numsRef} style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
           {lines.map((_, i) => (
             <div key={i}>{i + 1}</div>
           ))}
         </div>
       </div>
-      <textarea ref={taRef} {...rest} className="lined-input" onScroll={syncScroll} />
+      <textarea
+        ref={taRef}
+        {...rest}
+        style={{
+          flex: 1,
+          minWidth: 0,
+          padding: 0,
+          border: "none",
+          background: "transparent",
+          color: "inherit",
+          font: "inherit",
+          resize: "none",
+        }}
+        onScroll={syncScroll}
+      />
     </div>
   );
 }

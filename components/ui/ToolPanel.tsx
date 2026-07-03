@@ -12,11 +12,20 @@ interface ToolPanelProps {
  */
 export function ToolPanel({ path, description, children }: ToolPanelProps) {
   return (
-    <div className="tool-panel">
-      <div className="tool-title">
-        <span className="tool-path">{path}</span>
-        <span className="tool-sep">—</span>
-        <span className="tool-desc">{description}</span>
+    <div
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        padding: "28px 36px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11 }}>
+        <span style={{ color: "var(--color-primary)" }}>{path}</span>
+        <span style={{ color: "var(--color-line)" }}>—</span>
+        <span style={{ color: "var(--color-muted)" }}>{description}</span>
       </div>
       {children}
     </div>

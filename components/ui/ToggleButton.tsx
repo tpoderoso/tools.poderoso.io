@@ -7,10 +7,24 @@ interface ToggleButtonProps {
   style?: CSSProperties;
 }
 
-/** Pill-style toggle button; `active` only controls the `is-active` visual state, selection logic lives in the caller. */
+/** Pill-style toggle button; `active` only controls the visual state, selection logic lives in the caller. */
 export function ToggleButton({ active, onClick, children, style }: ToggleButtonProps) {
   return (
-    <button type="button" onClick={onClick} className={`toggle-btn${active ? " is-active" : ""}`} style={style}>
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        padding: "8px 12px",
+        borderRadius: 8,
+        fontFamily: "var(--font-mono)",
+        fontSize: 11.5,
+        cursor: "pointer",
+        border: `1px solid ${active ? "var(--color-primary)" : "var(--color-line)"}`,
+        background: active ? "var(--color-primary-tint)" : "transparent",
+        color: active ? "var(--color-primary)" : "var(--color-muted-soft)",
+        ...style,
+      }}
+    >
       {children}
     </button>
   );
