@@ -43,3 +43,31 @@ export function computeDiff(left: string, right: string): DiffLine[] {
   }
   return result;
 }
+
+export interface DiffPair {
+  left: DiffLine | null;
+  right: DiffLine | null;
+}
+
+/** Groups runs of remove/add lines into aligned left/right pairs for side-by-side rendering. */
+export function pairSideBySide(lines: DiffLine[]): DiffPair[] {
+  const pairs: DiffPair[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.type !== "remove" && line.type !== "add") {
+      pairs.push({ left: line, right: line });
+      i++;
+      continue;
+    }
+    const removes: DiffLine[] = [];
+    while (i < lines.length && lines[i].type === "remove") removes.push(lines[i++]);
+    const adds: DiffLine[] = [];
+    while (i < lines.length && lines[i].type === "add") adds.push(lines[i++]);
+    const max = Math.max(removes.length, adds.length);
+    for (let k = 0; k < max; k++) {
+      pairs.push({ left: removes[k] ?? null, right: adds[k] ?? null });
+    }
+  }
+  return pairs;
+}

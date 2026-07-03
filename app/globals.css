@@ -802,6 +802,23 @@ textarea {
   padding: 6px 0;
 }
 
+.diff-result-body--split {
+  padding: 0;
+}
+
+.diff-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.diff-row + .diff-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.diff-row .diff-line:first-child {
+  border-right: 1px solid var(--color-border);
+}
+
 .diff-line {
   display: flex;
 }
