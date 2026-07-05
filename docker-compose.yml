@@ -1,5 +1,6 @@
 services:
   web:
+    image: ghcr.io/tpoderoso/tools.poderoso.io:latest
     build:
       context: .
       dockerfile: Dockerfile
