@@ -6,7 +6,10 @@
       "Skill(code-review)",
       "Skill(code-review:*)",
       "Read(//home/tpoderoso/.hermes/hermes-agent/**)",
-      "Read(//home/tpoderoso/DEV/poderoso.io/src/components/home/layout/**)"
+      "Read(//home/tpoderoso/DEV/poderoso.io/src/components/home/layout/**)",
+      "Read(//home/tpoderoso/DEV/poderoso.io/src/app/\\(app\\)/**)",
+      "Read(//home/tpoderoso/DEV/poderoso.io/src/components/not-found/**)",
+      "Read(//home/tpoderoso/DEV/poderoso.io/src/app/**)"
     ],
     "additionalDirectories": [
       "/home/tpoderoso/.hermes/hermes-agent"

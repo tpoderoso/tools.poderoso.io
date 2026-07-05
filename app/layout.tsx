@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Newsreader, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -9,8 +9,22 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "tools.poderoso.io",
+  title: "Poderoso.io",
   description: "Ferramentas para devs — formatadores, geradores e conversores",
 };
 
@@ -20,7 +34,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={ibmPlexMono.variable}>
+    <html
+      lang="pt-BR"
+      className={`${ibmPlexMono.variable} ${newsreader.variable} ${instrumentSerif.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

@@ -8,45 +8,37 @@ Responda sempre em português do Brasil (pt-BR) nesta sessão, independente do i
 
 ## What this repo is
 
-Source for **tools.poderoso.io** — a single-page dev-tools (NextJS) app (JSON/XML/SQL formatters, CPF/CNPJ/UUID/password/lorem generators, cURL→fetch converter, Base64/JWT encoders, text diff). The entire app is one file:
+Source for **tools.poderoso.io** — a single-page dev-tools app (JSON/XML/SQL formatters, CPF/CNPJ/UUID/password/lorem generators, cURL→fetch converter, Base64/JWT encoders, text diff, QR code). It's a real **Next.js 16 (App Router) + React 19 + TypeScript** app, not a static file:
 
-- `docs/tools.poderoso.io.dc.html` — template + logic, ~760 lines, no other source files.
+- `app/` — `layout.tsx` (root HTML shell, IBM Plex Mono font), `page.tsx` (renders `ToolsApp`), `globals.css` (theme variables + shared primitive classes).
+- `components/tools/` — one component per tool panel (`JsonFormatter.tsx`, `CpfGenerator.tsx`, `UuidGenerator.tsx`, etc.) plus `ToolsApp.tsx`, which owns the active-tool state and mounts every panel.
+- `components/layout/` — `Header.tsx`, `Sidebar.tsx`, `NavButton.tsx`.
+- `components/ui/` — shared primitives reused across tool panels: `ToolPanel`, `SplitPane`, `TextAreaField`, `OutputPane`, `GeneratorResult`, `CenteredColumn`, `ToggleButton`, `PrimaryButton`, `CopyButton`.
+- `lib/tools/` — pure, framework-free logic, one file per tool (`cpf.ts`, `cnpj.ts`, `uuid.ts`, `password.ts`, `lorem.ts`, `json.ts`, `xml.ts`, `sql.ts`, `curl.ts`, `base64.ts`, `jwt.ts`, `diff.ts`, `random.ts`). Unit-testable in isolation, no React imports.
+- `lib/nav.ts` — `ToolId` union, `NAV_GROUPS` (sidebar structure), `DEFAULT_TOOL`.
+- `lib/hooks/useOnActivate.ts` — runs a callback exactly once when a `active` prop flips `false → true` (used to regenerate a value the first time a tab is opened, without a `useEffect`).
 
-There is no build step, package manager, linter, or test runner in this repo. It's a static asset meant to be dropped into a host page. To "run" it, just open/serve the HTML file in a browser — but note it `<script src="./support.js">`, which is **not** part of this repo; it's the DC framework runtime supplied externally by the deployment target. The page won't render standalone without it nearby.
+Standard Next.js tooling applies: `npm run dev` / `build` / `start` / `lint` (ESLint via `eslint.config.mjs`), `tsconfig.json`, no test runner configured. Deployed via Docker (`Dockerfile`, multi-stage build → `next build` with `output: "standalone"` in `next.config.ts`; `docker-compose.yml` runs it on port 3000).
 
-## The "DC" (Declarative Component) format
+`docs/tools.poderoso.io.html` is a **legacy static artifact** from before the Next.js rewrite — it is not built, served, or referenced by the app. Don't treat it as source of truth; prefer deleting it if it's confirmed dead weight.
 
-This file follows a proprietary micro-framework convention, not React/Vue/etc. Understand these pieces before editing:
+## Architecture: how tool panels stay alive across tab switches
 
-- **`<x-dc>`**: wraps the entire template. Everything inside it is static HTML with `{{ expr }}` interpolations, evaluated against the object returned by `Component.renderVals()`.
-- **`<sc-if value="{{ boolExpr }}" hint-placeholder-val="{{ true|false }}">`**: conditional block. `hint-placeholder-val` is the assumed value before JS hydrates (used for initial paint) — always set it to match the real initial state of that expression.
-- **`<sc-for list="{{ arrayExpr }}" as="itemName" hint-placeholder-count="N">`**: loop block, `itemName` is scoped inside for `{{ itemName.field }}` access.
-- **`onClick="{{ handlerExpr }}"` / `onChange="{{ handlerExpr }}"`**: bind to functions returned from `renderVals()`.
-- **`style-hover="..."` / `style-focus="..."`**: since styles are inline, pseudo-class variants are expressed as separate attributes rather than CSS `:hover`/`:focus`.
-- **`<script type="text/x-dc" data-dc-script>`**: contains `class Component extends DCLogic`, the only JS in the file.
+`ToolsApp.tsx` renders **every** tool panel simultaneously inside a `Slot` wrapper that toggles `display: contents | none` — panels are never unmounted when you switch tabs, only hidden. This is why state (e.g. a generated password) survives a round trip through other tabs, and why `useOnActivate` works: each panel receives an `active` boolean, and the hook fires its callback the moment that boolean flips to `true` (i.e., the tab was just opened), regenerating output lazily instead of on every render.
 
-### `Component` class shape
-
-- `state = {...}` — plain data (raw inputs, toggles, cached outputs). No computed/derived values live here.
-- `componentDidMount()` — runs once; pre-populates outputs (e.g. generates an initial CPF/UUID/password) so panels aren't empty on first load.
-- Plain methods — pure logic, one concern each (`genCPF`, `genCNPJ`, `genUUID`, `genPassword`, `loremText`, `fmtJSON`, `fmtXML`, `fmtSQL`, `parseCurl`, `b64Encode`/`b64Decode`, `decodeJWT`, `computeDiff`). These have no framework dependency and are unit-testable in isolation if ever needed.
-- `renderVals()` — called every render; recomputes derived values (e.g. `jwt` decode result, `b64_out`, styled nav/toggle states) and returns **the full flat map of every `{{ }}` binding and handler** used in the template. This is the single source of truth for what the template can reference — if a template placeholder isn't a key in this returned object, it's a bug.
-- `cl(key)` / `cp(text, key)` — shared "copy to clipboard" helpers; `copiedKey` in state drives the transient "✓ copiado" label via `cl()`.
+Format/convert tools (JSON, XML, SQL, cURL, Base64 text) don't need `active`/`useOnActivate` — they compute their initial output eagerly via `useState(() => ...)` and recompute on button click.
 
 ## Adding a new tool panel
 
-Follow the existing pattern (e.g. look at the `b64`/`jwt` panels as templates):
-
-1. Add a nav `<button>` in the sidebar using the `ni('key')` helper pattern (`bg`/`color`/`run` wired to `setTool`).
-2. Add an `<sc-if value="{{ isXxx }}" hint-placeholder-val="{{ false }}">` panel in the body with the tool's UI.
-3. Add raw input/output fields to `state`.
-4. Add pure logic as a new method on `Component`.
-5. Wire `isXxx`, `navXxx`, and any handlers/derived fields into the object returned by `renderVals()`.
-6. If the tool needs an initial value on load, seed it in `setTool()` (tab switch) and/or `componentDidMount()` (first load).
+1. Add the id to the `ToolId` union and a `NavItem` entry in the right `NAV_GROUPS` group in [lib/nav.ts](lib/nav.ts).
+2. Add pure logic as a new file in `lib/tools/` (no React, no DOM globals beyond what's already used: `fetch`, `atob`/`btoa`, `TextEncoder`/`TextDecoder`, `crypto.getRandomValues`/`crypto.subtle`).
+3. Add `components/tools/NewTool.tsx` following an existing panel as a template — a generator (`CpfGenerator.tsx`, uses `useOnActivate`) or a format/convert tool (`JsonFormatter.tsx`, uses `SplitPane` + `TextAreaField` + `OutputPane`). Reuse `components/ui/` primitives instead of hand-rolling markup.
+4. Wire it into `ToolsApp.tsx`: import the component and add a `<Slot active={tool === "newid"}>` entry.
 
 ## Conventions to preserve
 
 - UI copy is in **pt-BR** (Portuguese) — keep new tool labels/descriptions consistent with the existing tone (`~/format/json`, `formata e valida JSON com indentação`, etc.).
-- Color palette is Dracula-inspired (`#50fa7b` green, `#8be9fd` cyan, `#ff79c6` pink, `#bd93f9` purple, `#f1fa8c` yellow, `#ff5555` red) against a `#21222c`/`#191a21` dark background — reuse these hex values rather than introducing new ones.
-- No external dependencies beyond: Google Fonts (IBM Plex Mono) and `api.qrserver.com` for QR image generation. Keep it dependency-free otherwise — logic is vanilla JS (`fetch`, `atob`/`btoa`, `TextEncoder`/`TextDecoder`, `crypto`-free UUID via `Math.random`).
-- Avoid layout shift: reserve space for dynamic/async content (fixed `min-height`, sized containers) instead of letting elements pop in and push everything else around. Applies to panel switches, async outputs (QR image, format results), and toggled states (`sc-if` blocks) — size the container for the worst case up front, don't let it grow/shrink on data arrival.
+- Color palette is Dracula-inspired, defined as CSS custom properties in `app/globals.css` (`--color-primary` `#50fa7b`, `--color-accent-cyan` `#8be9fd`, `--color-accent-pink` `#ff79c6`, `--color-secondary` `#bd93f9`, `--color-accent-yellow` `#f1fa8c`, `--color-danger` `#ff5555`, background `--color-bg` `#21222c` / `--color-bg-alt` `#191a21`). Reference the CSS variables (`var(--color-*)`) in components rather than hardcoding new hex values.
+- Shared styling rule in `globals.css`: a class only belongs there if 2+ components use it; styling for a single component goes inline in that component (see the comment above `/* primitivos compartilhados */`). `:hover` and `@keyframes` are the sanctioned exceptions since they can't be expressed as inline styles.
+- Dependencies are intentionally minimal: `next`, `react`/`react-dom`, `lucide-react` (icons), `sql-formatter` (SQL formatting only). Don't add a new dependency for something a few lines of vanilla JS/TS already covers in `lib/tools/`.
+- Avoid layout shift: reserve space for dynamic/async content (fixed `min-height`, sized containers) instead of letting elements pop in and push everything else around. Applies to panel switches, async outputs (QR image, format results), and conditionally rendered blocks.

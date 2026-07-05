@@ -1,31 +1,63 @@
-/* ============ theme ============ */
+/* ============ theme (mesmos tokens do design system do poderoso.io) ============ */
 
 :root {
-  /* surfaces */
-  --color-bg: #21222c;
-  --color-bg-alt: #191a21;
-  --color-border: #343746;
-  --color-line: #44475a; /* borders + dim text — Dracula "current line" */
-  --color-fg: #f8f8f2;
-  --color-muted: #6272a4;
-  --color-muted-soft: #9aa0bf;
+  /* backgrounds */
+  --background: #21222c;
+  --background-secondary: #282a36;
+  --background-alt: #191a21;
 
-  /* brand */
-  --color-primary: #50fa7b;
+  /* text */
+  --foreground: #f8f8f2;
+  --foreground-muted: #9aa0bf;
+  --foreground-subtle: #6272a4;
+  --foreground-prose: #cdd0de;
+
+  /* accent verde — Direção B: Terminal */
+  --primary: #50fa7b;
+  --primary-foreground: #21222c;
+
+  --accent: #bd93f9;
+  --accent-foreground: #21222c;
+
+  --muted: #282a36;
+  --muted-foreground: #6272a4;
+
+  --border: #44475a;
+  --border-subtle: #343746;
+
+  --radius: 9px;
+
+  --accent-pink: #ff79c6;
+  --accent-blue: #8be9fd;
+  --accent-yellow: #f1fa8c;
+  --accent-red: #ff5555;
+  --accent-green: #50fa7b;
+
+  --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+
+  /* aliases usadas pelo resto do app — apontam pros mesmos tokens acima */
+  --color-bg: var(--background);
+  --color-bg-alt: var(--background-alt);
+  --color-border: var(--border-subtle);
+  --color-line: var(--border);
+  --color-fg: var(--foreground);
+  --color-muted: var(--foreground-subtle);
+  --color-muted-soft: var(--foreground-muted);
+
+  --color-primary: var(--primary);
   --color-primary-hover: #69ff94;
   --color-primary-tint: rgba(80, 250, 123, 0.08);
   --color-primary-tint-strong: rgba(80, 250, 123, 0.1);
-  --color-secondary: #bd93f9;
-  --color-danger: #ff5555;
+  --color-secondary: var(--accent);
+  --color-danger: var(--accent-red);
   --color-danger-tint: rgba(255, 85, 85, 0.08);
   --color-danger-tint-border: rgba(255, 85, 85, 0.3);
 
-  /* per-tool accent colors (differentiate output panes only) */
-  --color-accent-cyan: #8be9fd;
-  --color-accent-pink: #ff79c6;
-  --color-accent-yellow: #f1fa8c;
-
-  --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+  --color-accent-cyan: var(--accent-blue);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-yellow: var(--accent-yellow);
 }
 
 /* ============ reset ============ */
@@ -295,5 +327,126 @@ textarea {
   from {
     opacity: 0;
     transform: translateY(6px);
+  }
+}
+
+@keyframes not-found-glitch-1 {
+  0%,
+  92%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+  93% {
+    transform: translate(-4px, 2px);
+    opacity: 0.8;
+  }
+  95% {
+    transform: translate(3px, -2px);
+    opacity: 0.6;
+  }
+  97% {
+    transform: translate(-2px, 1px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes not-found-glitch-2 {
+  0%,
+  90%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+  91% {
+    transform: translate(4px, -2px);
+    opacity: 0.7;
+  }
+  94% {
+    transform: translate(-3px, 2px);
+    opacity: 0.5;
+  }
+  96% {
+    transform: translate(2px, -1px);
+    opacity: 0.6;
+  }
+}
+
+.not-found-glitch-1 {
+  animation: not-found-glitch-1 5s steps(1) infinite;
+}
+
+.not-found-glitch-2 {
+  animation: not-found-glitch-2 5s steps(1) infinite;
+}
+
+.not-found-back-link {
+  color: var(--foreground-muted);
+}
+
+.not-found-back-link:hover {
+  color: var(--foreground);
+}
+
+.not-found-terminal-card {
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+}
+
+.not-found-btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 9px;
+  padding: 12px 18px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.not-found-btn-outline {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px 18px;
+  font-size: 12.5px;
+  color: var(--foreground);
+}
+
+@keyframes not-found-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.not-found-fade-in {
+  animation: not-found-fade-in 0.5s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-glitch-1,
+  .not-found-glitch-2 {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* viewport baixo: solta o layout fixo do 404 de volta pro fluxo normal em vez
+   de espremer o terminal a um tamanho inútil */
+@media (max-height: 760px) {
+  #not-found-shell {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  #not-found-terminal {
+    flex: none;
+  }
+
+  .not-found-terminal-card {
+    flex: none;
+    max-height: 260px;
   }
 }
