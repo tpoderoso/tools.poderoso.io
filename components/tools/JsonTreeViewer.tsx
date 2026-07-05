@@ -12,7 +12,7 @@ import { tryParseJson } from "@/lib/tools/json";
 
 const INITIAL_INPUT = `{
   "nome": "Thiago Poderoso",
-  "role": "Tech Leader",
+  "role": "Tech Lead",
   "ativo": true,
   "filhos": null,
   "stack": ["C#", "Node.js", ".NET"],

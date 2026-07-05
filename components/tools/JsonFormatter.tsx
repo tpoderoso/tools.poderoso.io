@@ -11,7 +11,7 @@ import { fmtJSON } from "@/lib/tools/json";
 
 const INITIAL_INPUT = `{
   "nome": "Thiago Poderoso",
-  "role": "Tech Leader",
+  "role": "Tech Lead",
   "stack": ["C#", "Node.js", ".NET"],
   "anos": 18
 }`;
