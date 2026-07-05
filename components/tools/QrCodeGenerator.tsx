@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { Callout } from "@/components/ui/Callout";
 import { useOnActivate } from "@/lib/hooks/useOnActivate";
 
 export function QrCodeGenerator({ active }: { active: boolean }) {
@@ -18,9 +19,9 @@ export function QrCodeGenerator({ active }: { active: boolean }) {
 
   return (
     <ToolPanel path="~/generate/qr" description="gera QR Code a partir de texto ou URL">
-      <div style={{ fontSize: 11, color: "var(--color-muted)" }}>
+      <Callout variant="warning">
         O texto é enviado a um serviço externo (api.qrserver.com) para gerar a imagem — evite dados sensíveis.
-      </div>
+      </Callout>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <input
           value={input}
