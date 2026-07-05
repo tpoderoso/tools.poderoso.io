@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Wand2 } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { SplitPane } from "@/components/ui/SplitPane";
 import { TextAreaField } from "@/components/ui/TextAreaField";
@@ -90,7 +91,8 @@ export function JsonValidator() {
               </pre>
               {result.fixed ? (
                 <PrimaryButton onClick={() => applyFix(result.fixed!)}>
-                  Corrigir ✨
+                  <Wand2 size={13} style={{ verticalAlign: -2, marginRight: 6 }} />
+                  Corrigir
                 </PrimaryButton>
               ) : (
                 <span className="mono-label">
