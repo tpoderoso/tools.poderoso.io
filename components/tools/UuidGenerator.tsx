@@ -69,7 +69,7 @@ export function UuidGenerator({ active }: { active: boolean }) {
             opacity: showName ? 1 : 0.35,
           }}
         >
-          <div className="mono-label mono-label--wide">// namespace + nome (apenas v3/v5)</div>
+          <div className="mono-label mono-label--wide">{"// namespace + nome (apenas v3/v5)"}</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%" }}>
             <input
               value={namespace}

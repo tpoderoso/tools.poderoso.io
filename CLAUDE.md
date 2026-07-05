@@ -8,25 +8,23 @@ Responda sempre em português do Brasil (pt-BR) nesta sessão, independente do i
 
 ## What this repo is
 
-Source for **tools.poderoso.io** — a single-page dev-tools app (JSON/XML/SQL formatters, CPF/CNPJ/UUID/password/lorem generators, cURL→fetch converter, Base64/JWT encoders, text diff, QR code). It's a real **Next.js 16 (App Router) + React 19 + TypeScript** app, not a static file:
+Source for **tools.poderoso.io** — a single-page dev-tools app (JSON/XML/SQL formatters, CPF/CNPJ/UUID/password/lorem generators, Base64/JWT encoders, text diff, QR code). It's a real **Next.js 16 (App Router) + React 19 + TypeScript** app, not a static file:
 
 - `app/` — `layout.tsx` (root HTML shell, IBM Plex Mono font), `page.tsx` (renders `ToolsApp`), `globals.css` (theme variables + shared primitive classes).
 - `components/tools/` — one component per tool panel (`JsonFormatter.tsx`, `CpfGenerator.tsx`, `UuidGenerator.tsx`, etc.) plus `ToolsApp.tsx`, which owns the active-tool state and mounts every panel.
 - `components/layout/` — `Header.tsx`, `Sidebar.tsx`, `NavButton.tsx`.
 - `components/ui/` — shared primitives reused across tool panels: `ToolPanel`, `SplitPane`, `TextAreaField`, `OutputPane`, `GeneratorResult`, `CenteredColumn`, `ToggleButton`, `PrimaryButton`, `CopyButton`.
-- `lib/tools/` — pure, framework-free logic, one file per tool (`cpf.ts`, `cnpj.ts`, `uuid.ts`, `password.ts`, `lorem.ts`, `json.ts`, `xml.ts`, `sql.ts`, `curl.ts`, `base64.ts`, `jwt.ts`, `diff.ts`, `random.ts`). Unit-testable in isolation, no React imports.
+- `lib/tools/` — pure, framework-free logic, one file per tool (`cpf.ts`, `cnpj.ts`, `uuid.ts`, `password.ts`, `lorem.ts`, `json.ts`, `xml.ts`, `sql.ts`, `base64.ts`, `jwt.ts`, `diff.ts`, `random.ts`). Unit-testable in isolation, no React imports.
 - `lib/nav.ts` — `ToolId` union, `NAV_GROUPS` (sidebar structure), `DEFAULT_TOOL`.
 - `lib/hooks/useOnActivate.ts` — runs a callback exactly once when a `active` prop flips `false → true` (used to regenerate a value the first time a tab is opened, without a `useEffect`).
 
 Standard Next.js tooling applies: `npm run dev` / `build` / `start` / `lint` (ESLint via `eslint.config.mjs`), `tsconfig.json`, no test runner configured. Deployed via Docker (`Dockerfile`, multi-stage build → `next build` with `output: "standalone"` in `next.config.ts`; `docker-compose.yml` runs it on port 3000).
 
-`docs/tools.poderoso.io.html` is a **legacy static artifact** from before the Next.js rewrite — it is not built, served, or referenced by the app. Don't treat it as source of truth; prefer deleting it if it's confirmed dead weight.
-
 ## Architecture: how tool panels stay alive across tab switches
 
 `ToolsApp.tsx` renders **every** tool panel simultaneously inside a `Slot` wrapper that toggles `display: contents | none` — panels are never unmounted when you switch tabs, only hidden. This is why state (e.g. a generated password) survives a round trip through other tabs, and why `useOnActivate` works: each panel receives an `active` boolean, and the hook fires its callback the moment that boolean flips to `true` (i.e., the tab was just opened), regenerating output lazily instead of on every render.
 
-Format/convert tools (JSON, XML, SQL, cURL, Base64 text) don't need `active`/`useOnActivate` — they compute their initial output eagerly via `useState(() => ...)` and recompute on button click.
+Format/convert tools (JSON, XML, SQL, Base64 text) don't need `active`/`useOnActivate` — they compute their initial output eagerly via `useState(() => ...)` and recompute on button click.
 
 ## Adding a new tool panel
 

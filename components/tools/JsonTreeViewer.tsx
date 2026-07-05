@@ -132,7 +132,7 @@ export function JsonTreeViewer() {
         </div>
         <div className="field-col">
           <div className="label-row--between">
-            <span className="mono-label">// árvore</span>
+            <span className="mono-label">{"// árvore"}</span>
             <div style={{ display: "flex", gap: 8 }}>
               <ToggleButton active={expandAll} onClick={() => setAllExpanded(true)}>
                 Expandir tudo

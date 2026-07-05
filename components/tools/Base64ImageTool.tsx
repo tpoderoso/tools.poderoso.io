@@ -23,6 +23,18 @@ const DATA_AREA = {
   wordBreak: "break-all",
 } as const;
 
+// browsers bloqueiam navegação direta para data: — abre via blob URL
+const openFullSize = (url: string) =>
+  fetch(url)
+    .then((r) => r.blob())
+    .then((b) => window.open(URL.createObjectURL(b), "_blank"));
+
+const OpenButton = ({ url }: { url: string }) => (
+  <button type="button" onClick={() => openFullSize(url)} className="btn-copy-icon" title="Abrir em tamanho real">
+    <ExternalLink size={13} strokeWidth={2} />
+  </button>
+);
+
 export function Base64ImageTool() {
   const [mode, setMode] = useState<Mode>("encode");
   const [dataUrl, setDataUrl] = useState("");
@@ -40,18 +52,6 @@ export function Base64ImageTool() {
     };
     reader.readAsDataURL(file);
   };
-
-  // browsers bloqueiam navegação direta para data: — abre via blob URL
-  const openFullSize = (url: string) =>
-    fetch(url)
-      .then((r) => r.blob())
-      .then((b) => window.open(URL.createObjectURL(b), "_blank"));
-
-  const OpenButton = ({ url }: { url: string }) => (
-    <button type="button" onClick={() => openFullSize(url)} className="btn-copy-icon" title="Abrir em tamanho real">
-      <ExternalLink size={13} strokeWidth={2} />
-    </button>
-  );
 
   useErrorToast(decodeError ? "Base64 de imagem inválido" : "");
 

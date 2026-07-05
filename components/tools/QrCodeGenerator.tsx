@@ -18,6 +18,9 @@ export function QrCodeGenerator({ active }: { active: boolean }) {
 
   return (
     <ToolPanel path="~/generate/qr" description="gera QR Code a partir de texto ou URL">
+      <div style={{ fontSize: 11, color: "var(--color-muted)" }}>
+        O texto é enviado a um serviço externo (api.qrserver.com) para gerar a imagem — evite dados sensíveis.
+      </div>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <input
           value={input}

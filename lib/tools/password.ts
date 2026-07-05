@@ -1,6 +1,6 @@
-import { rnd } from "./random";
+import { rndSecure } from "./random";
 
-/** Generates a random password of `len` chars from lowercase + optional uppercase/digits/symbols. Falls back to lowercase-only if all three toggles are off. Uses {@link rnd} (Math.random) — not suitable for real secrets. */
+/** Generates a random password of `len` chars from lowercase + optional uppercase/digits/symbols. Falls back to lowercase-only if all three toggles are off. Uses {@link rndSecure} (crypto.getRandomValues) since users may rely on this for a real secret. */
 export function genPassword(len: number, sym: boolean, upper: boolean, num: boolean): string {
   const lower = "abcdefghijklmnopqrstuvwxyz";
   const uppers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -12,6 +12,6 @@ export function genPassword(len: number, sym: boolean, upper: boolean, num: bool
   if (sym) chars += syms;
   if (!chars) chars = lower;
   let pwd = "";
-  for (let i = 0; i < len; i++) pwd += chars[rnd(chars.length)];
+  for (let i = 0; i < len; i++) pwd += chars[rndSecure(chars.length)];
   return pwd;
 }
