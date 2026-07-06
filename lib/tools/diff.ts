@@ -1,3 +1,10 @@
+export function stripLeadingWhitespace(text: string): string {
+  return text
+    .split("\n")
+    .map((line) => line.replace(/^[ \t]+/, ""))
+    .join("\n");
+}
+
 export type DiffLineType = "same" | "add" | "remove" | "info";
 
 export interface DiffLine {

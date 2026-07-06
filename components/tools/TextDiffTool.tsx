@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { ToggleButton } from "@/components/ui/ToggleButton";
 import { LinedTextarea } from "@/components/ui/LinedTextarea";
-import { computeDiff, pairSideBySide, type DiffLine } from "@/lib/tools/diff";
+import { computeDiff, pairSideBySide, stripLeadingWhitespace, type DiffLine } from "@/lib/tools/diff";
 
 function lineStyle(type: DiffLine["type"] | "empty") {
   if (type === "add") {
@@ -34,6 +35,7 @@ function DiffCell({ line, divider }: { line: DiffLine | null; divider?: boolean 
     <div
       style={{
         display: "flex",
+        minWidth: 0,
         background: s.bg,
         borderLeft: `2px solid ${s.border}`,
         borderRight: divider ? "1px solid var(--color-border)" : undefined,
@@ -56,7 +58,9 @@ function DiffCell({ line, divider }: { line: DiffLine | null; divider?: boolean 
       <span
         style={{
           fontSize: 12,
-          whiteSpace: "pre",
+          whiteSpace: "pre-wrap",
+          overflowWrap: "anywhere",
+          minWidth: 0,
           padding: "1px 12px",
           lineHeight: 1.75,
           fontFamily: "var(--font-mono)",
@@ -73,6 +77,7 @@ export function TextDiffTool() {
   const [left, setLeft] = useState("");
   const [right, setRight] = useState("");
   const [lines, setLines] = useState<DiffLine[] | null>(null);
+  const [ignoreLeading, setIgnoreLeading] = useState(false);
 
   const added = lines?.filter((l) => l.type === "add").length ?? 0;
   const removed = lines?.filter((l) => l.type === "remove").length ?? 0;
@@ -81,7 +86,10 @@ export function TextDiffTool() {
     <ToolPanel path="~/diff/text" description="compara dois textos linha por linha">
       <div className="grid-2col">
         <div className="field-col">
-          <div className="mono-label">{"// texto original"}</div>
+          <div className="label-row--between">
+            <div className="mono-label">{"// texto original"}</div>
+            <span className="text-muted-sm">{left ? left.split("\n").length : 0} linhas</span>
+          </div>
           <LinedTextarea
             value={left}
             onChange={(e) => {
@@ -94,7 +102,10 @@ export function TextDiffTool() {
           />
         </div>
         <div className="field-col">
-          <div className="mono-label">{"// texto modificado"}</div>
+          <div className="label-row--between">
+            <div className="mono-label">{"// texto modificado"}</div>
+            <span className="text-muted-sm">{right ? right.split("\n").length : 0} linhas</span>
+          </div>
           <LinedTextarea
             value={right}
             onChange={(e) => {
@@ -108,9 +119,25 @@ export function TextDiffTool() {
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <PrimaryButton style={{ padding: "9px 22px" }} onClick={() => setLines(computeDiff(left, right))}>
+        <PrimaryButton
+          style={{ padding: "9px 22px" }}
+          onClick={() => {
+            const l = ignoreLeading ? stripLeadingWhitespace(left) : left;
+            const r = ignoreLeading ? stripLeadingWhitespace(right) : right;
+            setLines(computeDiff(l, r));
+          }}
+        >
           Comparar →
         </PrimaryButton>
+        <ToggleButton
+          active={ignoreLeading}
+          onClick={() => {
+            setIgnoreLeading((v) => !v);
+            setLines(null);
+          }}
+        >
+          ignorar espaços/tabs à esquerda
+        </ToggleButton>
         {lines !== null && (
           <span className="text-muted-sm">
             +{added} linha{added !== 1 ? "s" : ""} adicionada{added !== 1 ? "s" : ""} · -{removed} removida
