@@ -29,7 +29,7 @@ function lineStyle(type: DiffLine["type"] | "empty") {
   return { bg: "transparent", border: "transparent", pc: "var(--color-line)", tc: "var(--color-muted-soft)", prefix: " " };
 }
 
-function DiffCell({ line, divider }: { line: DiffLine | null; divider?: boolean }) {
+function DiffCell({ line, lineNumber, divider }: { line: DiffLine | null; lineNumber?: number | null; divider?: boolean }) {
   const s = lineStyle(line?.type ?? "empty");
   return (
     <div
@@ -41,6 +41,20 @@ function DiffCell({ line, divider }: { line: DiffLine | null; divider?: boolean 
         borderRight: divider ? "1px solid var(--color-border)" : undefined,
       }}
     >
+      <span
+        style={{
+          fontSize: 11,
+          userSelect: "none",
+          width: 34,
+          flexShrink: 0,
+          textAlign: "right",
+          padding: "1px 8px",
+          lineHeight: 1.75,
+          color: "var(--color-muted-soft)",
+        }}
+      >
+        {lineNumber ?? ""}
+      </span>
       <span
         style={{
           fontSize: 11,
@@ -158,19 +172,27 @@ export function TextDiffTool() {
             {"// resultado"}
           </div>
           <div style={{ overflowY: "auto", maxHeight: 360 }}>
-            {pairSideBySide(lines).map((p, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  borderTop: i > 0 ? "1px solid var(--color-border)" : undefined,
-                }}
-              >
-                <DiffCell line={p.left} divider />
-                <DiffCell line={p.right} />
-              </div>
-            ))}
+            {(() => {
+              let leftNum = 0;
+              let rightNum = 0;
+              return pairSideBySide(lines).map((p, i) => {
+                if (p.left) leftNum++;
+                if (p.right) rightNum++;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      borderTop: i > 0 ? "1px solid var(--color-border)" : undefined,
+                    }}
+                  >
+                    <DiffCell line={p.left} lineNumber={p.left ? leftNum : null} divider />
+                    <DiffCell line={p.right} lineNumber={p.right ? rightNum : null} />
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       )}
