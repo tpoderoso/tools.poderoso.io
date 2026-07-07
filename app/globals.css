@@ -433,9 +433,10 @@ textarea {
   }
 }
 
-/* viewport baixo: solta o layout fixo do 404 de volta pro fluxo normal em vez
-   de espremer o terminal a um tamanho inútil */
-@media (max-height: 760px) {
+/* viewport extremamente baixa (ex.: iframe embutido): mesmo com título e
+   espaçamentos escalando por dvh, abaixo disso não sobra o suficiente.
+   Solta o layout de volta pro fluxo normal da página. */
+@media (max-height: 480px) {
   #not-found-shell {
     height: auto;
     min-height: 100dvh;

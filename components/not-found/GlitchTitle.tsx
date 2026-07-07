@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 const TITLE_STYLE: CSSProperties = {
   margin: 0,
   fontFamily: "var(--font-display)",
-  fontSize: "clamp(96px, 18vw, 180px)",
+  fontSize: "clamp(56px, min(16vw, 16dvh), 180px)",
   fontWeight: 400,
   lineHeight: 0.85,
   letterSpacing: "-0.02em",

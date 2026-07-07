@@ -90,7 +90,7 @@ export function RecoveryTerminal() {
   }
 
   return (
-    <div id="not-found-terminal" style={{ marginTop: 44, display: "flex", minHeight: 0, flex: 1, flexDirection: "column" }}>
+    <div id="not-found-terminal" style={{ display: "flex", minHeight: 0, flex: 1, flexDirection: "column" }}>
       <div
         style={{
           marginBottom: 10,
@@ -109,7 +109,7 @@ export function RecoveryTerminal() {
         style={{
           display: "flex",
           flex: 1,
-          minHeight: 140,
+          minHeight: 80,
           maxHeight: 420,
           flexDirection: "column",
           overflow: "hidden",

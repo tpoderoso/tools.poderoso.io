@@ -18,7 +18,15 @@ export default function NotFound() {
       <main id="not-found-main" style={{ display: "flex", minHeight: 0, flex: 1, justifyContent: "center", padding: "24px 32px" }}>
         <div
           className="not-found-fade-in"
-          style={{ display: "flex", minHeight: 0, width: "100%", maxWidth: 840, flexDirection: "column", justifyContent: "center" }}
+          style={{
+            display: "flex",
+            minHeight: 0,
+            width: "100%",
+            maxWidth: 840,
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: "clamp(8px, 2dvh, 24px)",
+          }}
         >
           <div style={{ fontSize: 13.5, lineHeight: 1.7, color: "var(--foreground-subtle)" }}>
             <span style={{ color: "var(--primary)" }}>tools</span>@
@@ -33,7 +41,6 @@ export default function NotFound() {
 
           <p
             style={{
-              marginTop: 26,
               maxWidth: "46ch",
               fontFamily: "var(--font-serif)",
               fontSize: 23,
@@ -46,7 +53,7 @@ export default function NotFound() {
             Acontece nos melhores deploys.
           </p>
 
-          <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 10 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             <Link href="/" className="not-found-btn-primary" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
               cd ~ (home)
             </Link>
