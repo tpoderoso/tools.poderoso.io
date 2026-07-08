@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Braces, Brackets, Type, Hash, ToggleLeft, CircleOff } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { SplitPane } from "@/components/ui/SplitPane";
 import { TextAreaField } from "@/components/ui/TextAreaField";
@@ -40,6 +40,15 @@ function valueColor(value: JsonValue): string {
   return "var(--color-fg)";
 }
 
+function TypeIcon({ value }: { value: JsonValue }) {
+  const props = { size: 11, color: valueColor(value), style: { flexShrink: 0, verticalAlign: -1.5, marginRight: 5 } } as const;
+  if (value === null) return <CircleOff {...props} />;
+  if (typeof value === "string") return <Type {...props} />;
+  if (typeof value === "number") return <Hash {...props} />;
+  if (typeof value === "boolean") return <ToggleLeft {...props} />;
+  return null;
+}
+
 function valuePreview(value: JsonValue): string {
   if (value === null) return "null";
   if (typeof value === "string") return `"${value}"`;
@@ -51,7 +60,8 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
 
   if (!isContainer(value)) {
     return (
-      <div style={ROW}>
+      <div className="json-tree-line" style={ROW}>
+        <TypeIcon value={value} />
         {label !== null && <span style={KEY}>{label}: </span>}
         <span style={{ color: valueColor(value) }}>{valuePreview(value)}</span>
       </div>
@@ -67,7 +77,7 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
   const chevronProps = { size: 12, color: "var(--color-muted)", style: { flexShrink: 0 } } as const;
 
   return (
-    <div style={ROW}>
+    <div className="json-tree-line" style={ROW}>
       <button
         type="button"
         style={{
@@ -85,6 +95,11 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
         onClick={() => setExpanded((e) => !e)}
       >
         {expanded ? <ChevronDown {...chevronProps} /> : <ChevronRight {...chevronProps} />}
+        {isArray ? (
+          <Brackets size={11} color="var(--color-secondary)" style={{ flexShrink: 0, marginRight: 2 }} />
+        ) : (
+          <Braces size={11} color="var(--color-secondary)" style={{ flexShrink: 0, marginRight: 2 }} />
+        )}
         {label !== null && <span style={KEY}>{label}: </span>}
         <span style={BRACKET}>{open}</span>
         {!expanded && (
@@ -99,7 +114,7 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
           {entries.map(([k, v]) => (
             <JsonNode key={k} label={isArray ? null : k} value={v} expandKey={expandKey} />
           ))}
-          <span style={BRACKET}>{close}</span>
+          <div className="json-tree-line" style={BRACKET}>{close}</div>
         </div>
       )}
     </div>
@@ -144,10 +159,26 @@ export function JsonTreeViewer() {
           </div>
           <div
             className="surface"
-            style={{ flex: 1, padding: 14, fontSize: 12, lineHeight: 1.7, overflow: "auto", minHeight: 380 }}
+            style={{ flex: 1, padding: 14, fontSize: 12, lineHeight: 1.7, overflow: "auto", minHeight: 380, contain: "size" }}
           >
+            {/* contadores CSS numeram só as linhas visíveis — recolher um nó renumera sozinho */}
+            <style>{`
+              .json-tree { position: relative; padding-left: 42px; counter-reset: tree-ln; }
+              .json-tree-line::before {
+                counter-increment: tree-ln;
+                content: counter(tree-ln);
+                position: absolute;
+                left: 0;
+                width: 30px;
+                text-align: right;
+                font-size: 11px;
+                color: var(--color-line);
+              }
+            `}</style>
             {result.ok && (
-              <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} />
+              <div className="json-tree">
+                <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} />
+              </div>
             )}
           </div>
         </div>
