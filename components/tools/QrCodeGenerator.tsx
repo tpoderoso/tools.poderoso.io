@@ -26,7 +26,8 @@ export function QrCodeGenerator({ active }: { active: boolean }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Cole uma URL ou texto..."
+          maxLength={200}
+          placeholder="Cole uma URL ou texto (máx. 200 caracteres)..."
           className="surface text-input"
           style={{ flex: 1 }}
         />
