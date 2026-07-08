@@ -19,6 +19,7 @@ import { QrCodeGenerator } from "./QrCodeGenerator";
 import { Base64TextTool } from "./Base64TextTool";
 import { Base64ImageTool } from "./Base64ImageTool";
 import { JwtDecoder } from "./JwtDecoder";
+import { EpochConverter } from "./EpochConverter";
 import { TextDiffTool } from "./TextDiffTool";
 
 function Slot({ active, children }: { active: boolean; children: ReactNode }) {
@@ -85,6 +86,9 @@ export function ToolsApp() {
           </Slot>
           <Slot active={tool === "jwt"}>
             <JwtDecoder />
+          </Slot>
+          <Slot active={tool === "epoch"}>
+            <EpochConverter active={tool === "epoch"} />
           </Slot>
           <Slot active={tool === "diff"}>
             <TextDiffTool />

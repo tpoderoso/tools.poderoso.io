@@ -13,6 +13,7 @@ export type ToolId =
   | "b64"
   | "b64img"
   | "jwt"
+  | "epoch"
   | "diff";
 
 export interface NavItem {
@@ -54,6 +55,10 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: "b64img", label: "Base64 Imagem" },
       { id: "jwt", label: "JWT Decoder" },
     ],
+  },
+  {
+    heading: "~/convert",
+    items: [{ id: "epoch", label: "Epoch / Timezone" }],
   },
   {
     heading: "~/diff",
