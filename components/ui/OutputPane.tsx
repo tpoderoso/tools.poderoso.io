@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { CopyButton } from "./CopyButton";
 
 interface OutputPaneProps {
@@ -8,10 +8,12 @@ interface OutputPaneProps {
   copyText?: string;
   color: string;
   style?: CSSProperties;
+  /** Substitui `text` na renderização (ex.: spans de syntax highlight); `text`/`copyText` seguem valendo para o copiar. */
+  children?: ReactNode;
 }
 
 /** Read-only `<pre>` output block with a labeled header and copy button. `copyText` overrides `text` for clipboard when the two should differ (e.g. displaying an error but nothing to copy). */
-export function OutputPane({ label, labelColor, text, copyText, color, style }: OutputPaneProps) {
+export function OutputPane({ label, labelColor, text, copyText, color, style, children }: OutputPaneProps) {
   return (
     <div className="field-col">
       <div className="label-row--between">
@@ -38,7 +40,7 @@ export function OutputPane({ label, labelColor, text, copyText, color, style }: 
           ...style,
         }}
       >
-        {text}
+        {children ?? text}
       </pre>
     </div>
   );
