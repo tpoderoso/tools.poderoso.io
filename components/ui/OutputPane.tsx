@@ -30,6 +30,8 @@ export function OutputPane({ label, labelColor, text, copyText, color, style }: 
           overflow: "auto",
           margin: 0,
           minHeight: 380,
+          // conteúdo grande não pode inflar o painel — dimensiona como se vazio e rola por dentro
+          contain: "size",
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",
           color,
