@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { ToggleButton } from "@/components/ui/ToggleButton";
@@ -92,6 +92,7 @@ export function TextDiffTool() {
   const [right, setRight] = useState("");
   const [lines, setLines] = useState<DiffLine[] | null>(null);
   const [ignoreLeading, setIgnoreLeading] = useState(false);
+  const [onlyDiffs, setOnlyDiffs] = useState(false);
 
   const added = lines?.filter((l) => l.type === "add").length ?? 0;
   const removed = lines?.filter((l) => l.type === "remove").length ?? 0;
@@ -152,6 +153,9 @@ export function TextDiffTool() {
         >
           ignorar espaços/tabs à esquerda
         </ToggleButton>
+        <ToggleButton active={onlyDiffs} onClick={() => setOnlyDiffs((v) => !v)}>
+          apenas diferenças
+        </ToggleButton>
         {lines !== null && (
           <span className="text-muted-sm">
             +{added} linha{added !== 1 ? "s" : ""} adicionada{added !== 1 ? "s" : ""} · -{removed} removida
@@ -166,32 +170,63 @@ export function TextDiffTool() {
             border: "1px solid var(--color-border)",
             borderRadius: 10,
             overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            minHeight: 160,
           }}
         >
           <div className="mono-label" style={{ padding: "8px 14px", borderBottom: "1px solid var(--color-border)" }}>
             {"// resultado"}
           </div>
-          <div style={{ overflowY: "auto", maxHeight: 360 }}>
+          <div style={{ overflowY: "auto", flex: 1, minHeight: 0 }}>
             {(() => {
               let leftNum = 0;
               let rightNum = 0;
-              return pairSideBySide(lines).map((p, i) => {
+              let hidden = 0;
+              const rows: ReactNode[] = [];
+              const gapRow = (key: string) => (
+                <div
+                  key={key}
+                  style={{
+                    padding: "3px 12px",
+                    fontSize: 11,
+                    color: "var(--color-muted-soft)",
+                    textAlign: "center",
+                    userSelect: "none",
+                    borderTop: rows.length > 0 ? "1px solid var(--color-border)" : undefined,
+                  }}
+                >
+                  ⋯ {hidden} linha{hidden !== 1 ? "s" : ""} igua{hidden !== 1 ? "is" : "l"} oculta{hidden !== 1 ? "s" : ""} ⋯
+                </div>
+              );
+              for (const [i, p] of pairSideBySide(lines).entries()) {
                 if (p.left) leftNum++;
                 if (p.right) rightNum++;
-                return (
+                if (onlyDiffs && p.left?.type === "same") {
+                  hidden++;
+                  continue;
+                }
+                if (hidden > 0) {
+                  rows.push(gapRow(`gap-${i}`));
+                  hidden = 0;
+                }
+                rows.push(
                   <div
                     key={i}
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 1fr",
-                      borderTop: i > 0 ? "1px solid var(--color-border)" : undefined,
+                      borderTop: rows.length > 0 ? "1px solid var(--color-border)" : undefined,
                     }}
                   >
                     <DiffCell line={p.left} lineNumber={p.left ? leftNum : null} divider />
                     <DiffCell line={p.right} lineNumber={p.right ? rightNum : null} />
                   </div>
                 );
-              });
+              }
+              if (hidden > 0) rows.push(gapRow("gap-end"));
+              return rows;
             })()}
           </div>
         </div>

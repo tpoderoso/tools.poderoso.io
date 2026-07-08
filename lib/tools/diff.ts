@@ -13,42 +13,79 @@ export interface DiffLine {
 }
 
 /**
- * Line-based diff via LCS dynamic programming — O(lines_left × lines_right) time and memory.
- * Bails out with a single "info" line above ~1200 combined lines to avoid locking up the tab.
+ * Line-based diff via LCS dynamic programming — O(lines_left × lines_right) time and memory,
+ * mas só sobre o miolo que difere: prefixo/sufixo comuns são descartados antes.
+ * Bails out com uma linha "info" se o miolo passar de 16M células (~4000×4000 linhas
+ * totalmente diferentes); arquivos grandes com mudanças localizadas passam em qualquer tamanho.
  */
 export function computeDiff(left: string, right: string): DiffLine[] {
   const lLines = left.split("\n");
   const rLines = right.split("\n");
-  if (lLines.length + rLines.length > 1200) {
+
+  let start = 0;
+  while (start < lLines.length && start < rLines.length && lLines[start] === rLines[start]) start++;
+  let endL = lLines.length;
+  let endR = rLines.length;
+  while (endL > start && endR > start && lLines[endL - 1] === rLines[endR - 1]) {
+    endL--;
+    endR--;
+  }
+
+  const l = endL - start;
+  const r = endR - start;
+  // ponytail: LCS quadrático com corte em 16M células; Myers O(n·d) se precisar de mais
+  if (l * r > 16_000_000) {
     return [{ type: "info", text: "// Texto muito longo para diff completo." }];
   }
-  const l = lLines.length;
-  const r = rLines.length;
-  const dp: number[][] = Array(l + 1)
-    .fill(null)
-    .map(() => Array(r + 1).fill(0));
+
+  // interna linhas como ids numéricos: comparação no DP vira int === int
+  const ids = new Map<string, number>();
+  const intern = (s: string) => {
+    let id = ids.get(s);
+    if (id === undefined) {
+      id = ids.size;
+      ids.set(s, id);
+    }
+    return id;
+  };
+  const lIds = new Int32Array(l);
+  const rIds = new Int32Array(r);
+  for (let i = 0; i < l; i++) lIds[i] = intern(lLines[start + i]);
+  for (let j = 0; j < r; j++) rIds[j] = intern(rLines[start + j]);
+
+  const w = r + 1;
+  const dp = new Uint32Array((l + 1) * w);
   for (let i = 1; i <= l; i++) {
     for (let j = 1; j <= r; j++) {
-      dp[i][j] = lLines[i - 1] === rLines[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+      dp[i * w + j] =
+        lIds[i - 1] === rIds[j - 1]
+          ? dp[(i - 1) * w + j - 1] + 1
+          : Math.max(dp[(i - 1) * w + j], dp[i * w + j - 1]);
     }
   }
-  const result: DiffLine[] = [];
+
+  const middle: DiffLine[] = [];
   let i = l;
   let j = r;
   while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && lLines[i - 1] === rLines[j - 1]) {
-      result.unshift({ type: "same", text: lLines[i - 1] });
+    if (i > 0 && j > 0 && lIds[i - 1] === rIds[j - 1]) {
+      middle.unshift({ type: "same", text: lLines[start + i - 1] });
       i--;
       j--;
-    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-      result.unshift({ type: "add", text: rLines[j - 1] });
+    } else if (j > 0 && (i === 0 || dp[i * w + j - 1] >= dp[(i - 1) * w + j])) {
+      middle.unshift({ type: "add", text: rLines[start + j - 1] });
       j--;
     } else {
-      result.unshift({ type: "remove", text: lLines[i - 1] });
+      middle.unshift({ type: "remove", text: lLines[start + i - 1] });
       i--;
     }
   }
-  return result;
+
+  return [
+    ...lLines.slice(0, start).map((text): DiffLine => ({ type: "same", text })),
+    ...middle,
+    ...lLines.slice(endL).map((text): DiffLine => ({ type: "same", text })),
+  ];
 }
 
 export interface DiffPair {
