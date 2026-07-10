@@ -28,6 +28,7 @@ function Slot({ active, children }: { active: boolean; children: ReactNode }) {
 
 export function ToolsApp() {
   const [tool, setTool] = useState<ToolId>(DEFAULT_TOOL);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const fillRow = { display: "flex", flex: 1, overflow: "hidden" } as const;
 
@@ -41,9 +42,17 @@ export function ToolsApp() {
         color: "var(--color-fg)",
       }}
     >
-      <Header />
+      <Header onMenuClick={() => setMenuOpen(true)} />
       <div style={fillRow}>
-        <Sidebar active={tool} onSelect={setTool} />
+        <Sidebar
+          active={tool}
+          onSelect={(id) => {
+            setTool(id);
+            setMenuOpen(false);
+          }}
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+        />
         <div style={fillRow}>
           <Slot active={tool === "json"}>
             <JsonFormatter />

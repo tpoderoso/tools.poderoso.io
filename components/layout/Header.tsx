@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { Menu } from "lucide-react";
 
 const DOT = { width: 12, height: 12, borderRadius: "50%", display: "block" } as const;
 
-export function Header() {
+export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   return (
     <header
       style={{
@@ -16,7 +17,10 @@ export function Header() {
         flexShrink: 0,
       }}
     >
-      <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
+      <button type="button" className="menu-btn" onClick={onMenuClick} aria-label="Abrir menu">
+        <Menu size={18} />
+      </button>
+      <div className="header-dots">
         <span style={{ ...DOT, background: "var(--color-danger)" }} />
         <span style={{ ...DOT, background: "var(--color-accent-yellow)" }} />
         <span style={{ ...DOT, background: "var(--color-primary)" }} />
@@ -39,7 +43,10 @@ export function Header() {
         />
       </div>
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
-        <span style={{ fontSize: 11, color: "var(--color-line)", letterSpacing: "0.06em" }}>
+        <span
+          className="header-tagline"
+          style={{ fontSize: 11, color: "var(--color-line)", letterSpacing: "0.06em" }}
+        >
           ferramentas para devs
         </span>
         <Link href="https://poderoso.io" className="header-back-link">

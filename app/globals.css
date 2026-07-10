@@ -460,9 +460,71 @@ textarea {
   padding: 28px 36px;
 }
 
+.app-sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: var(--color-bg-alt);
+  border-right: 1px solid var(--color-border);
+  padding: 8px 0 24px;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.menu-btn {
+  display: none;
+}
+
+.header-dots {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
 @media (max-width: 767px) {
   .tool-panel {
     padding: 16px;
+  }
+
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .app-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    margin-left: -6px;
+    background: transparent;
+    border: none;
+    color: var(--color-fg);
+    cursor: pointer;
+  }
+
+  .header-tagline,
+  .header-dots {
+    display: none;
   }
 
   .grid-2col {
