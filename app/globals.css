@@ -451,3 +451,31 @@ textarea {
     max-height: 260px;
   }
 }
+
+/* ============ responsivo (mobile < 768px) ============ */
+/* Componentes usam estilo inline; media query não existe inline — mesmo
+   motivo de :hover/@keyframes viverem aqui. */
+
+.tool-panel {
+  padding: 28px 36px;
+}
+
+@media (max-width: 767px) {
+  .tool-panel {
+    padding: 16px;
+  }
+
+  .grid-2col {
+    grid-template-columns: 1fr;
+  }
+
+  .textarea {
+    min-height: 220px;
+  }
+
+  /* 16px+ evita o zoom automático do iOS ao focar */
+  .textarea,
+  .text-input {
+    font-size: 16px;
+  }
+}

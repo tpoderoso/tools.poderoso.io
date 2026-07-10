@@ -13,10 +13,10 @@ interface ToolPanelProps {
 export function ToolPanel({ path, description, children }: ToolPanelProps) {
   return (
     <div
+      className="tool-panel"
       style={{
         flex: 1,
         overflowY: "auto",
-        padding: "28px 36px",
         display: "flex",
         flexDirection: "column",
         gap: 16,

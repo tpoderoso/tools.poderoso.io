@@ -36,7 +36,7 @@ export function ToolsApp() {
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
+        height: "100dvh",
         background: "var(--color-bg)",
         color: "var(--color-fg)",
       }}
