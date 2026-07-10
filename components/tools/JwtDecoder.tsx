@@ -73,7 +73,7 @@ export function JwtDecoder() {
           {lifecycle.state === "expired" &&
             `✗ expirado em ${new Date(lifecycle.at).toLocaleString("pt-BR")}`}
           {lifecycle.state === "not-yet-valid" &&
-            `⏳ ainda não válido — começa em ${new Date(lifecycle.at).toLocaleString("pt-BR")}`}
+            `⏳ ainda não válido! Começa em ${new Date(lifecycle.at).toLocaleString("pt-BR")}`}
           {lifecycle.state === "valid" &&
             `✓ válido até ${new Date(lifecycle.expiresAt!).toLocaleString("pt-BR")}`}
         </div>
