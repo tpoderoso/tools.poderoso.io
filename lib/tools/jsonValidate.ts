@@ -1,18 +1,39 @@
 export type JsonValidation =
   | { ok: true }
-  | { ok: false; line: number; column: number; message: string; fixed: string | null };
+  | {
+      ok: false;
+      line: number;
+      column: number;
+      message: string;
+      fixed: string | null;
+    };
 
 const TRANSLATIONS: [RegExp, string | ((m: RegExpMatchArray) => string)][] = [
-  [/Expected double-quoted property name/i, "nome de propriedade deve usar aspas duplas"],
-  [/Expected property name or '}'/i, 'esperado nome de propriedade ou "}" — vírgula sobrando?'],
+  [
+    /Expected double-quoted property name/i,
+    "nome de propriedade deve usar aspas duplas",
+  ],
+  [
+    /Expected property name or '}'/i,
+    'esperado nome de propriedade ou "}"! Vírgula sobrando?',
+  ],
   [/Expected ',' or '}'/i, 'esperado "," ou "}" após o valor da propriedade'],
   [/Expected ',' or ']'/i, 'esperado "," ou "]" após o elemento do array'],
   [/Expected ':'/i, 'esperado ":" após o nome da propriedade'],
   [/Unterminated string/i, "string sem aspas de fechamento"],
-  [/Bad control character/i, "caractere de controle dentro de string — quebra de linha sem escape?"],
-  [/Unexpected end of (JSON input|data)|end of input/i, "fim inesperado do JSON — chave, colchete ou aspas sem fechar"],
+  [
+    /Bad control character/i,
+    "caractere de controle dentro de string! Quebra de linha sem escape?",
+  ],
+  [
+    /Unexpected end of (JSON input|data)|end of input/i,
+    "fim inesperado do JSON! Chave, colchete ou aspas sem fechar",
+  ],
   [/non-whitespace character after JSON/i, "conteúdo extra após o fim do JSON"],
-  [/Unexpected token '?([^',\s]+)'?|unexpected character '?(.)'?/i, (m) => `caractere inesperado "${m[1] ?? m[2]}"`],
+  [
+    /Unexpected token '?([^',\s]+)'?|unexpected character '?(.)'?/i,
+    (m) => `caractere inesperado "${m[1] ?? m[2]}"`,
+  ],
 ];
 
 function translate(raw: string): string {
@@ -25,7 +46,10 @@ function translate(raw: string): string {
 
 function lineColOf(s: string, pos: number): { line: number; column: number } {
   const upTo = s.slice(0, pos);
-  return { line: upTo.split("\n").length, column: pos - upTo.lastIndexOf("\n") };
+  return {
+    line: upTo.split("\n").length,
+    column: pos - upTo.lastIndexOf("\n"),
+  };
 }
 
 /** Validates JSON; on failure reports line/column, a pt-BR message and (when possible) an auto-repaired, formatted version. */
@@ -46,7 +70,13 @@ export function validateJson(s: string): JsonValidation {
     } else if (/end of/i.test(raw)) {
       ({ line, column } = lineColOf(s, s.length));
     }
-    return { ok: false, line, column, message: translate(raw), fixed: repairJson(s) };
+    return {
+      ok: false,
+      line,
+      column,
+      message: translate(raw),
+      fixed: repairJson(s),
+    };
   }
 }
 

@@ -20,7 +20,7 @@ export function CpfGenerator({ active }: { active: boolean }) {
         valueColor="var(--color-secondary)"
         regenerateLabel="Gerar novo"
         onRegenerate={() => setValue(genCPF())}
-        footnote="uso exclusivo para desenvolvimento e testes — não utilize para fins fraudulentos."
+        footnote="uso exclusivo para desenvolvimento e testes."
       />
     </ToolPanel>
   );

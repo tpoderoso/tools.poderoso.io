@@ -14,8 +14,14 @@ export function CnpjGenerator({ active }: { active: boolean }) {
   useOnActivate(active, () => setValue(genCNPJ(alphanumeric)));
 
   return (
-    <ToolPanel path="~/generate/cnpj" description="gera CNPJ válido para testes">
-      <div className="gen-actions" style={{ justifyContent: "center", paddingTop: 12 }}>
+    <ToolPanel
+      path="~/generate/cnpj"
+      description="gera CNPJ válido para testes"
+    >
+      <div
+        className="gen-actions"
+        style={{ justifyContent: "center", paddingTop: 12 }}
+      >
         <ToggleButton
           active={!alphanumeric}
           onClick={() => {
@@ -42,7 +48,7 @@ export function CnpjGenerator({ active }: { active: boolean }) {
         valueColor="var(--color-secondary)"
         regenerateLabel="Gerar novo"
         onRegenerate={() => setValue(genCNPJ(alphanumeric))}
-        footnote="uso exclusivo para desenvolvimento e testes — não utilize para fins fraudulentos."
+        footnote="uso exclusivo para desenvolvimento e testes."
       />
     </ToolPanel>
   );

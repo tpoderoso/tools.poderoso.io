@@ -14,7 +14,11 @@ export function decodeJWT(token: string): JwtResult {
   if (!t) return { header: "", payload: "", err: "" };
   const parts = t.split(".");
   if (parts.length !== 3) {
-    return { header: "", payload: "", err: "JWT inválido — esperado formato: header.payload.signature" };
+    return {
+      header: "",
+      payload: "",
+      err: "JWT inválido! Esperado formato: header.payload.signature",
+    };
   }
   try {
     const b64url = (str: string) => {
@@ -34,7 +38,11 @@ export function decodeJWT(token: string): JwtResult {
       nbf: typeof payloadObj?.nbf === "number" ? payloadObj.nbf : undefined,
     };
   } catch (e) {
-    return { header: "", payload: "", err: "Erro ao decodificar JWT: " + (e as Error).message };
+    return {
+      header: "",
+      payload: "",
+      err: "Erro ao decodificar JWT: " + (e as Error).message,
+    };
   }
 }
 
@@ -45,9 +53,14 @@ export type JwtLifecycle =
   | { state: "unknown" };
 
 /** Deriva o status temporal de um JWT a partir das claims exp/nbf, comparado a "now" (epoch ms, injetável para teste). */
-export function jwtLifecycle({ exp, nbf }: Pick<JwtResult, "exp" | "nbf">, now = Date.now()): JwtLifecycle {
-  if (nbf !== undefined && now < nbf * 1000) return { state: "not-yet-valid", at: nbf * 1000 };
-  if (exp !== undefined && now >= exp * 1000) return { state: "expired", at: exp * 1000 };
+export function jwtLifecycle(
+  { exp, nbf }: Pick<JwtResult, "exp" | "nbf">,
+  now = Date.now(),
+): JwtLifecycle {
+  if (nbf !== undefined && now < nbf * 1000)
+    return { state: "not-yet-valid", at: nbf * 1000 };
+  if (exp !== undefined && now >= exp * 1000)
+    return { state: "expired", at: exp * 1000 };
   if (exp !== undefined) return { state: "valid", expiresAt: exp * 1000 };
   return { state: "unknown" };
 }

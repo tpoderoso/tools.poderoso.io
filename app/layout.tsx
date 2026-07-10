@@ -25,7 +25,7 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: "Poderoso.io",
-  description: "Ferramentas para devs — formatadores, geradores e conversores",
+  description: "Ferramentas para devs. Formatadores, geradores e conversores",
 };
 
 export default function RootLayout({

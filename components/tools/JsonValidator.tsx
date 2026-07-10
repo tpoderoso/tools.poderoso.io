@@ -58,7 +58,7 @@ export function JsonValidator() {
               labelColor="var(--color-primary)"
               text={
                 fixedOutput
-                  ? `✓ JSON corrigido e válido — pronto!\n\n${fixedOutput}`
+                  ? `✓ JSON corrigido e válido. Pronto!\n\n${fixedOutput}`
                   : "✓ JSON válido"
               }
               copyText={fixedOutput}
@@ -91,7 +91,10 @@ export function JsonValidator() {
               </pre>
               {result.fixed ? (
                 <PrimaryButton onClick={() => applyFix(result.fixed!)}>
-                  <Wand2 size={13} style={{ verticalAlign: -2, marginRight: 6 }} />
+                  <Wand2
+                    size={13}
+                    style={{ verticalAlign: -2, marginRight: 6 }}
+                  />
                   Corrigir
                 </PrimaryButton>
               ) : (

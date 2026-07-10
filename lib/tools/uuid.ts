@@ -4,15 +4,21 @@ export const UUID_VERSIONS: UuidVersion[] = ["v3", "v4", "v5", "v6", "v7"];
 export const DNS_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 
 function bytesToUuid(bytes: Uint8Array): string {
-  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
+    "",
+  );
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 function parseUuidToBytes(uuid: string): Uint8Array {
   const hex = uuid.trim().replace(/-/g, "");
-  if (!/^[0-9a-f]{32}$/i.test(hex)) throw new Error("Namespace inválido — use um UUID no formato xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
+  if (!/^[0-9a-f]{32}$/i.test(hex))
+    throw new Error(
+      "Namespace inválido! Use um UUID no formato xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    );
   const bytes = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  for (let i = 0; i < 16; i++)
+    bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
   return bytes;
 }
 
@@ -30,15 +36,19 @@ function leftRotate(x: number, c: number): number {
 // Minimal MD5 (RFC 1321) — needed for UUIDv3; the Web Crypto API only offers SHA-*.
 function md5(input: Uint8Array): Uint8Array {
   const s = [
-    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
-    5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
-    4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-    6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
+    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5,
+    9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11,
+    16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10,
+    15, 21,
   ];
   const K = new Int32Array(64);
-  for (let i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 2 ** 32) | 0;
+  for (let i = 0; i < 64; i++)
+    K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 2 ** 32) | 0;
 
-  let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+  let a0 = 0x67452301,
+    b0 = 0xefcdab89,
+    c0 = 0x98badcfe,
+    d0 = 0x10325476;
 
   const msgLen = input.length;
   let paddedLen = msgLen + 1;
@@ -54,18 +64,35 @@ function md5(input: Uint8Array): Uint8Array {
     const M = new Int32Array(16);
     for (let i = 0; i < 16; i++) M[i] = dv.getInt32(chunk + i * 4, true);
 
-    let A = a0, B = b0, C = c0, D = d0;
+    let A = a0,
+      B = b0,
+      C = c0,
+      D = d0;
     for (let i = 0; i < 64; i++) {
       let F: number, g: number;
-      if (i < 16) { F = (B & C) | (~B & D); g = i; }
-      else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) % 16; }
-      else if (i < 48) { F = B ^ C ^ D; g = (3 * i + 5) % 16; }
-      else { F = C ^ (B | ~D); g = (7 * i) % 16; }
+      if (i < 16) {
+        F = (B & C) | (~B & D);
+        g = i;
+      } else if (i < 32) {
+        F = (D & B) | (~D & C);
+        g = (5 * i + 1) % 16;
+      } else if (i < 48) {
+        F = B ^ C ^ D;
+        g = (3 * i + 5) % 16;
+      } else {
+        F = C ^ (B | ~D);
+        g = (7 * i) % 16;
+      }
       F = (F + A + K[i] + M[g]) | 0;
-      A = D; D = C; C = B;
+      A = D;
+      D = C;
+      C = B;
       B = (B + leftRotate(F, s[i])) | 0;
     }
-    a0 = (a0 + A) | 0; b0 = (b0 + B) | 0; c0 = (c0 + C) | 0; d0 = (d0 + D) | 0;
+    a0 = (a0 + A) | 0;
+    b0 = (b0 + B) | 0;
+    c0 = (c0 + C) | 0;
+    d0 = (d0 + D) | 0;
   }
 
   const out = new Uint8Array(16);
@@ -88,7 +115,8 @@ function genUUIDv7(): string {
   crypto.getRandomValues(bytes);
   const ts = BigInt(Date.now());
   const mask = BigInt(0xff);
-  for (let i = 0; i < 6; i++) bytes[i] = Number((ts >> BigInt(40 - i * 8)) & mask);
+  for (let i = 0; i < 6; i++)
+    bytes[i] = Number((ts >> BigInt(40 - i * 8)) & mask);
   bytes[6] = (bytes[6] & 0x0f) | 0x70;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
   return bytesToUuid(bytes);
@@ -102,7 +130,9 @@ function genUUIDv6(): string {
   crypto.getRandomValues(bytes);
   const sixty = (BigInt(1) << BigInt(60)) - BigInt(1);
   const t60 =
-    (BigInt(Date.now()) * BigInt(10000) + GREGORIAN_OFFSET_100NS + BigInt(Math.floor(Math.random() * 10000))) &
+    (BigInt(Date.now()) * BigInt(10000) +
+      GREGORIAN_OFFSET_100NS +
+      BigInt(Math.floor(Math.random() * 10000))) &
     sixty;
   const timeHigh = t60 >> BigInt(28);
   const timeMid = (t60 >> BigInt(12)) & BigInt(0xffff);
@@ -120,7 +150,10 @@ function genUUIDv6(): string {
 }
 
 function genUUIDv3(namespace: string, name: string): string {
-  const data = concatBytes(parseUuidToBytes(namespace), new TextEncoder().encode(name));
+  const data = concatBytes(
+    parseUuidToBytes(namespace),
+    new TextEncoder().encode(name),
+  );
   const hash = md5(data);
   hash[6] = (hash[6] & 0x0f) | 0x30;
   hash[8] = (hash[8] & 0x3f) | 0x80;
@@ -128,7 +161,10 @@ function genUUIDv3(namespace: string, name: string): string {
 }
 
 async function genUUIDv5(namespace: string, name: string): Promise<string> {
-  const data = concatBytes(parseUuidToBytes(namespace), new TextEncoder().encode(name));
+  const data = concatBytes(
+    parseUuidToBytes(namespace),
+    new TextEncoder().encode(name),
+  );
   const hashBuf = await crypto.subtle.digest("SHA-1", data as BufferSource);
   const hash = new Uint8Array(hashBuf).slice(0, 16);
   hash[6] = (hash[6] & 0x0f) | 0x50;
@@ -141,12 +177,21 @@ async function genUUIDv5(namespace: string, name: string): Promise<string> {
  * for the same inputs); v4/v6/v7 ignore them. v3 uses a hand-rolled MD5 (Web Crypto has no MD5); v5 uses
  * `crypto.subtle` SHA-1.
  */
-export async function genUUID(version: UuidVersion, namespace: string = DNS_NAMESPACE, name: string = ""): Promise<string> {
+export async function genUUID(
+  version: UuidVersion,
+  namespace: string = DNS_NAMESPACE,
+  name: string = "",
+): Promise<string> {
   switch (version) {
-    case "v3": return genUUIDv3(namespace, name);
-    case "v5": return genUUIDv5(namespace, name);
-    case "v6": return genUUIDv6();
-    case "v7": return genUUIDv7();
-    default: return genUUIDv4();
+    case "v3":
+      return genUUIDv3(namespace, name);
+    case "v5":
+      return genUUIDv5(namespace, name);
+    case "v6":
+      return genUUIDv6();
+    case "v7":
+      return genUUIDv7();
+    default:
+      return genUUIDv4();
   }
 }

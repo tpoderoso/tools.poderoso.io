@@ -8,26 +8,39 @@ import { useErrorToast } from "@/components/ui/Toaster";
 import { decodeJWT, jwtLifecycle } from "@/lib/tools/jwt";
 
 const LIFECYCLE_STYLE = {
-  expired: { color: "var(--color-danger)", tint: "rgba(255, 85, 85, 0.08)", border: "rgba(255, 85, 85, 0.3)" },
+  expired: {
+    color: "var(--color-danger)",
+    tint: "rgba(255, 85, 85, 0.08)",
+    border: "rgba(255, 85, 85, 0.3)",
+  },
   "not-yet-valid": {
     color: "var(--color-accent-yellow)",
     tint: "rgba(241, 250, 140, 0.08)",
     border: "rgba(241, 250, 140, 0.3)",
   },
-  valid: { color: "var(--color-primary)", tint: "var(--color-primary-tint)", border: "rgba(80, 250, 123, 0.3)" },
+  valid: {
+    color: "var(--color-primary)",
+    tint: "var(--color-primary-tint)",
+    border: "rgba(80, 250, 123, 0.3)",
+  },
 } as const;
 
 export function JwtDecoder() {
   const [input, setInput] = useState("");
 
   const trimmed = input.trim();
-  const result = trimmed ? decodeJWT(input) : { header: "", payload: "", err: "" };
+  const result = trimmed
+    ? decodeJWT(input)
+    : { header: "", payload: "", err: "" };
   const isValid = !!result.header && !result.err;
   const lifecycle = isValid ? jwtLifecycle(result) : null;
   useErrorToast(result.err);
 
   return (
-    <ToolPanel path="~/encode/jwt" description="decodifica JWT — header e payload visíveis">
+    <ToolPanel
+      path="~/encode/jwt"
+      description="decodifica JWT. Header e payload visíveis"
+    >
       <div className="field-col">
         <div className="mono-label">{"// cole seu token jwt"}</div>
         <LinedTextarea
