@@ -5,14 +5,16 @@ interface ToggleButtonProps {
   onClick: () => void;
   children: ReactNode;
   style?: CSSProperties;
+  title?: string;
 }
 
 /** Pill-style toggle button; `active` only controls the visual state, selection logic lives in the caller. */
-export function ToggleButton({ active, onClick, children, style }: ToggleButtonProps) {
+export function ToggleButton({ active, onClick, children, style, title }: ToggleButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
+      title={title}
       style={{
         padding: "8px 12px",
         borderRadius: 8,

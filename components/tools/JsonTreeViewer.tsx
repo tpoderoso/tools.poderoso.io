@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, ChevronDown, Braces, Brackets, Type, Hash, ToggleLeft, CircleOff } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronDown,
+  Braces,
+  Brackets,
+  Type,
+  Hash,
+  ToggleLeft,
+  CircleOff,
+  UnfoldVertical,
+  FoldVertical,
+} from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { SplitPane } from "@/components/ui/SplitPane";
 import { TextAreaField } from "@/components/ui/TextAreaField";
@@ -55,7 +66,32 @@ function valuePreview(value: JsonValue): string {
   return String(value);
 }
 
-function JsonNode({ label, value, expandKey }: { label: string | null; value: JsonValue; expandKey: boolean }) {
+function primitiveTypeName(value: JsonValue): string {
+  if (value === null) return "null";
+  return typeof value;
+}
+
+/** Modo "estrutura": array de primitivos homogêneos colapsa numa linha só (`string[]`) em vez de repetir o tipo por índice. Retorna null se o array contém objeto/array — esses continuam expansíveis por índice. */
+function primitiveArrayTypeLabel(value: JsonValue[]): string | null {
+  if (value.some(isContainer)) return null;
+  if (value.length === 0) return "unknown[]";
+  const types = [...new Set(value.map(primitiveTypeName))];
+  return types.length === 1 ? `${types[0]}[]` : `(${types.join(" | ")})[]`;
+}
+
+type ViewMode = "valores" | "estrutura";
+
+function JsonNode({
+  label,
+  value,
+  expandKey,
+  mode,
+}: {
+  label: string | null;
+  value: JsonValue;
+  expandKey: boolean;
+  mode: ViewMode;
+}) {
   const [expanded, setExpanded] = useState(expandKey);
 
   if (!isContainer(value)) {
@@ -63,12 +99,28 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
       <div className="json-tree-line" style={ROW}>
         <TypeIcon value={value} />
         {label !== null && <span style={KEY}>{label}: </span>}
-        <span style={{ color: valueColor(value) }}>{valuePreview(value)}</span>
+        <span style={{ color: valueColor(value) }}>
+          {mode === "estrutura" ? primitiveTypeName(value) : valuePreview(value)}
+        </span>
       </div>
     );
   }
 
   const isArray = Array.isArray(value);
+
+  if (isArray && mode === "estrutura") {
+    const collapsed = primitiveArrayTypeLabel(value);
+    if (collapsed !== null) {
+      return (
+        <div className="json-tree-line" style={ROW}>
+          <Brackets size={11} color="var(--color-secondary)" style={{ flexShrink: 0, marginRight: 5, verticalAlign: -1.5 }} />
+          {label !== null && <span style={KEY}>{label}: </span>}
+          <span style={{ color: "var(--color-secondary)" }}>{collapsed}</span>
+        </div>
+      );
+    }
+  }
+
   const entries = isArray
     ? value.map((v, i) => [String(i), v] as const)
     : Object.entries(value as { [key: string]: JsonValue });
@@ -112,7 +164,7 @@ function JsonNode({ label, value, expandKey }: { label: string | null; value: Js
       {expanded && (
         <div style={{ marginLeft: 8, paddingLeft: 10, borderLeft: "1px dashed var(--color-border)" }}>
           {entries.map(([k, v]) => (
-            <JsonNode key={k} label={isArray ? null : k} value={v} expandKey={expandKey} />
+            <JsonNode key={k} label={isArray ? null : k} value={v} expandKey={expandKey} mode={mode} />
           ))}
           <div className="json-tree-line" style={BRACKET}>{close}</div>
         </div>
@@ -126,6 +178,7 @@ export function JsonTreeViewer() {
   const [result, setResult] = useState(() => tryParseJson(INITIAL_INPUT));
   const [expandAll, setExpandAll] = useState(true);
   const [treeVersion, setTreeVersion] = useState(0);
+  const [mode, setMode] = useState<ViewMode>("valores");
 
   const setAllExpanded = (value: boolean) => {
     setExpandAll(value);
@@ -139,21 +192,30 @@ export function JsonTreeViewer() {
   };
 
   return (
-    <ToolPanel path="~/format/json-tree" description="visualiza JSON em árvore navegável, expandindo e recolhendo nós">
+    <ToolPanel
+      path="~/format/json-tree"
+      description="visualiza JSON em árvore navegável, alternando entre valores e estrutura de tipos"
+    >
       <SplitPane>
         <div className="field-col">
           <TextAreaField label="// entrada" value={input} onChange={setInput} />
           <PrimaryButton onClick={view}>Visualizar →</PrimaryButton>
         </div>
         <div className="field-col">
-          <div className="label-row--between">
+          <div className="label-row--between" style={{ flexWrap: "wrap", rowGap: 8 }}>
             <span className="mono-label">{"// árvore"}</span>
-            <div style={{ display: "flex", gap: 8 }}>
-              <ToggleButton active={expandAll} onClick={() => setAllExpanded(true)}>
-                Expandir tudo
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <ToggleButton active={mode === "valores"} onClick={() => setMode("valores")}>
+                Valores
               </ToggleButton>
-              <ToggleButton active={!expandAll} onClick={() => setAllExpanded(false)}>
-                Recolher tudo
+              <ToggleButton active={mode === "estrutura"} onClick={() => setMode("estrutura")}>
+                Estrutura
+              </ToggleButton>
+              <ToggleButton active={expandAll} onClick={() => setAllExpanded(true)} title="Expandir tudo">
+                <UnfoldVertical size={14} style={{ verticalAlign: -2 }} />
+              </ToggleButton>
+              <ToggleButton active={!expandAll} onClick={() => setAllExpanded(false)} title="Recolher tudo">
+                <FoldVertical size={14} style={{ verticalAlign: -2 }} />
               </ToggleButton>
             </div>
           </div>
@@ -177,7 +239,7 @@ export function JsonTreeViewer() {
             `}</style>
             {result.ok && (
               <div className="json-tree">
-                <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} />
+                <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} mode={mode} />
               </div>
             )}
           </div>
