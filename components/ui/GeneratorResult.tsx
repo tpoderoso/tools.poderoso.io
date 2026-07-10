@@ -32,7 +32,17 @@ export function GeneratorResult({
   return (
     <CenteredColumn>
       <div className="mono-label mono-label--wide">{label}</div>
-      <div style={{ fontWeight: 500, fontSize: valueSize, color: valueColor, letterSpacing: valueLetterSpacing }}>
+      <div
+        style={{
+          fontWeight: 500,
+          fontSize: valueSize,
+          color: valueColor,
+          letterSpacing: valueLetterSpacing,
+          maxWidth: "100%",
+          overflowWrap: "anywhere",
+          textAlign: "center",
+        }}
+      >
         {value}
       </div>
       <div className="gen-actions">

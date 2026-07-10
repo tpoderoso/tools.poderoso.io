@@ -26,7 +26,7 @@ function Row({
 }) {
   return (
     <div
-      style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 26 }}
+      style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 26, flexWrap: "wrap" }}
     >
       <span
         style={{
