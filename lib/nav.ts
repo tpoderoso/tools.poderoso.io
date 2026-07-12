@@ -4,6 +4,7 @@ export type ToolId =
   | "jsontree"
   | "xml"
   | "sql"
+  | "xsdval"
   | "cpf"
   | "cnpj"
   | "uuid"
@@ -35,6 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: "jsontree", label: "JSON Viewer" },
       { id: "xml", label: "XML Formatter" },
       { id: "sql", label: "SQL Formatter" },
+      { id: "xsdval", label: "XSD Validator" },
     ],
   },
   {
