@@ -10,6 +10,7 @@ import { JsonValidator } from "./JsonValidator";
 import { JsonTreeViewer } from "./JsonTreeViewer";
 import { XmlFormatter } from "./XmlFormatter";
 import { SqlFormatter } from "./SqlFormatter";
+import { XsdValidator } from "./XsdValidator";
 import { CpfGenerator } from "./CpfGenerator";
 import { CnpjGenerator } from "./CnpjGenerator";
 import { UuidGenerator } from "./UuidGenerator";
@@ -68,6 +69,9 @@ export function ToolsApp() {
           </Slot>
           <Slot active={tool === "sql"}>
             <SqlFormatter />
+          </Slot>
+          <Slot active={tool === "xsdval"}>
+            <XsdValidator />
           </Slot>
           <Slot active={tool === "cpf"}>
             <CpfGenerator active={tool === "cpf"} />
