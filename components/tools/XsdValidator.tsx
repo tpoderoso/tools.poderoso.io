@@ -10,20 +10,6 @@ import { OutputPane } from "@/components/ui/OutputPane";
 import { toastError } from "@/components/ui/Toaster";
 import { detectMainSchema, validateXml, type SchemaFile, type XsdResult } from "@/lib/tools/xsd";
 
-const ERROR_BOX = {
-  background: "var(--color-danger-tint)",
-  border: "1px solid var(--color-danger-tint-border)",
-  borderRadius: 10,
-  padding: 14,
-  fontSize: 12,
-  lineHeight: 1.65,
-  color: "var(--color-danger)",
-  whiteSpace: "pre-wrap" as const,
-  margin: 0,
-  minHeight: 380,
-  overflow: "auto" as const,
-};
-
 export function XsdValidator() {
   const [schemas, setSchemas] = useState<SchemaFile[]>([]);
   const [mainSchema, setMainSchema] = useState("");
@@ -151,18 +137,15 @@ export function XsdValidator() {
             />
           )}
           {result && !result.valid && (
-            <>
-              <div className="label-row">
-                <span className="mono-label" style={{ color: "var(--color-danger)" }}>
-                  {"// resultado"}
-                </span>
-              </div>
-              <pre style={ERROR_BOX}>
-                {`✗ XML inválido\n\n${result.errors
-                  .map((e) => (e.line ? `linha ${e.line}: ${e.message}` : e.message))
-                  .join("\n")}`}
-              </pre>
-            </>
+            <OutputPane
+              label="// resultado"
+              labelColor="var(--color-danger)"
+              text={`✗ XML inválido\n\n${result.errors
+                .map((e) => (e.line ? `linha ${e.line}: ${e.message}` : e.message))
+                .join("\n")}`}
+              color="var(--color-danger)"
+              style={{ background: "var(--color-danger-tint)", border: "1px solid var(--color-danger-tint-border)" }}
+            />
           )}
         </div>
       </SplitPane>
