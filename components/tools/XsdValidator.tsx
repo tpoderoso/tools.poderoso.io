@@ -222,7 +222,7 @@ export function XsdValidator() {
             </div>
           </div>
         </div>
-        <div className="field-col">
+        <div className="field-col" style={{ position: "sticky", top: 0, alignSelf: "start" }}>
           {result === null && !loading && (
             <OutputPane
               label="// resultado"
@@ -236,8 +236,11 @@ export function XsdValidator() {
             <OutputPane
               label="// resultado"
               labelColor="var(--color-primary)"
-              text="✓ XML válido conforme o schema"
-              copyText=""
+              text={
+                validatedSchemaCount > 0
+                  ? `✓ XML válido conforme o schema\n\nbem-formado · ${validatedSchemaCount} schema(s)`
+                  : "✓ XML bem-formado\n\nnenhum schema carregado — apenas a boa-formação do XML foi verificada."
+              }
               color="var(--color-primary)"
             />
           )}
@@ -245,9 +248,13 @@ export function XsdValidator() {
             <OutputPane
               label="// resultado"
               labelColor="var(--color-danger)"
-              text={`✗ XML inválido\n\n${result.errors
-                .map((e) => (e.line ? `linha ${e.line}: ${e.message}` : e.message))
-                .join("\n")}`}
+              text={`✗ ${result.errors.length} erro(s) encontrado(s)\n\n${result.errors
+                .map((e, i) => `${i + 1}. ${e.line ? `linha ${e.line}: ` : ""}${e.message}`)
+                .join("\n")}${
+                validatedSchemaCount === 0
+                  ? "\n\nnenhum schema carregado — apenas a boa-formação do XML foi verificada."
+                  : ""
+              }`}
               color="var(--color-danger)"
               style={{ background: "var(--color-danger-tint)", border: "1px solid var(--color-danger-tint-border)" }}
             />
