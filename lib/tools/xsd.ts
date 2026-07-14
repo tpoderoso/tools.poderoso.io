@@ -50,3 +50,18 @@ export async function validateXml(
     return { valid: false, errors: [{ message: `Erro no schema XSD: ${(e as Error).message}` }] };
   }
 }
+
+/** Só boa-formação, sem schema — usa DOMParser nativo, não carrega o WASM. */
+export function checkWellFormedness(xml: string): XsdResult {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const errorNode = doc.getElementsByTagName("parsererror")[0];
+  if (!errorNode) return { valid: true };
+  return { valid: false, errors: [{ message: errorNode.textContent?.trim() || "XML mal-formado" }] };
+}
+
+/** "999 B", "1.5 KB", "3.4 MB" — pra lista de schemas. */
+export function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
