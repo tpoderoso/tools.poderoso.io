@@ -202,6 +202,7 @@ export function XsdValidator() {
               onChange={setXml}
               onKeyDown={handleXmlKeyDown}
               placeholder="cole o XML aqui ou carregue um arquivo"
+              style={{ minHeight: 140 }}
               labelRight={
                 <label className="mono-label" style={{ cursor: "pointer", color: "var(--color-secondary)" }}>
                   carregar arquivo
@@ -222,7 +223,7 @@ export function XsdValidator() {
             </div>
           </div>
         </div>
-        <div className="field-col" style={{ position: "sticky", top: 0, alignSelf: "start" }}>
+        <div className="field-col" style={{ position: "sticky", top: 0 }}>
           {result === null && !loading && (
             <OutputPane
               label="// resultado"
