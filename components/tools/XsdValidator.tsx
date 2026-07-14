@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent, type DragEvent } from "react";
+import { useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { FileUp, X } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { SplitPane } from "@/components/ui/SplitPane";
@@ -8,7 +8,14 @@ import { TextAreaField } from "@/components/ui/TextAreaField";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { OutputPane } from "@/components/ui/OutputPane";
 import { toastError } from "@/components/ui/Toaster";
-import { detectMainSchema, formatBytes, validateXml, type SchemaFile, type XsdResult } from "@/lib/tools/xsd";
+import {
+  checkWellFormedness,
+  detectMainSchema,
+  formatBytes,
+  validateXml,
+  type SchemaFile,
+  type XsdResult,
+} from "@/lib/tools/xsd";
 
 const MAX_SCHEMAS = 100;
 
@@ -21,6 +28,7 @@ export function XsdValidator() {
   const [mainSchema, setMainSchema] = useState("");
   const [xml, setXml] = useState("");
   const [result, setResult] = useState<XsdResult | null>(null);
+  const [validatedSchemaCount, setValidatedSchemaCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
@@ -72,17 +80,34 @@ export function XsdValidator() {
   };
 
   const validate = async () => {
-    if (schemas.length === 0) return toastError("Envie ao menos um arquivo XSD");
     if (!xml.trim()) return toastError("Cole ou carregue um XML para validar");
     setLoading(true);
     try {
-      setResult(await validateXml(xml, schemas, mainSchema));
+      setResult(schemas.length === 0 ? checkWellFormedness(xml) : await validateXml(xml, schemas, mainSchema));
+      setValidatedSchemaCount(schemas.length);
     } catch {
       toastError("Falha ao carregar o validador XSD. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleXmlKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      validate();
+    }
+  };
+
+  const clearAll = () => {
+    setSchemas([]);
+    setMainSchema("");
+    setXml("");
+    setResult(null);
+    setValidatedSchemaCount(0);
+  };
+
+  const hasContent = xml.length > 0 || schemas.length > 0 || result !== null;
 
   return (
     <ToolPanel path="~/format/xsdval" description="valida XML contra um ou mais schemas XSD">
@@ -175,6 +200,7 @@ export function XsdValidator() {
               label="// xml a validar"
               value={xml}
               onChange={setXml}
+              onKeyDown={handleXmlKeyDown}
               placeholder="cole o XML aqui ou carregue um arquivo"
               labelRight={
                 <label className="mono-label" style={{ cursor: "pointer", color: "var(--color-secondary)" }}>
@@ -183,9 +209,17 @@ export function XsdValidator() {
                 </label>
               }
             />
-            <PrimaryButton onClick={validate} disabled={loading}>
-              {loading ? "Validando…" : "Validar →"}
-            </PrimaryButton>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <PrimaryButton onClick={validate} disabled={loading}>
+                {loading ? "Validando…" : "Validar →"}
+              </PrimaryButton>
+              <span className="mono-label">ctrl/cmd + enter</span>
+              {hasContent && (
+                <button type="button" onClick={clearAll} className="btn-copy-text">
+                  limpar
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div className="field-col">
