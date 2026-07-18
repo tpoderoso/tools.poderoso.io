@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Menu } from "lucide-react";
+import { VisitCounter } from "./VisitCounter";
 
 const DOT = { width: 12, height: 12, borderRadius: "50%", display: "block" } as const;
 
@@ -49,6 +50,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         >
           ferramentas para devs
         </span>
+        <VisitCounter />
         <Link href="https://poderoso.io" className="header-back-link">
           ← poderoso.io
         </Link>

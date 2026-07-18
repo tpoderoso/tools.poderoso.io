@@ -8,4 +8,9 @@ services:
       - "3004:3000"
     env_file:
       - .env
+    volumes:
+      - visits-data:/app/data
     restart: unless-stopped
+
+volumes:
+  visits-data:
