@@ -5,7 +5,13 @@ import { ToolPanel } from "@/components/ui/ToolPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { ToggleButton } from "@/components/ui/ToggleButton";
 import { LinedTextarea } from "@/components/ui/LinedTextarea";
+import { toastError } from "@/components/ui/Toaster";
 import { computeDiff, pairSideBySide, stripLeadingWhitespace, type DiffLine } from "@/lib/tools/diff";
+
+// ponytail: chars como proxy de bytes (texto costuma ser ~1 byte/char) — bloqueia antes de rodar o diff
+const MAX_INPUT_CHARS = 20 * 1024 * 1024;
+// acima disso, força "apenas diferenças" — renderizar toda linha igual de um diff gigante trava a aba
+const LARGE_DIFF_LINES = 5000;
 
 function lineStyle(type: DiffLine["type"] | "empty") {
   if (type === "add") {
@@ -93,6 +99,7 @@ export function TextDiffTool() {
   const [lines, setLines] = useState<DiffLine[] | null>(null);
   const [ignoreLeading, setIgnoreLeading] = useState(false);
   const [onlyDiffs, setOnlyDiffs] = useState(false);
+  const [forceOnlyDiffs, setForceOnlyDiffs] = useState(false);
 
   const added = lines?.filter((l) => l.type === "add").length ?? 0;
   const removed = lines?.filter((l) => l.type === "remove").length ?? 0;
@@ -139,7 +146,15 @@ export function TextDiffTool() {
           onClick={() => {
             const l = ignoreLeading ? stripLeadingWhitespace(left) : left;
             const r = ignoreLeading ? stripLeadingWhitespace(right) : right;
-            setLines(computeDiff(l, r));
+            if (l.length > MAX_INPUT_CHARS || r.length > MAX_INPUT_CHARS) {
+              toastError("Texto muito grande (máx. 20MB) — reduza o tamanho para comparar.");
+              return;
+            }
+            const result = computeDiff(l, r);
+            const large = result.length > LARGE_DIFF_LINES;
+            setForceOnlyDiffs(large);
+            setOnlyDiffs((prev) => large || prev);
+            setLines(result);
           }}
         >
           Comparar →
@@ -153,7 +168,16 @@ export function TextDiffTool() {
         >
           ignorar espaços/tabs à esquerda
         </ToggleButton>
-        <ToggleButton active={onlyDiffs} onClick={() => setOnlyDiffs((v) => !v)}>
+        <ToggleButton
+          active={onlyDiffs}
+          onClick={() => {
+            if (onlyDiffs && forceOnlyDiffs) {
+              toastError("Resultado grande demais para mostrar linhas iguais — mantenha \"apenas diferenças\" ativado.");
+              return;
+            }
+            setOnlyDiffs((v) => !v);
+          }}
+        >
           apenas diferenças
         </ToggleButton>
         {lines !== null && (
