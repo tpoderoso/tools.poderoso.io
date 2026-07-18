@@ -80,6 +80,7 @@ export function XsdValidator() {
   };
 
   const validate = async () => {
+    if (loading) return;
     if (!xml.trim()) return toastError("Cole ou carregue um XML para validar");
     setLoading(true);
     try {
