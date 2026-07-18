@@ -18,6 +18,7 @@ import { SplitPane } from "@/components/ui/SplitPane";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { ToggleButton } from "@/components/ui/ToggleButton";
+import { CopyButton } from "@/components/ui/CopyButton";
 import { toastError } from "@/components/ui/Toaster";
 import { tryParseJson } from "@/lib/tools/json";
 
@@ -79,6 +80,54 @@ function primitiveArrayTypeLabel(value: JsonValue[]): string | null {
   return types.length === 1 ? `${types[0]}[]` : `(${types.join(" | ")})[]`;
 }
 
+/** Modo "estrutura": array de objetos/arrays com o mesmo formato (mesmas chaves/tipos, recursivamente) colapsa pra 1 exemplar em vez de repetir a mesma estrutura N vezes. Retorna null se as formas divergem. */
+function homogeneousArraySample(value: JsonValue[]): JsonValue | null {
+  if (value.length < 2) return null;
+  const shape = structureText(value[0]);
+  return value.every((v) => structureText(v) === shape) ? value[0] : null;
+}
+
+/** Texto equivalente ao modo "estrutura" da árvore, para copiar. */
+function structureText(value: JsonValue, indent = ""): string {
+  if (!isContainer(value)) return primitiveTypeName(value);
+
+  const isArray = Array.isArray(value);
+  let arrayItems = isArray ? value : null;
+  if (isArray) {
+    const collapsed = primitiveArrayTypeLabel(value);
+    if (collapsed !== null) return collapsed;
+    const sample = homogeneousArraySample(value);
+    if (sample !== null) arrayItems = [sample];
+  }
+
+  const [open, close] = isArray ? ["[", "]"] : ["{", "}"];
+  const entries = arrayItems
+    ? arrayItems.map((v, i) => [String(i), v] as const)
+    : Object.entries(value as { [key: string]: JsonValue });
+  if (entries.length === 0) return `${open}${close}`;
+
+  const childIndent = indent + "  ";
+  const lines = entries.map(([k, v]) => {
+    const key = isArray ? "" : `"${k}": `;
+    return `${childIndent}${key}${structureText(v, childIndent)}`;
+  });
+  return `${open}\n${lines.join(",\n")}\n${indent}${close}`;
+}
+
+const LARGE_TREE_NODES = 2000;
+
+/** Conta nós até `limit` e para (early exit) — suficiente pra decidir "é grande?" sem varrer a árvore inteira. */
+function countNodes(value: JsonValue, limit: number): number {
+  if (!isContainer(value)) return 1;
+  let count = 1;
+  const children = Array.isArray(value) ? value : Object.values(value);
+  for (const child of children) {
+    if (count >= limit) return count;
+    count += countNodes(child, limit - count);
+  }
+  return count;
+}
+
 type ViewMode = "valores" | "estrutura";
 
 function JsonNode({
@@ -86,13 +135,15 @@ function JsonNode({
   value,
   expandKey,
   mode,
+  isRoot = false,
 }: {
   label: string | null;
   value: JsonValue;
   expandKey: boolean;
   mode: ViewMode;
+  isRoot?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(expandKey);
+  const [expanded, setExpanded] = useState(isRoot || expandKey);
 
   if (!isContainer(value)) {
     return (
@@ -125,6 +176,9 @@ function JsonNode({
     ? value.map((v, i) => [String(i), v] as const)
     : Object.entries(value as { [key: string]: JsonValue });
   const [open, close] = isArray ? ["[", "]"] : ["{", "}"];
+
+  const homogeneousSample = isArray && mode === "estrutura" ? homogeneousArraySample(value) : null;
+  const displayEntries = homogeneousSample !== null ? [entries[0]] : entries;
 
   const chevronProps = { size: 12, color: "var(--color-muted)", style: { flexShrink: 0 } } as const;
 
@@ -160,10 +214,13 @@ function JsonNode({
             <span style={BRACKET}>{close}</span>
           </>
         )}
+        {expanded && homogeneousSample !== null && (
+          <span style={{ color: "var(--color-muted)", fontSize: 10.5, padding: "0 2px" }}>× {entries.length}</span>
+        )}
       </button>
       {expanded && (
         <div style={{ marginLeft: 8, paddingLeft: 10, borderLeft: "1px dashed var(--color-border)" }}>
-          {entries.map(([k, v]) => (
+          {displayEntries.map(([k, v]) => (
             <JsonNode key={k} label={isArray ? null : k} value={v} expandKey={expandKey} mode={mode} />
           ))}
           <div className="json-tree-line" style={BRACKET}>{close}</div>
@@ -179,16 +236,28 @@ export function JsonTreeViewer() {
   const [expandAll, setExpandAll] = useState(true);
   const [treeVersion, setTreeVersion] = useState(0);
   const [mode, setMode] = useState<ViewMode>("valores");
+  const [tooLargeToExpand, setTooLargeToExpand] = useState(false);
 
   const setAllExpanded = (value: boolean) => {
+    if (value && tooLargeToExpand) {
+      toastError("Árvore grande demais para expandir tudo de uma vez — abra os nós manualmente.");
+      return;
+    }
     setExpandAll(value);
     setTreeVersion((v) => v + 1);
   };
 
   const view = () => {
     const r = tryParseJson(input);
-    if (r.ok) setResult(r);
-    else toastError("JSON inválido: " + r.error);
+    if (!r.ok) {
+      toastError("JSON inválido: " + r.error);
+      return;
+    }
+    setResult(r);
+    const large = countNodes(r.value as JsonValue, LARGE_TREE_NODES) >= LARGE_TREE_NODES;
+    setTooLargeToExpand(large);
+    setExpandAll(!large);
+    setTreeVersion((v) => v + 1);
   };
 
   return (
@@ -217,6 +286,15 @@ export function JsonTreeViewer() {
               <ToggleButton active={!expandAll} onClick={() => setAllExpanded(false)} title="Recolher tudo">
                 <FoldVertical size={14} style={{ verticalAlign: -2 }} />
               </ToggleButton>
+              <CopyButton
+                text={
+                  result.ok
+                    ? mode === "estrutura"
+                      ? structureText(result.value as JsonValue)
+                      : JSON.stringify(result.value, null, 2)
+                    : input
+                }
+              />
             </div>
           </div>
           <div
@@ -239,7 +317,7 @@ export function JsonTreeViewer() {
             `}</style>
             {result.ok && (
               <div className="json-tree">
-                <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} mode={mode} />
+                <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} mode={mode} isRoot />
               </div>
             )}
           </div>
