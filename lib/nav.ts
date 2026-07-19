@@ -7,6 +7,7 @@ export type ToolId =
   | "xsdval"
   | "cpf"
   | "cnpj"
+  | "company"
   | "uuid"
   | "pwd"
   | "lorem"
@@ -44,6 +45,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "cpf", label: "CPF" },
       { id: "cnpj", label: "CNPJ" },
+      { id: "company", label: "Empresa" },
       { id: "uuid", label: "UUID" },
       { id: "pwd", label: "Senha Segura" },
       { id: "lorem", label: "Lorem Ipsum" },

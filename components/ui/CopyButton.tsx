@@ -7,13 +7,15 @@ interface CopyButtonProps {
   text: string;
   variant?: "icon" | "text";
   style?: CSSProperties;
+  label?: string;
 }
 
 /**
  * Copy-to-clipboard button with a transient "copiado" confirmation (1.5s).
- * `variant="icon"` renders an icon-only button; `variant="text"` adds a "Copiar"/"Copiado" label.
+ * `variant="icon"` renders an icon-only button; `variant="text"` adds a "Copiar"/"Copiado" label
+ * (customizable via `label`, e.g. "Copiar tudo").
  */
-export function CopyButton({ text, variant = "icon", style }: CopyButtonProps) {
+export function CopyButton({ text, variant = "icon", style, label = "Copiar" }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -39,7 +41,7 @@ export function CopyButton({ text, variant = "icon", style }: CopyButtonProps) {
         ) : (
           <>
             <Copy size={13} strokeWidth={2} />
-            Copiar
+            {label}
           </>
         )}
       </button>

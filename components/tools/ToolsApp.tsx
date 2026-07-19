@@ -13,6 +13,7 @@ import { SqlFormatter } from "./SqlFormatter";
 import { XsdValidator } from "./XsdValidator";
 import { CpfGenerator } from "./CpfGenerator";
 import { CnpjGenerator } from "./CnpjGenerator";
+import { CompanyGenerator } from "./CompanyGenerator";
 import { UuidGenerator } from "./UuidGenerator";
 import { PasswordGenerator } from "./PasswordGenerator";
 import { LoremGenerator } from "./LoremGenerator";
@@ -78,6 +79,9 @@ export function ToolsApp() {
           </Slot>
           <Slot active={tool === "cnpj"}>
             <CnpjGenerator active={tool === "cnpj"} />
+          </Slot>
+          <Slot active={tool === "company"}>
+            <CompanyGenerator active={tool === "company"} />
           </Slot>
           <Slot active={tool === "uuid"}>
             <UuidGenerator active={tool === "uuid"} />
