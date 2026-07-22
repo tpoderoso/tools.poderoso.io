@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { ToggleButton } from "@/components/ui/ToggleButton";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { CopyButton } from "@/components/ui/CopyButton";
-import { COMPANY_FIELDS, companyToJSON, companyToText, genCompany, regenField, type Company } from "@/lib/tools/company";
+import { COMPANY_FIELDS, ESTABS, companyToJSON, companyToText, genCompany, regenField, type Company, type EstabId } from "@/lib/tools/company";
 import { UFS, type UF } from "@/lib/tools/ie";
+import { getEstablishmentType, setEstablishmentType } from "@/lib/storage";
 import { useOnActivate } from "@/lib/hooks/useOnActivate";
+
+const selectStyle: React.CSSProperties = {
+  padding: "8px 10px",
+  borderRadius: 8,
+  fontFamily: "var(--font-mono)",
+  fontSize: 11.5,
+  cursor: "pointer",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-bg-alt)",
+  color: "var(--color-fg)",
+};
 
 const FIELD_COLORS: Partial<Record<(typeof COMPANY_FIELDS)[number][0], string>> = {
   razaoSocial: "var(--color-primary)",
@@ -21,12 +33,19 @@ const FIELD_COLORS: Partial<Record<(typeof COMPANY_FIELDS)[number][0], string>> 
 export function CompanyGenerator({ active }: { active: boolean }) {
   const [alphanumeric, setAlphanumeric] = useState(false);
   const [uf, setUf] = useState<UF | "">("");
+  const [tipo, setTipo] = useState<EstabId | "">("");
   const [company, setCompany] = useState<Company | null>(null);
 
-  const generate = (alpha = alphanumeric, state = uf) =>
-    setCompany(genCompany({ alphanumericCnpj: alpha, uf: state || undefined }));
+  const generate = (alpha = alphanumeric, state = uf, tp = tipo) =>
+    setCompany(genCompany({ alphanumericCnpj: alpha, uf: state || undefined, tipo: tp }));
 
-  useOnActivate(active, () => generate());
+  // Lê o tipo salvo só depois do mount (client-only) para não divergir do SSR.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setTipo(getEstablishmentType()), []);
+
+  // Na primeira abertura, gera já respeitando o tipo salvo (o estado ainda pode
+  // não ter assentado, então lemos direto do storage).
+  useOnActivate(active, () => generate(alphanumeric, uf, getEstablishmentType()));
 
   return (
     <ToolPanel
@@ -53,6 +72,24 @@ export function CompanyGenerator({ active }: { active: boolean }) {
           CNPJ alfanumérico
         </ToggleButton>
         <select
+          value={tipo}
+          onChange={(e) => {
+            const next = e.target.value as EstabId | "";
+            setTipo(next);
+            setEstablishmentType(next);
+            generate(alphanumeric, uf, next);
+          }}
+          title="Tipo de estabelecimento (fica salvo para a próxima visita)"
+          style={selectStyle}
+        >
+          <option value="">Tipo aleatório</option>
+          {ESTABS.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.label}
+            </option>
+          ))}
+        </select>
+        <select
           value={uf}
           onChange={(e) => {
             const next = e.target.value as UF | "";
@@ -60,16 +97,7 @@ export function CompanyGenerator({ active }: { active: boolean }) {
             generate(alphanumeric, next);
           }}
           title="UF da Inscrição Estadual, endereço e DDD"
-          style={{
-            padding: "8px 10px",
-            borderRadius: 8,
-            fontFamily: "var(--font-mono)",
-            fontSize: 11.5,
-            cursor: "pointer",
-            border: "1px solid var(--color-line)",
-            background: "var(--color-bg-alt)",
-            color: "var(--color-fg)",
-          }}
+          style={selectStyle}
         >
           <option value="">UF aleatória</option>
           {UFS.map((s) => (
@@ -128,7 +156,7 @@ export function CompanyGenerator({ active }: { active: boolean }) {
                 title="Gerar de novo só este campo"
                 className="btn-copy-icon"
                 onClick={() => {
-                  const patch = regenField(company, key, { alphanumericCnpj: alphanumeric });
+                  const patch = regenField(company, key, { alphanumericCnpj: alphanumeric, tipo });
                   if (patch.uf) setUf(patch.uf as UF);
                   setCompany({ ...company, ...patch });
                 }}

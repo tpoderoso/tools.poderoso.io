@@ -1,5 +1,5 @@
-import { ToolsApp } from "@/components/tools/ToolsApp";
+import { HomeLauncher } from "@/components/tools/HomeLauncher";
 
 export default function Home() {
-  return <ToolsApp />;
+  return <HomeLauncher />;
 }

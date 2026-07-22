@@ -30,18 +30,58 @@ export function genBrandName(): string {
 // com natureza jurídica coerente. CNAE é classificação oficial, não dado real.
 // ---------------------------------------------------------------------------
 
-const RAMOS = [
-  { ramo: "Tecnologia", tag: "Sistemas", cnae: "62.01-5-01 Desenvolvimento de programas de computador sob encomenda" },
-  { ramo: "Comércio de Alimentos", tag: "Alimentos", cnae: "47.11-3-02 Comércio varejista de mercadorias em geral (minimercados)" },
-  { ramo: "Logística e Transportes", tag: "Log", cnae: "52.50-8-04 Organização logística do transporte de carga" },
-  { ramo: "Consultoria Empresarial", tag: "Consultoria", cnae: "70.20-4-00 Atividades de consultoria em gestão empresarial" },
-  { ramo: "Construções e Reformas", tag: "Engenharia", cnae: "41.20-4-00 Construção de edifícios" },
-  { ramo: "Serviços de Limpeza", tag: "Serviços", cnae: "81.21-4-00 Limpeza em prédios e em domicílios" },
-  { ramo: "Comércio de Vestuário", tag: "Moda", cnae: "47.81-4-00 Comércio varejista de artigos do vestuário e acessórios" },
-  { ramo: "Marketing Digital", tag: "Digital", cnae: "73.19-0-03 Marketing direto" },
-  { ramo: "Indústria de Móveis", tag: "Móveis", cnae: "31.01-2-00 Fabricação de móveis com predominância de madeira" },
-  { ramo: "Educação Profissional", tag: "Cursos", cnae: "85.99-6-04 Treinamento em desenvolvimento profissional e gerencial" },
+// Tipos de estabelecimento: ramo/CNAE coerentes + vocabulário da categoria.
+// `termos` são substantivos do segmento (Farmácia, Posto...), não nomes prontos —
+// o nome fantasia é montado por algoritmo combinando termo + marca aleatória.
+export const ESTABS = [
+  {
+    id: "petshop",
+    label: "Petshop",
+    ramo: "Comércio de Produtos para Animais",
+    cnae: "47.89-0-04 Comércio varejista de animais vivos e de artigos e alimento para animais de estimação",
+    termos: ["Pet Shop", "Petshop", "Mundo Pet", "Pet Center", "Cia dos Bichos"],
+  },
+  {
+    id: "posto",
+    label: "Posto",
+    ramo: "Comércio de Combustíveis",
+    cnae: "47.31-8-00 Comércio varejista de combustíveis para veículos automotores",
+    termos: ["Posto", "Auto Posto", "Posto e Conveniência", "Combustíveis"],
+  },
+  {
+    id: "farmacia",
+    label: "Farmácia",
+    ramo: "Comércio de Produtos Farmacêuticos",
+    cnae: "47.71-7-01 Comércio varejista de produtos farmacêuticos, sem manipulação de fórmulas",
+    termos: ["Farmácia", "Drogaria", "Farmácia e Drogaria", "Drogaria"],
+  },
+  {
+    id: "restaurante",
+    label: "Restaurante",
+    ramo: "Serviços de Alimentação",
+    cnae: "56.11-2-01 Restaurantes e similares",
+    termos: ["Restaurante", "Cantina", "Churrascaria", "Bistrô", "Grill"],
+  },
+  {
+    id: "roupas",
+    label: "Loja de Roupas",
+    ramo: "Comércio de Vestuário",
+    cnae: "47.81-4-00 Comércio varejista de artigos do vestuário e acessórios",
+    termos: ["Boutique", "Modas", "Loja", "Moda", "Store"],
+  },
 ] as const;
+
+export type EstabId = (typeof ESTABS)[number]["id"];
+type Estab = (typeof ESTABS)[number];
+
+const estabById = (id?: EstabId | "") => (id ? ESTABS.find((e) => e.id === id)! : pick(ESTABS));
+
+/** Monta um nome fantasia combinando aleatoriamente o termo da categoria com uma marca gerada por sílabas. */
+const genFantasia = (e: Estab, brand = genBrandName()): string => {
+  const termo = pick(e.termos);
+  // padrão de composição sorteado: "Termo Marca" ou "Marca Termo"
+  return rnd(2) === 0 ? `${termo} ${brand}` : `${brand} ${termo}`;
+};
 
 const PORTES = [
   { porte: "ME (Microempresa)", capMin: 10_000, capMax: 360_000, regimes: ["Simples Nacional"] },
@@ -140,10 +180,11 @@ const regimesFor = (p: (typeof PORTES)[number], isSA: boolean): readonly string[
 const slugOf = (name: string) => name.split(" ")[0].toLowerCase().replace(/[^a-z]/g, "");
 
 /** Gera a ficha completa de uma empresa fictícia, coerente com a UF escolhida (ou sorteada). Nenhum dado é real. */
-export function genCompany(opts: { alphanumericCnpj?: boolean; uf?: UF } = {}): Company {
+export function genCompany(opts: { alphanumericCnpj?: boolean; uf?: UF; tipo?: EstabId | "" } = {}): Company {
   const uf = opts.uf ?? pick(UFS);
   const info = UF_INFO[uf];
-  const { ramo, tag, cnae } = pick(RAMOS);
+  const estab = estabById(opts.tipo);
+  const { ramo, cnae } = estab;
   const porteInfo = pick(PORTES);
   const isSA = porteInfo.porte.startsWith("Demais") && rnd(2) === 0;
   const brand = genBrandName();
@@ -151,7 +192,7 @@ export function genCompany(opts: { alphanumericCnpj?: boolean; uf?: UF } = {}): 
 
   return {
     razaoSocial: `${brand} ${ramo} ${isSA ? "S.A." : "LTDA"}`,
-    nomeFantasia: rnd(2) === 0 ? brand : `${brand} ${tag}`,
+    nomeFantasia: genFantasia(estab, brand),
     cnpj: genCNPJ(opts.alphanumericCnpj ?? false),
     inscricaoEstadual: genIE(uf),
     inscricaoMunicipal: genIM(),
@@ -179,17 +220,18 @@ export function genCompany(opts: { alphanumericCnpj?: boolean; uf?: UF } = {}): 
  * município trocam também IE, CEP e DDDs; natureza jurídica ajusta o sufixo da
  * razão social e o regime; porte ajusta regime e capital).
  */
-export function regenField(c: Company, key: CompanyField, opts: { alphanumericCnpj?: boolean } = {}): Partial<Company> {
+export function regenField(c: Company, key: CompanyField, opts: { alphanumericCnpj?: boolean; tipo?: EstabId | "" } = {}): Partial<Company> {
   const uf = c.uf as UF;
   const info = UF_INFO[uf];
   const isSA = c.naturezaJuridica === NAT_SA;
   const porteInfo = PORTES.find((p) => p.porte === c.porte) ?? pick(PORTES);
+  const estab = estabById(opts.tipo);
 
   switch (key) {
     case "razaoSocial":
-      return { razaoSocial: `${genBrandName()} ${pick(RAMOS).ramo} ${isSA ? "S.A." : "LTDA"}` };
+      return { razaoSocial: `${genBrandName()} ${estab.ramo} ${isSA ? "S.A." : "LTDA"}` };
     case "nomeFantasia":
-      return { nomeFantasia: genBrandName() };
+      return { nomeFantasia: genFantasia(estab) };
     case "cnpj":
       return { cnpj: genCNPJ(opts.alphanumericCnpj ?? false) };
     case "inscricaoEstadual":
@@ -205,7 +247,7 @@ export function regenField(c: Company, key: CompanyField, opts: { alphanumericCn
       };
     }
     case "cnae":
-      return { cnae: pick(RAMOS).cnae };
+      return { cnae: estab.cnae };
     case "porte": {
       const p = pick(PORTES.filter((x) => x.porte !== c.porte));
       return { porte: p.porte, regimeTributario: pick(regimesFor(p, isSA)), capitalSocial: genCapital(p) };
