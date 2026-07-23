@@ -18,6 +18,7 @@ export type ToolId =
   | "b64img"
   | "jwt"
   | "epoch"
+  | "text"
   | "diff";
 
 export interface NavItem {
@@ -48,13 +49,15 @@ export const NAV_GROUPS: NavGroup[] = [
         id: "jsonval",
         label: "JSON Validator",
         path: "~/format/json-validate",
-        description: "valida JSON, aponta linha do erro e corrige automaticamente",
+        description:
+          "valida JSON, aponta linha do erro e corrige automaticamente",
       },
       {
         id: "jsontree",
         label: "JSON Viewer",
         path: "~/format/json-tree",
-        description: "visualiza JSON em árvore navegável, alternando entre valores e estrutura de tipos",
+        description:
+          "visualiza JSON em árvore navegável, alternando entre valores e estrutura de tipos",
       },
       {
         id: "xml",
@@ -96,13 +99,15 @@ export const NAV_GROUPS: NavGroup[] = [
         id: "company",
         label: "Empresa",
         path: "~/generate/empresa",
-        description: "gera uma empresa fictícia completa para cadastros de teste",
+        description:
+          "gera uma empresa fictícia completa para cadastros de teste",
       },
       {
         id: "pessoa",
         label: "Pessoa",
         path: "~/generate/pessoa",
-        description: "gera uma pessoa fictícia (nome, CPF, RG e e-mail) para testes",
+        description:
+          "gera uma pessoa fictícia (nome, CPF, RG e e-mail) para testes",
       },
       {
         id: "uuid",
@@ -166,6 +171,19 @@ export const NAV_GROUPS: NavGroup[] = [
         path: "~/convert/epoch",
         description: "converte data/hora ↔ epoch e mostra em vários fusos GMT",
         shortcut: "g e",
+      },
+    ],
+  },
+  {
+    heading: "~/text",
+    items: [
+      {
+        id: "text",
+        label: "Ferramentas de Texto",
+        path: "~/texto/ferramentas",
+        description:
+          "transforma texto e mostra estatisticas: caixa, contagem, tamanho e limpeza",
+        shortcut: "g t",
       },
     ],
   },
