@@ -19,6 +19,7 @@ import { Base64ImageTool } from "./Base64ImageTool";
 import { JwtDecoder } from "./JwtDecoder";
 import { EpochConverter } from "./EpochConverter";
 import { TextDiffTool } from "./TextDiffTool";
+import { TextToolkit } from "./TextToolkit";
 
 /**
  * slug ("category/tool") -> painel da ferramenta. Chave = toolHref(item) sem
@@ -44,6 +45,7 @@ export const TOOL_REGISTRY: Record<string, () => ReactNode> = {
   "encode/base64-img": () => <Base64ImageTool />,
   "encode/jwt": () => <JwtDecoder />,
   "convert/epoch": () => <EpochConverter active />,
+  "texto/ferramentas": () => <TextToolkit />,
   "diff/text": () => <TextDiffTool />,
 };
 
