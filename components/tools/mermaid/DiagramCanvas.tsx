@@ -88,10 +88,8 @@ export function DiagramCanvas({
   }, [fit, viewportRef]);
 
   const commitEdit = () => {
-    setEditing((cur) => {
-      if (cur) setInput((code) => replaceNodeLabel(code, cur.id, cur.value));
-      return null;
-    });
+    if (editing) setInput((code) => replaceNodeLabel(code, editing.id, editing.value));
+    setEditing(null);
   };
 
   const diagMeta = size.w
