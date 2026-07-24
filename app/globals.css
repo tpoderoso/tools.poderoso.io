@@ -249,6 +249,45 @@ textarea {
   color: var(--color-fg);
 }
 
+/* botões da tool mermaid (CodePanel + DiagramToolbar) */
+.mmd-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid var(--color-line);
+  border-radius: 7px;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.mmd-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  pointer-events: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.mmd-tool-btn {
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--color-muted-soft);
+  height: 30px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
 /* resultado de geradores (GeneratorResult + PasswordGenerator/UuidGenerator) */
 .gen-actions {
   display: flex;
@@ -332,9 +371,13 @@ textarea {
 }
 
 .home-index-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px 48px;
+  columns: 3;
+  column-gap: 48px;
+}
+
+.home-index-grid > div {
+  break-inside: avoid;
+  margin-bottom: 32px;
 }
 
 @keyframes caret {
@@ -543,7 +586,7 @@ textarea {
   }
 
   .home-index-grid {
-    grid-template-columns: 1fr;
+    columns: 1;
   }
 
   .home-index-leader {

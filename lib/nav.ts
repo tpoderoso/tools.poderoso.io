@@ -6,6 +6,7 @@ export type ToolId =
   | "xml"
   | "sql"
   | "xsdval"
+  | "mermaid"
   | "cpf"
   | "cnpj"
   | "company"
@@ -76,6 +77,24 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "XSD Validator",
         path: "~/format/xsdval",
         description: "valida XML contra um ou mais schemas XSD",
+      },
+    ],
+  },
+  {
+    heading: "~/general",
+    items: [
+      {
+        id: "epoch",
+        label: "Epoch / Timezone",
+        path: "~/convert/epoch",
+        description: "converte data/hora ↔ epoch e mostra em vários fusos GMT",
+        shortcut: "g e",
+      },
+      {
+        id: "mermaid",
+        label: "Mermaid",
+        path: "~/diagram/mermaid",
+        description: "visualiza e navega diagramas Mermaid com zoom e arraste",
       },
     ],
   },
@@ -163,18 +182,6 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    heading: "~/convert",
-    items: [
-      {
-        id: "epoch",
-        label: "Epoch / Timezone",
-        path: "~/convert/epoch",
-        description: "converte data/hora ↔ epoch e mostra em vários fusos GMT",
-        shortcut: "g e",
-      },
-    ],
-  },
-  {
     heading: "~/text",
     items: [
       {
@@ -185,11 +192,6 @@ export const NAV_GROUPS: NavGroup[] = [
           "transforma texto e mostra estatisticas: caixa, contagem, tamanho e limpeza",
         shortcut: "g t",
       },
-    ],
-  },
-  {
-    heading: "~/diff",
-    items: [
       {
         id: "diff",
         label: "Text Diff",
