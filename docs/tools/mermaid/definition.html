@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #0e1015; color-scheme: dark; overflow: hidden; }
+    * { box-sizing: border-box; }
+    a { color: #4ade80; text-decoration: none; }
+    a:hover { color: #86efac; }
+    ::selection { background: rgba(74,222,128,.25); }
+    textarea::placeholder { color: #4a5470; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: #262c3c; border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: #333b52; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</helmet>
+<div data-screen-label="Mermaid Viewer" style="height: 100vh; display: flex; flex-direction: column; background: #0e1015; font-family: 'JetBrains Mono', monospace; color: #dfe4f0; overflow: hidden;">
+
+  <header style="display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #1d2230; background: rgba(255,255,255,.012); flex: 0 0 auto;">
+    <span style="color: #4ade80; font-size: 15px; font-weight: 700; text-shadow: 0 0 18px rgba(74,222,128,.35); white-space: nowrap;">~/diagram/mermaid</span>
+    <span style="color: #3b4358; font-size: 14px;">—</span>
+    <span style="color: #6c7893; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">visualiza e navega diagramas Mermaid com zoom e arraste</span>
+    <div style="flex: 1;"></div>
+
+    <div style="display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 10px; border: 1px solid #222839; border-radius: 999px; background: rgba(255,255,255,.015);">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ statusDot }}; box-shadow: 0 0 10px {{ statusDot }}; flex: 0 0 auto;"></span>
+      <span style="font-size: 12px; letter-spacing: .06em; color: {{ statusColor }}; white-space: nowrap;">{{ statusText }}</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 6px; padding: 4px; border: 1px solid #222839; border-radius: 10px; background: rgba(255,255,255,.015);">
+      <sc-for list="{{ themeChips }}" as="t" hint-placeholder-count="5">
+        <button onClick="{{ t.onPick }}" title="{{ t.title }}" style="background: {{ t.bg }}; border: 1px solid {{ t.border }}; border-radius: 7px; color: {{ t.color }}; font-family: inherit; font-size: 12.5px; padding: 7px 13px; cursor: pointer; transition: all .12s;" style-hover="border-color: rgba(74,222,128,.45)">{{ t.label }}</button>
+      </sc-for>
+    </div>
+  </header>
+
+  <main style="flex: 1; display: flex; min-height: 0; align-items: stretch;">
+
+    <!-- painel de código -->
+    <sc-if value="{{ codeOpen }}" hint-placeholder-val="{{ true }}">
+      <section ref="{{ paneRef }}" style="width: 34%; min-width: 260px; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #1d2230; background: rgba(255,255,255,.008);">
+        <div style="display: flex; align-items: center; gap: 6px; padding: 11px 10px; border-bottom: 1px solid #1a1f2c; flex: 0 0 auto;">
+          <span style="color: #57627e; font-size: 11.5px; letter-spacing: .22em; white-space: nowrap; flex: 0 0 auto;">//&nbsp; CÓDIGO</span>
+          <span style="color: #3b4358; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; min-width: 0;">{{ codeMeta }}</span>
+          <div style="flex: 1 1 0; min-width: 0;"></div>
+          <input type="file" accept=".mmd,.mermaid,.md,.txt,text/plain" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display: none;">
+          <button onClick="{{ pickFile }}" title="abrir arquivo .mmd" style="background: transparent; border: 1px solid #2a3040; border-radius: 7px; color: #6c7893; width: 28px; min-width: 28px; height: 28px; flex: 0 0 auto; font-family: inherit; font-size: 13px; cursor: pointer; display: grid; place-items: center; transition: all .12s;" style-hover="border-color: rgba(74,222,128,.5); color: #4ade80">↑</button>
+          <button onClick="{{ copyCode }}" title="copiar código" style="background: transparent; border: 1px solid #2a3040; border-radius: 7px; color: #6c7893; width: 28px; min-width: 28px; height: 28px; flex: 0 0 auto; font-family: inherit; font-size: 13px; cursor: pointer; display: grid; place-items: center; transition: all .12s;" style-hover="border-color: rgba(74,222,128,.5); color: #4ade80">{{ copyCodeGlyph }}</button>
+          <button onClick="{{ clearCode }}" title="limpar" style="background: transparent; border: 1px solid #2a3040; border-radius: 7px; color: #6c7893; width: 28px; min-width: 28px; flex: 0 0 auto; height: 28px; font-family: inherit; font-size: 13px; cursor: pointer; transition: all .12s;" style-hover="border-color: rgba(248,113,113,.5); color: #f87171">×</button>
+          <button onClick="{{ toggleCode }}" title="recolher painel — ctrl+b" style="background: transparent; border: 1px solid #2a3040; border-radius: 7px; color: #6c7893; width: 28px; min-width: 28px; flex: 0 0 auto; height: 28px; font-family: inherit; font-size: 13px; cursor: pointer; transition: all .12s;" style-hover="border-color: #333b52; color: #dfe4f0">‹</button>
+        </div>
+
+        <div style="flex: 1; display: flex; min-height: 0; position: relative;">
+          <pre ref="{{ gutterRef }}" style="margin: 0; padding: 16px 10px 16px 14px; overflow: hidden; color: #333b52; font-family: inherit; font-size: 13px; line-height: 1.7; text-align: right; user-select: none; background: rgba(0,0,0,.14); border-right: 1px solid #1a1f2c; flex: 0 0 auto; min-width: 46px;">{{ gutter }}</pre>
+          <textarea ref="{{ codeRef }}" value="{{ code }}" onChange="{{ onCode }}" onScroll="{{ onScroll }}" onKeyDown="{{ onCodeKey }}" spellCheck="{{ false }}" wrap="off" placeholder="cole o código Mermaid aqui — graph TD, erDiagram, sequenceDiagram, ..." style="flex: 1; min-width: 0; background: transparent; border: none; outline: none; resize: none; padding: 16px 16px 16px 12px; color: #dfe4f0; font-family: inherit; font-size: 13px; line-height: 1.7; white-space: pre; overflow: auto; tab-size: 2;"></textarea>
+        </div>
+
+        <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ goToError }}" style="display: flex; align-items: flex-start; gap: 10px; text-align: left; padding: 11px 14px; border: none; border-top: 1px solid rgba(248,113,113,.28); background: rgba(248,113,113,.08); color: #fca5a5; font-family: inherit; font-size: 12.5px; line-height: 1.55; cursor: pointer; flex: 0 0 auto; max-height: 132px; overflow: auto;" style-hover="background: rgba(248,113,113,.13)">
+            <span style="color: #f87171; font-weight: 700; flex: 0 0 auto;">✗</span>
+            <span style="min-width: 0;">{{ errorText }}</span>
+          </button>
+        </sc-if>
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-top: 1px solid #1a1f2c; flex: 0 0 auto;">
+          <button onClick="{{ toggleAuto }}" title="renderizar automaticamente ao digitar" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; padding: 0; cursor: pointer; font-family: inherit;">
+            <span style="width: 30px; height: 17px; border-radius: 999px; border: 1px solid {{ autoBorder }}; background: {{ autoTrack }}; display: flex; align-items: center; padding: 2px; justify-content: {{ autoJustify }}; transition: all .15s;">
+              <span style="width: 11px; height: 11px; border-radius: 50%; background: {{ autoKnob }};"></span>
+            </span>
+            <span style="font-size: 12px; color: #6c7893;">auto</span>
+          </button>
+          <div style="flex: 1;"></div>
+          <button onClick="{{ doRender }}" style="background: linear-gradient(180deg, #5ce68c, #3fd873); color: #08130b; border: none; border-radius: 8px; padding: 9px 18px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 22px -12px rgba(74,222,128,.6); transition: transform .12s, filter .12s;" style-hover="filter: brightness(1.08); transform: translateY(-1px)" style-active="transform: translateY(0)">renderizar</button>
+          <span style="color: #3b4358; font-size: 11.5px; white-space: nowrap;">ctrl+enter</span>
+        </div>
+      </section>
+
+      <div onPointerDown="{{ onSplit }}" onDoubleClick="{{ resetSplit }}" title="arraste para redimensionar" style="width: 7px; flex: 0 0 auto; cursor: col-resize; background: transparent; margin: 0 -3px; z-index: 3; position: relative;" style-hover="background: rgba(74,222,128,.14)"></div>
+    </sc-if>
+
+    <sc-if value="{{ codeClosed }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ toggleCode }}" title="mostrar código — ctrl+b" style="width: 40px; flex: 0 0 auto; border: none; border-right: 1px solid #1d2230; background: rgba(255,255,255,.012); color: #57627e; font-family: inherit; font-size: 11.5px; letter-spacing: .22em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 18px 0; transition: color .12s;" style-hover="color: #4ade80">
+        <span style="writing-mode: vertical-rl; transform: rotate(180deg);">CÓDIGO&nbsp; ›</span>
+      </button>
+    </sc-if>
+
+    <!-- painel do diagrama -->
+    <section ref="{{ frameRef }}" style="flex: 1; min-width: 0; position: relative; background: #0e1015; overflow: hidden;">
+      <div ref="{{ viewRef }}" onWheel="{{ onWheel }}" onPointerDown="{{ onPanDown }}" onDoubleClick="{{ fitNow }}" style="position: absolute; inset: 0; overflow: hidden; cursor: grab; background-image: radial-gradient(#1c2130 1px, transparent 1px); background-size: 22px 22px;">
+        <div ref="{{ stageRef }}" style="position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform;"></div>
+      </div>
+
+      <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;">
+          <span style="color: #3b4358; font-size: 13px;">// o diagrama aparecerá aqui</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stale }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; left: 16px; bottom: 58px; display: flex; align-items: center; gap: 9px; padding: 9px 14px; border: 1px solid rgba(248,113,113,.35); border-radius: 10px; background: rgba(20,12,14,.92); backdrop-filter: blur(6px);">
+          <span style="color: #f87171; font-size: 13px;">✗</span>
+          <span style="color: #fca5a5; font-size: 12.5px;">erro de sintaxe — exibindo a última versão válida</span>
+        </div>
+      </sc-if>
+
+      <!-- barra de ferramentas -->
+      <div style="position: absolute; top: 14px; right: 14px; left: 14px; display: flex; align-items: flex-start; justify-content: flex-end; flex-wrap: wrap; gap: 8px; pointer-events: none;">
+        <div style="display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid #262c3c; border-radius: 10px; background: rgba(16,19,26,.9); backdrop-filter: blur(8px); box-shadow: 0 12px 30px -18px #000; pointer-events: auto; flex: 0 0 auto; white-space: nowrap;">
+          <button onClick="{{ zoomOut }}" title="diminuir zoom — tecla -" style="background: transparent; border: none; border-radius: 7px; color: #8b96b0; width: 30px; height: 30px; font-family: inherit; font-size: 15px; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #dfe4f0">−</button>
+          <button onClick="{{ resetZoom }}" title="zoom 100% — tecla 1" style="background: transparent; border: none; border-radius: 7px; color: #dfe4f0; min-width: 58px; height: 30px; font-family: inherit; font-size: 12.5px; font-variant-numeric: tabular-nums; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #4ade80">{{ zoomLabel }}</button>
+          <button onClick="{{ zoomIn }}" title="aumentar zoom — tecla +" style="background: transparent; border: none; border-radius: 7px; color: #8b96b0; width: 30px; height: 30px; font-family: inherit; font-size: 15px; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #dfe4f0">+</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid #262c3c; border-radius: 10px; background: rgba(16,19,26,.9); backdrop-filter: blur(8px); box-shadow: 0 12px 30px -18px #000; pointer-events: auto; flex: 0 0 auto; white-space: nowrap;">
+          <button onClick="{{ fitNow }}" title="ajustar à tela — tecla 0" style="background: transparent; border: none; border-radius: 7px; color: #8b96b0; width: 32px; height: 30px; font-family: inherit; font-size: 13px; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #4ade80">⛶</button>
+          <button onClick="{{ toggleFull }}" title="tela cheia — tecla f" style="background: transparent; border: none; border-radius: 7px; color: #8b96b0; width: 32px; height: 30px; font-family: inherit; font-size: 13px; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #4ade80">⤢</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid #262c3c; border-radius: 10px; background: rgba(16,19,26,.9); backdrop-filter: blur(8px); box-shadow: 0 12px 30px -18px #000; pointer-events: auto; flex: 0 0 auto; white-space: nowrap;">
+          <button onClick="{{ copySvg }}" title="copiar SVG" style="background: transparent; border: none; border-radius: 7px; color: #8b96b0; height: 30px; padding: 0 10px; font-family: inherit; font-size: 12px; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #4ade80">{{ copySvgLabel }}</button>
+          <button onClick="{{ dlSvg }}" title="baixar .svg" style="background: transparent; border: none; border-radius: 7px; color: #8b96b0; height: 30px; padding: 0 10px; font-family: inherit; font-size: 12px; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #4ade80">svg ↓</button>
+          <button onClick="{{ dlPng }}" title="baixar .png (2x)" style="background: transparent; border: none; border-radius: 7px; color: #8b96b0; height: 30px; padding: 0 10px; font-family: inherit; font-size: 12px; cursor: pointer; transition: all .12s;" style-hover="background: rgba(255,255,255,.06); color: #4ade80">png ↓</button>
+        </div>
+      </div>
+
+      <!-- rodapé do diagrama -->
+      <div style="position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 16px; padding: 9px 16px; border-top: 1px solid #1a1f2c; background: rgba(14,16,21,.88); backdrop-filter: blur(8px); pointer-events: none;">
+        <span style="color: #57627e; font-size: 11.5px; letter-spacing: .22em; white-space: nowrap; flex: 0 0 auto;">//&nbsp; DIAGRAMA</span>
+        <span style="color: #3b4358; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;">{{ diagMeta }}</span>
+        <div style="flex: 1 1 0; min-width: 8px;"></div>
+        <span style="color: #3b4358; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;">arraste para mover&nbsp; ·&nbsp; scroll para zoom&nbsp; ·&nbsp; duplo clique ajusta&nbsp; ·&nbsp; ctrl+b código</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;temaInicial&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;dracula&quot;, &quot;dark&quot;, &quot;default&quot;, &quot;forest&quot;, &quot;neutral&quot;], &quot;default&quot;: &quot;dracula&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Diagrama&quot; },
+  &quot;autoRender&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Diagrama&quot; }
+}">
+const SAMPLE = `erDiagram
+    MDFE_DOCUMENTS ||--o{ MDFE_CIOTS : "infCIOT 0-n"
+    MDFE_DOCUMENTS ||--o{ MDFE_TOLL_DEVICES : "valePed/disp"
+    MDFE_DOCUMENTS ||--o{ MDFE_FREIGHT_PAYMENTS : "infPag 0-n"
+    MDFE_DOCUMENTS ||--o{ MDFE_SEALS : "lacRodo + lacres"
+    MDFE_DOCUMENTS ||--o{ MDFE_DOCUMENT_REFS : "infCTe / infNFe"
+    MDFE_FREIGHT_PAYMENTS ||--|{ MDFE_PAYMENT_COMPONENTS : "Comp 1-n"
+    MDFE_DOCUMENT_REFS ||--o{ MDFE_TRANSPORT_UNITS : "infUnidTransp 0-n"
+    MDFE_DOCUMENT_REFS }o--|| CITIES : "cMunDescarga"
+
+    MDFE_CIOTS {
+        int id PK
+        int mdfe_document_id FK
+        string ciot "12; ER59"
+    }
+    MDFE_SEALS {
+        int id PK
+        int mdfe_document_id FK
+        string scope "ROAD|MDFE"
+        string seal_number "nLacre"
+    }`;
+
+class Component extends DCLogic {
+  state = {
+    code: SAMPLE, theme: 'dracula', status: 'idle', error: null, errLine: null,
+    stale: false, hasSvg: false, zoomPct: 100, auto: true, copied: null, nodes: 0,
+    codeOpen: true,
+  };
+  codeRef = React.createRef();
+  gutterRef = React.createRef();
+  fileRef = React.createRef();
+  paneRef = React.createRef();
+  frameRef = React.createRef();
+  viewRef = React.createRef();
+  stageRef = React.createRef();
+  view = { z: 1, x: 0, y: 0 };
+  natural = { w: 0, h: 0 };
+  seq = 0;
+
+  componentDidMount() {
+    this.setState({ theme: this.props.temaInicial || 'dracula', auto: this.props.autoRender ?? true });
+    this._keys = (e) => this.onKeys(e);
+    window.addEventListener('keydown', this._keys);
+    this._rs = () => { if (this._fitted) this.applyTransform(); };
+    window.addEventListener('resize', this._rs);
+    this.waitMermaid().then(() => this.render_(true));
+  }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._keys);
+    window.removeEventListener('resize', this._rs);
+    clearTimeout(this._deb); clearTimeout(this._cp);
+  }
+
+  waitMermaid() {
+    return new Promise(res => {
+      const t = setInterval(() => { if (window.mermaid) { clearInterval(t); res(window.mermaid); } }, 60);
+      setTimeout(() => { clearInterval(t); res(window.mermaid); }, 12000);
+    });
+  }
+
+  async render_(initial) {
+    const m = window.mermaid;
+    const code = this.state.code;
+    if (!m) { this.setState({ status: 'error', error: 'não foi possível carregar a biblioteca Mermaid' }); return; }
+    if (!code.trim()) { if (this.stageRef.current) this.stageRef.current.innerHTML = ''; this.setState({ status: 'idle', hasSvg: false, error: null, stale: false }); return; }
+    this.setState({ status: 'rendering' });
+    const id = 'mmd' + (++this.seq);
+    try {
+      m.initialize({
+        startOnLoad: false, theme: this.state.theme, securityLevel: 'loose',
+        fontFamily: "'JetBrains Mono', monospace",
+        er: { useMaxWidth: false }, flowchart: { useMaxWidth: false }, sequence: { useMaxWidth: false },
+        gantt: { useMaxWidth: false }, class: { useMaxWidth: false }, state: { useMaxWidth: false },
+      });
+      const out = await m.render(id, code);
+      const host = this.stageRef.current;
+      if (!host) return;
+      host.innerHTML = out.svg;
+      const svg = host.querySelector('svg');
+      let nodes = 0;
+      if (svg) {
+        const vb = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+        let w = vb.length === 4 && vb[2] ? vb[2] : svg.getBoundingClientRect().width;
+        let h = vb.length === 4 && vb[3] ? vb[3] : svg.getBoundingClientRect().height;
+        svg.removeAttribute('width'); svg.removeAttribute('height');
+        svg.style.width = w + 'px'; svg.style.height = h + 'px'; svg.style.display = 'block';
+        svg.style.maxWidth = 'none';
+        this.natural = { w, h };
+        nodes = svg.querySelectorAll('.node, .er.entityBox, .entityBox, .actor, g.classGroup').length;
+      }
+      this.setState({ status: 'ok', error: null, errLine: null, stale: false, hasSvg: true, nodes }, () => {
+        if (initial || !this._fitted) this.fit();
+      });
+    } catch (e) {
+      const el = document.getElementById(id); if (el) el.remove();
+      const msg = String((e && e.message) || e || 'erro ao renderizar').replace(/\s+/g, ' ').trim();
+      const lm = msg.match(/line\s+(\d+)/i);
+      this.setState({ status: 'error', error: msg.slice(0, 400), errLine: lm ? Number(lm[1]) : null, stale: this.state.hasSvg });
+    }
+  }
+
+  scheduleRender() {
+    clearTimeout(this._deb);
+    if (!this.state.auto) return;
+    this._deb = setTimeout(() => this.render_(false), 450);
+  }
+
+  applyTransform() {
+    const s = this.stageRef.current;
+    if (s) s.style.transform = `translate(${this.view.x}px, ${this.view.y}px) scale(${this.view.z})`;
+  }
+  syncZoom() {
+    const pct = Math.round(this.view.z * 100);
+    if (pct !== this.state.zoomPct) this.setState({ zoomPct: pct });
+  }
+  fit() {
+    const vp = this.viewRef.current;
+    if (!vp || !this.natural.w) return;
+    const r = vp.getBoundingClientRect();
+    const pad = 56;
+    const z = Math.min((r.width - pad * 2) / this.natural.w, (r.height - pad * 2 - 30) / this.natural.h);
+    this.view.z = Math.max(0.05, Math.min(4, z));
+    this.view.x = (r.width - this.natural.w * this.view.z) / 2;
+    this.view.y = (r.height - 34 - this.natural.h * this.view.z) / 2;
+    this._fitted = true;
+    this.applyTransform(); this.syncZoom();
+  }
+  zoomAt(factor, cx, cy) {
+    const vp = this.viewRef.current; if (!vp) return;
+    const r = vp.getBoundingClientRect();
+    const px = (cx === undefined ? r.width / 2 : cx - r.left);
+    const py = (cy === undefined ? r.height / 2 : cy - r.top);
+    const z0 = this.view.z;
+    const z1 = Math.max(0.05, Math.min(8, z0 * factor));
+    this.view.x = px - (px - this.view.x) * (z1 / z0);
+    this.view.y = py - (py - this.view.y) * (z1 / z0);
+    this.view.z = z1;
+    this.applyTransform(); this.syncZoom();
+  }
+  setZoom100() {
+    const vp = this.viewRef.current; if (!vp) return;
+    const r = vp.getBoundingClientRect();
+    this.view.x = (r.width - this.natural.w) / 2;
+    this.view.y = (r.height - 34 - this.natural.h) / 2;
+    this.view.z = 1;
+    this.applyTransform(); this.syncZoom();
+  }
+
+  onKeys(e) {
+    const tag = (e.target && e.target.tagName) || '';
+    const typing = tag === 'TEXTAREA' || tag === 'INPUT';
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); this.render_(false); return; }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) { e.preventDefault(); this.toggleCode(); return; }
+    if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === '0') { e.preventDefault(); this.fit(); }
+    else if (e.key === '1') { e.preventDefault(); this.setZoom100(); }
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); this.zoomAt(1.2); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); this.zoomAt(1 / 1.2); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); this.toggleFull(); }
+  }
+
+  toggleCode() {
+    this.setState(s => ({ codeOpen: !s.codeOpen }), () => setTimeout(() => this.fit(), 30));
+  }
+  toggleFull() {
+    const el = this.frameRef.current; if (!el) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    setTimeout(() => this.fit(), 220);
+  }
+
+  onPanDown(e) {
+    if (e.button !== 0) return;
+    const vp = this.viewRef.current; if (!vp) return;
+    const sx = e.clientX, sy = e.clientY, ox = this.view.x, oy = this.view.y;
+    vp.style.cursor = 'grabbing';
+    const move = (ev) => { this.view.x = ox + (ev.clientX - sx); this.view.y = oy + (ev.clientY - sy); this.applyTransform(); };
+    const up = () => { vp.style.cursor = 'grab'; window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }
+  onWheel(e) {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey || !e.shiftKey) {
+      const f = Math.pow(0.999, e.deltaY * (e.deltaMode === 1 ? 18 : 1));
+      this.zoomAt(f, e.clientX, e.clientY);
+    } else {
+      this.view.x -= e.deltaY; this.applyTransform();
+    }
+  }
+  onSplit(e) {
+    const pane = this.paneRef.current, main = pane && pane.parentElement;
+    if (!pane || !main) return;
+    e.preventDefault();
+    const rect = main.getBoundingClientRect();
+    const move = (ev) => {
+      const pct = Math.max(18, Math.min(72, ((ev.clientX - rect.left) / rect.width) * 100));
+      pane.style.width = pct + '%';
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }
+
+  flash(key) {
+    clearTimeout(this._cp);
+    this.setState({ copied: key });
+    this._cp = setTimeout(() => this.setState({ copied: null }), 1200);
+  }
+  svgString() {
+    const svg = this.stageRef.current && this.stageRef.current.querySelector('svg');
+    return svg ? new XMLSerializer().serializeToString(svg) : '';
+  }
+  download(blob, name) {
+    const u = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = u; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(u), 4000);
+  }
+  dlPng() {
+    const s = this.svgString(); if (!s) return;
+    const img = new Image();
+    const scale = 2;
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = this.natural.w * scale; c.height = this.natural.h * scale;
+      const ctx = c.getContext('2d');
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, this.natural.w, this.natural.h);
+      c.toBlob(b => b && this.download(b, 'diagrama.png'));
+    };
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(s)));
+  }
+
+  renderVals() {
+    const st = this.state;
+    const themes = [['dracula', 'dracula'], ['dark', 'dark'], ['default', 'default'], ['forest', 'forest'], ['neutral', 'neutral']];
+    const lines = st.code.split('\n');
+    const statusMap = {
+      idle: ['#3b4358', '#6c7893', 'aguardando'],
+      rendering: ['#facc15', '#facc15', 'renderizando'],
+      ok: ['#4ade80', '#4ade80', 'renderizado'],
+      error: ['#f87171', '#f87171', st.errLine ? 'erro na linha ' + st.errLine : 'erro de sintaxe'],
+    };
+    const sm = statusMap[st.status] || statusMap.idle;
+    return {
+      code: st.code,
+      codeRef: this.codeRef, gutterRef: this.gutterRef, fileRef: this.fileRef,
+      paneRef: this.paneRef, frameRef: this.frameRef, viewRef: this.viewRef, stageRef: this.stageRef,
+      gutter: lines.map((_, i) => i + 1).join('\n'),
+      codeMeta: lines.length + ' linhas · ' + st.code.length + ' car.',
+      diagMeta: st.hasSvg ? (Math.round(this.natural.w) + ' × ' + Math.round(this.natural.h) + ' px' + (st.nodes ? ' · ' + st.nodes + ' nós' : '')) : 'sem diagrama',
+      codeOpen: st.codeOpen, codeClosed: !st.codeOpen,
+      toggleCode: () => this.toggleCode(),
+      onCode: (e) => { this.setState({ code: e.target.value }); this.scheduleRender(); },
+      onScroll: (e) => { if (this.gutterRef.current) this.gutterRef.current.scrollTop = e.target.scrollTop; },
+      onCodeKey: (e) => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const t = e.target, s = t.selectionStart, en = t.selectionEnd;
+          const v = t.value.slice(0, s) + '  ' + t.value.slice(en);
+          this.setState({ code: v }, () => { t.selectionStart = t.selectionEnd = s + 2; });
+          this.scheduleRender();
+        }
+      },
+      pickFile: () => this.fileRef.current && this.fileRef.current.click(),
+      onFile: (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (f) { const r = new FileReader(); r.onload = () => { this._fitted = false; this.setState({ code: String(r.result) }, () => this.render_(true)); }; r.readAsText(f); }
+        e.target.value = '';
+      },
+      copyCode: () => { try { navigator.clipboard.writeText(st.code); } catch (err) {} this.flash('code'); },
+      copyCodeGlyph: st.copied === 'code' ? '✓' : '⧉',
+      clearCode: () => { this.setState({ code: '' }, () => this.render_(false)); },
+      hasError: !!st.error, errorText: st.error || '',
+      goToError: () => {
+        const t = this.codeRef.current; if (!t) return;
+        t.focus();
+        if (st.errLine) {
+          const upto = lines.slice(0, Math.max(0, st.errLine - 1)).join('\n').length;
+          t.selectionStart = upto; t.selectionEnd = upto + (lines[st.errLine - 1] || '').length + 1;
+          t.scrollTop = Math.max(0, (st.errLine - 4) * 22.1);
+        }
+      },
+      auto: st.auto,
+      toggleAuto: () => this.setState(s => ({ auto: !s.auto })),
+      autoTrack: st.auto ? 'rgba(74,222,128,.22)' : 'rgba(255,255,255,.05)',
+      autoBorder: st.auto ? 'rgba(74,222,128,.55)' : '#2a3040',
+      autoKnob: st.auto ? '#4ade80' : '#57627e',
+      autoJustify: st.auto ? 'flex-end' : 'flex-start',
+      doRender: () => this.render_(false),
+      statusDot: sm[0], statusColor: sm[1], statusText: sm[2],
+      stale: st.stale,
+      showEmpty: !st.hasSvg,
+      themeChips: themes.map(([id, label]) => ({
+        label, title: 'tema ' + label,
+        bg: st.theme === id ? 'rgba(74,222,128,.12)' : 'transparent',
+        border: st.theme === id ? 'rgba(74,222,128,.55)' : 'transparent',
+        color: st.theme === id ? '#4ade80' : '#8b96b0',
+        onPick: () => this.setState({ theme: id }, () => this.render_(false)),
+      })),
+      zoomLabel: st.zoomPct + '%',
+      zoomIn: () => this.zoomAt(1.25),
+      zoomOut: () => this.zoomAt(1 / 1.25),
+      resetZoom: () => this.setZoom100(),
+      fitNow: () => this.fit(),
+      toggleFull: () => this.toggleFull(),
+      onWheel: (e) => this.onWheel(e),
+      onPanDown: (e) => this.onPanDown(e),
+      onSplit: (e) => this.onSplit(e),
+      resetSplit: () => { if (this.paneRef.current) { this.paneRef.current.style.width = '34%'; setTimeout(() => this.fit(), 30); } },
+      copySvg: () => { const s = this.svgString(); if (s) { try { navigator.clipboard.writeText(s); } catch (e) {} } this.flash('svg'); },
+      copySvgLabel: st.copied === 'svg' ? 'copiado ✓' : 'copiar svg',
+      dlSvg: () => { const s = this.svgString(); if (s) this.download(new Blob([s], { type: 'image/svg+xml' }), 'diagrama.svg'); },
+      dlPng: () => this.dlPng(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

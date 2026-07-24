@@ -47,6 +47,41 @@ export function tokenizeSQL(s: string): SqlToken[] {
   return out;
 }
 
+export type MermaidTokenType = "keyword" | "arrow" | "string" | "comment" | "plain";
+export interface MermaidToken {
+  text: string;
+  type: MermaidTokenType;
+}
+
+// ponytail: keywords comuns aos tipos de diagrama; adicione aqui se algo relevante sair sem cor
+const MERMAID_KEYWORDS = new Set(
+  (
+    "graph flowchart sequencediagram classdiagram statediagram statediagram-v2 " +
+    "erdiagram gantt pie journey gitgraph mindmap timeline quadrantchart " +
+    "requirementdiagram c4context subgraph end participant actor class state note " +
+    "over loop alt else opt par and rect activate deactivate direction section " +
+    "title dateformat axisformat click callback link style linkstyle classdef " +
+    "td lr rl bt tb"
+  ).split(" ")
+);
+
+const MERMAID_RE =
+  /(%%[^\n]*)|("(?:[^"\\]|\\.)*"?)|([A-Za-z_][\w-]*)|([-.=<>|]{2,})|([\s\S])/g;
+
+/** Tokeniza Mermaid para syntax highlight: keywords, setas, strings e comentários; o resto é `plain`. */
+export function tokenizeMermaid(s: string): MermaidToken[] {
+  const out: MermaidToken[] = [];
+  const push = makePush(out);
+  for (const m of s.matchAll(MERMAID_RE)) {
+    if (m[1]) push(m[1], "comment");
+    else if (m[2]) push(m[2], "string");
+    else if (m[3]) push(m[3], MERMAID_KEYWORDS.has(m[3].toLowerCase()) ? "keyword" : "plain");
+    else if (m[4]) push(m[4], "arrow");
+    else push(m[0], "plain");
+  }
+  return out;
+}
+
 export type XmlTokenType = "tag" | "attr" | "string" | "comment" | "plain";
 export interface XmlToken {
   text: string;

@@ -1,0 +1,358 @@
+/* Estrutura estática da tool mermaid. Estilos dinâmicos (transform do zoom, cor
+   do status, posição do editor inline, largura arrastável do painel) ficam inline
+   no componente — não dá pra expressar como classe. */
+
+.viewer {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- header da tool ---- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  flex: 0 0 auto;
+}
+.headerTitle {
+  color: var(--color-primary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.headerDash {
+  color: var(--color-line);
+  font-size: 12px;
+}
+.headerDesc {
+  color: var(--color-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grow {
+  flex: 1;
+}
+.statusPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.statusText {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.themeRow {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ---- corpo ---- */
+.body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  align-items: stretch;
+}
+
+/* ---- painel de código ---- */
+.codePane {
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+}
+.paneHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--color-border);
+  flex: 0 0 auto;
+}
+.paneMeta {
+  color: var(--color-line);
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.headerSpacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* editor: gutter + overlay de highlight + textarea */
+.editorWrap {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+}
+.gutter {
+  margin: 0;
+  padding: 14px 8px 14px 12px;
+  overflow: hidden;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: right;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.15);
+  border-right: 1px solid var(--color-border);
+  flex: 0 0 auto;
+  min-width: 42px;
+}
+.editorArea {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+.overlay,
+.codeTextarea {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre;
+  tab-size: 2;
+}
+.overlay {
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--color-fg);
+}
+.codeTextarea {
+  overflow: auto;
+  border: none;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--color-fg);
+  outline: none;
+}
+
+.errorBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 14px;
+  border: none;
+  border-top: 1px solid var(--color-danger-tint-border);
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  cursor: pointer;
+  flex: 0 0 auto;
+  max-height: 132px;
+  overflow: auto;
+}
+.errorMark {
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.paneFooter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--color-border);
+  flex: 0 0 auto;
+}
+.autoToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+.autoTrack {
+  width: 30px;
+  height: 17px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+.autoKnob {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.autoLabel {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.hint {
+  color: var(--color-line);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+/* divisor arrastável */
+.splitter {
+  width: 7px;
+  flex: 0 0 auto;
+  cursor: col-resize;
+  background: transparent;
+  margin: 0 -3px;
+  z-index: 3;
+  position: relative;
+}
+
+/* painel de código recolhido */
+.collapsedBtn {
+  width: 40px;
+  flex: 0 0 auto;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 0;
+}
+.collapsedLabel {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* ---- painel do diagrama ---- */
+.diagram {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  background: var(--color-bg-alt);
+  overflow: hidden;
+}
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 22px 22px;
+  touch-action: none;
+}
+.svgHolder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.placeholderText {
+  color: var(--color-line);
+  font-size: 12px;
+}
+.staleBadge {
+  position: absolute;
+  left: 16px;
+  bottom: 58px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border: 1px solid var(--color-danger-tint-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  color: var(--color-danger);
+  font-size: 11.5px;
+}
+
+/* barra de ferramentas flutuante */
+.toolbarRow {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  left: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  pointer-events: none;
+}
+
+/* rodapé do diagrama */
+.diagramFooter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+  pointer-events: none;
+}
+.metaText {
+  color: var(--color-line);
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* input de edição inline de rótulo */
+.editInput {
+  position: absolute;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-fg);
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  outline: none;
+  padding: 0 6px;
+  z-index: 5;
+}

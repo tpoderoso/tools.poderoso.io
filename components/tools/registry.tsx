@@ -6,6 +6,7 @@ import { JsonTreeViewer } from "./JsonTreeViewer";
 import { XmlFormatter } from "./XmlFormatter";
 import { SqlFormatter } from "./SqlFormatter";
 import { XsdValidator } from "./XsdValidator";
+import { MermaidViewer } from "./mermaid/MermaidViewer";
 import { CpfGenerator } from "./CpfGenerator";
 import { CnpjGenerator } from "./CnpjGenerator";
 import { CompanyGenerator } from "./CompanyGenerator";
@@ -33,6 +34,7 @@ export const TOOL_REGISTRY: Record<string, () => ReactNode> = {
   "format/xml": () => <XmlFormatter />,
   "format/sql": () => <SqlFormatter />,
   "format/xsdval": () => <XsdValidator />,
+  "diagram/mermaid": () => <MermaidViewer />,
   "generate/cpf": () => <CpfGenerator active />,
   "generate/cnpj": () => <CnpjGenerator active />,
   "generate/empresa": () => <CompanyGenerator active />,
