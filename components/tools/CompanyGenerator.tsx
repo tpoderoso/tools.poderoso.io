@@ -6,21 +6,11 @@ import { ToolPanel } from "@/components/ui/ToolPanel";
 import { ToggleButton } from "@/components/ui/ToggleButton";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { Select } from "@/components/ui/Select";
 import { COMPANY_FIELDS, ESTABS, companyToJSON, companyToText, genCompany, regenField, type Company, type EstabId } from "@/lib/tools/company";
 import { UFS, type UF } from "@/lib/tools/ie";
 import { getEstablishmentType, setEstablishmentType } from "@/lib/storage";
 import { useOnActivate } from "@/lib/hooks/useOnActivate";
-
-const selectStyle: React.CSSProperties = {
-  padding: "8px 10px",
-  borderRadius: 8,
-  fontFamily: "var(--font-mono)",
-  fontSize: 11.5,
-  cursor: "pointer",
-  border: "1px solid var(--color-line)",
-  background: "var(--color-bg-alt)",
-  color: "var(--color-fg)",
-};
 
 const FIELD_COLORS: Partial<Record<(typeof COMPANY_FIELDS)[number][0], string>> = {
   razaoSocial: "var(--color-primary)",
@@ -71,41 +61,29 @@ export function CompanyGenerator({ active }: { active: boolean }) {
         >
           CNPJ alfanumérico
         </ToggleButton>
-        <select
+        <Select
           value={tipo}
-          onChange={(e) => {
-            const next = e.target.value as EstabId | "";
+          onChange={(v) => {
+            const next = v as EstabId | "";
             setTipo(next);
             setEstablishmentType(next);
             generate(alphanumeric, uf, next);
           }}
+          options={ESTABS.map((e) => ({ value: e.id, label: e.label }))}
+          placeholder="Tipo aleatório"
           title="Tipo de estabelecimento (fica salvo para a próxima visita)"
-          style={selectStyle}
-        >
-          <option value="">Tipo aleatório</option>
-          {ESTABS.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.label}
-            </option>
-          ))}
-        </select>
-        <select
+        />
+        <Select
           value={uf}
-          onChange={(e) => {
-            const next = e.target.value as UF | "";
+          onChange={(v) => {
+            const next = v as UF | "";
             setUf(next);
             generate(alphanumeric, next);
           }}
+          options={UFS.map((s) => ({ value: s, label: s }))}
+          placeholder="UF aleatória"
           title="UF da Inscrição Estadual, endereço e DDD"
-          style={selectStyle}
-        >
-          <option value="">UF aleatória</option>
-          {UFS.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+        />
         <PrimaryButton style={{ padding: "8px 16px" }} onClick={() => generate()}>
           <RotateCcw size={13} style={{ verticalAlign: -2, marginRight: 6 }} />
           Gerar nova empresa

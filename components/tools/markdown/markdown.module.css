@@ -1,0 +1,616 @@
+/* Estrutura estática do visualizador de markdown. O que é dinâmico (corpo do
+   texto, largura da coluna, família da fonte) fica inline no componente. */
+
+.viewer {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- header da tool ---- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  flex: 0 0 auto;
+}
+.headerTitle {
+  color: var(--color-primary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.headerDash {
+  color: var(--color-line);
+  font-size: 12px;
+}
+.headerDesc {
+  color: var(--color-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grow {
+  flex: 1;
+}
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.pillDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.pillText {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* ---- barra de leitura ---- */
+.readbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 16px;
+  background: var(--color-bg-alt);
+  border-bottom: 1px solid var(--color-border);
+  flex: 0 0 auto;
+  overflow-x: auto;
+}
+.readbarLabel,
+.tag {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.readbarLabel {
+  color: var(--color-line);
+}
+.num {
+  min-width: 58px;
+  color: var(--color-fg);
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+}
+.iconLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+/* ---- corpo ---- */
+.body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* trilho da fonte recolhida */
+.rail {
+  width: 40px;
+  flex: 0 0 auto;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 0;
+}
+.rail:hover {
+  color: var(--color-fg);
+}
+.railLabel {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* ---- painel da fonte (somente leitura) ---- */
+.srcPane {
+  width: 400px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+}
+.srcHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--color-border);
+  flex: 0 0 auto;
+}
+.srcMeta {
+  color: var(--color-line);
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.srcBody {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: auto;
+}
+.gutter {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 14px 8px 14px 12px;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: right;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.15);
+  border-right: 1px solid var(--color-border);
+  flex: 0 0 auto;
+  min-width: 42px;
+}
+.srcCode {
+  margin: 0;
+  padding: 14px;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre;
+  color: var(--color-fg);
+}
+.srcFoot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-top: 1px solid var(--color-border);
+  flex: 0 0 auto;
+  font-size: 10.5px;
+  color: var(--color-line);
+}
+.readOnly {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* ---- sumário ---- */
+.toc {
+  width: 246px;
+  flex: 0 0 auto;
+  background: var(--color-bg-alt);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.tocHead {
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid var(--color-border);
+  flex: 0 0 auto;
+}
+.tocList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px;
+  overflow: auto;
+}
+.tocItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--color-muted-soft);
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.4;
+}
+.tocItem:hover {
+  color: var(--color-fg);
+  background: rgba(248, 248, 242, 0.04);
+}
+.tocItemOn {
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
+}
+.tocMark {
+  color: var(--color-line);
+  flex: 0 0 auto;
+}
+.tocItemOn .tocMark {
+  color: var(--color-primary);
+}
+.tocFoot {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+  font-size: 10.5px;
+  color: var(--color-line);
+  line-height: 1.7;
+  flex: 0 0 auto;
+}
+
+/* ---- documento ---- */
+.docWrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.docFoot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 20px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+  flex: 0 0 auto;
+  font-size: 10.5px;
+  color: var(--color-line);
+  white-space: nowrap;
+}
+.dotSep {
+  color: var(--color-border);
+}
+
+.doc {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  /* sem isto o miolo é esticado até a altura do painel e os filhos com
+     `overflow` (bloco de código, tabela) encolhem até sumir */
+  align-items: flex-start;
+  background: var(--doc-bg);
+  color: var(--doc-fg);
+  scroll-behavior: smooth;
+}
+.docInner {
+  width: 100%;
+  padding: 60px 48px 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15em;
+}
+
+/* paletas de leitura: só existem aqui, então os hex ficam neste arquivo */
+.dark {
+  --doc-bg: var(--color-bg-alt);
+  --doc-fg: var(--foreground-prose);
+  --doc-head: var(--color-fg);
+  --doc-muted: var(--color-muted);
+  --doc-line: var(--color-border);
+  --doc-line-strong: var(--color-line);
+  --doc-quote-bg: rgba(189, 147, 249, 0.07);
+  --doc-quote-bar: var(--color-secondary);
+  --doc-quote-fg: #b9a9dd;
+  --doc-chip-bg: rgba(139, 233, 253, 0.08);
+  --doc-chip-fg: var(--color-accent-cyan);
+  --doc-check: var(--color-primary);
+  --doc-check-mark: var(--color-bg-alt);
+}
+.sepia {
+  --doc-bg: #efe6d5;
+  --doc-fg: #4a4034;
+  --doc-head: #2f2820;
+  --doc-muted: #8c7f6b;
+  --doc-line: #ded1b9;
+  --doc-line-strong: #c9b895;
+  --doc-quote-bg: rgba(138, 90, 43, 0.08);
+  --doc-quote-bar: #a9713a;
+  --doc-quote-fg: #6a5540;
+  --doc-chip-bg: rgba(138, 90, 43, 0.11);
+  --doc-chip-fg: #8a5a2b;
+  --doc-check: #2f9c52;
+  --doc-check-mark: #efe6d5;
+}
+.light {
+  --doc-bg: #f7f7f5;
+  --doc-fg: #33333d;
+  --doc-head: #1c1c24;
+  --doc-muted: #7a7a8c;
+  --doc-line: #e2e2e6;
+  --doc-line-strong: #cfcfd6;
+  --doc-quote-bg: rgba(75, 88, 201, 0.055);
+  --doc-quote-bar: #6b76d8;
+  --doc-quote-fg: #4a4f6b;
+  --doc-chip-bg: rgba(75, 88, 201, 0.08);
+  --doc-chip-fg: #4b58c9;
+  --doc-check: #3c49bd;
+  --doc-check-mark: #f7f7f5;
+}
+
+.docInner :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+  color: var(--doc-head);
+  scroll-margin-top: 24px;
+}
+.docInner h1 {
+  font-size: 2.15em;
+  letter-spacing: -0.01em;
+}
+.serif h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.5em;
+}
+.docInner h2 {
+  font-size: 1.42em;
+  padding-top: 0.5em;
+}
+.docInner h3 {
+  font-size: 1.1em;
+}
+.docInner :is(h4, h5, h6) {
+  font-size: 1em;
+}
+
+.docInner p {
+  margin: 0;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.serif :is(p, li) {
+  line-height: 1.8;
+}
+
+.docInner a {
+  color: var(--doc-chip-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.docInner a:hover {
+  color: var(--doc-head);
+}
+
+.rule {
+  height: 1px;
+  border: none;
+  margin: 0.9em 0;
+  background: var(--doc-line);
+}
+
+.docInner :is(ul, ol) {
+  margin: 0;
+  padding-left: 1.6em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.docInner li {
+  line-height: 1.75;
+}
+.docInner li::marker {
+  color: var(--doc-muted);
+}
+.docInner li > :is(ul, ol) {
+  margin-top: 0.5em;
+}
+.docInner :is(ul, ol).taskList {
+  list-style: none;
+  padding-left: 0;
+}
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65em;
+}
+.box {
+  width: 1.05em;
+  height: 1.05em;
+  border-radius: 4px;
+  flex: 0 0 auto;
+  margin-top: 0.34em;
+  border: 1px solid var(--doc-line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.boxDone {
+  background: var(--doc-check);
+  border-color: var(--doc-check);
+  color: var(--doc-check-mark);
+}
+
+.docInner blockquote {
+  margin: 0;
+  padding: 0.85em 1.2em;
+  border-radius: 10px;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  background: var(--doc-quote-bg);
+  border-left: 2px solid var(--doc-quote-bar);
+  color: var(--doc-quote-fg);
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
+  background: var(--doc-chip-bg);
+  color: var(--doc-chip-fg);
+  word-break: break-word;
+}
+
+.block {
+  margin: 0;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  line-height: 1.7;
+  color: var(--color-fg);
+}
+.block code {
+  font: inherit;
+}
+.blockLang {
+  display: block;
+  font-size: 0.85em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 10px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+.docInner table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.86em;
+}
+.docInner :is(th, td) {
+  text-align: left;
+  padding: 0.6em 0.9em;
+}
+.docInner th {
+  font-size: 0.9em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--doc-muted);
+  border-bottom: 1px solid var(--doc-line-strong);
+}
+.docInner td {
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.img {
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+/* ---- estado vazio ---- */
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-alt);
+  padding: 24px;
+}
+.emptyCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  width: 100%;
+  max-width: 640px;
+}
+.drop {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border: 1px dashed var(--color-line);
+  border-radius: 14px;
+  padding: 56px 40px;
+  background: rgba(33, 34, 44, 0.55);
+  text-align: center;
+}
+.dropOver {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+}
+.dropTitle {
+  font-size: 14px;
+  color: var(--color-fg);
+}
+.dropSub {
+  font-size: 11.5px;
+  color: var(--color-muted);
+  line-height: 1.8;
+}
+.keys {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.key {
+  color: var(--color-muted-soft);
+  border: 1px solid var(--color-line);
+  border-radius: 5px;
+  padding: 3px 9px;
+  font-size: 11px;
+}
+.exts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.ext {
+  font-size: 10.5px;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 3px 11px;
+}
+.emptyActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .toc,
+  .srcPane {
+    display: none;
+  }
+  .docInner {
+    padding: 32px 20px 100px;
+  }
+  .headerDesc {
+    display: none;
+  }
+}

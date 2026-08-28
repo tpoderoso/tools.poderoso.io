@@ -50,7 +50,6 @@ export function HomeLauncher() {
         display: "flex",
         flexDirection: "column",
         height: "100dvh",
-        background: "var(--color-bg)",
         color: "var(--color-fg)",
       }}
     >
@@ -97,6 +96,7 @@ export function HomeLauncher() {
               <span style={{ color: "var(--color-primary)" }}>~ $</span>
               <input
                 ref={inputRef}
+                autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => {

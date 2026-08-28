@@ -7,10 +7,12 @@ export type ToolId =
   | "sql"
   | "xsdval"
   | "mermaid"
+  | "md"
   | "cpf"
   | "cnpj"
   | "company"
   | "pessoa"
+  | "card"
   | "uuid"
   | "pwd"
   | "lorem"
@@ -91,6 +93,13 @@ export const NAV_GROUPS: NavGroup[] = [
         shortcut: "g e",
       },
       {
+        id: "md",
+        label: "Markdown Viewer",
+        path: "~/view/markdown",
+        description: "renderiza markdown colado, com controles de leitura",
+        shortcut: "g m",
+      },
+      {
         id: "mermaid",
         label: "Mermaid",
         path: "~/diagram/mermaid",
@@ -127,6 +136,12 @@ export const NAV_GROUPS: NavGroup[] = [
         path: "~/generate/pessoa",
         description:
           "gera uma pessoa fictícia (nome, CPF, RG e e-mail) para testes",
+      },
+      {
+        id: "card",
+        label: "Cartão",
+        path: "~/generate/cartao",
+        description: "gera cartão de crédito/débito fictício para testes",
       },
       {
         id: "uuid",

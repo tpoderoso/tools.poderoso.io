@@ -11,7 +11,7 @@ export default function NotFound() {
   return (
     <div
       id="not-found-shell"
-      style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--background)", color: "var(--foreground)" }}
+      style={{ display: "flex", flexDirection: "column", height: "100vh", color: "var(--foreground)" }}
     >
       <NotFoundHeader />
 

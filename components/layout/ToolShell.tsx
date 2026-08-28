@@ -19,7 +19,6 @@ export function ToolShell({ children }: { children: ReactNode }) {
         display: "flex",
         flexDirection: "column",
         height: "100dvh",
-        background: "var(--color-bg)",
         color: "var(--color-fg)",
       }}
     >
