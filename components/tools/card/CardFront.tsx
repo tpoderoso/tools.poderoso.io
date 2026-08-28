@@ -80,7 +80,7 @@ export function CardFront({
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: cq(20) }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: cq(20), flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: cq(30) }}>
             <CardField label="VÁLIDO ATÉ" value={card.validade} onCopy={() => onCopy("validade")} />
             <div style={{ display: "flex", flexDirection: "column", gap: cq(10) }}>
@@ -90,11 +90,14 @@ export function CardFront({
           </div>
           <div
             style={{
-              fontSize: fit(19, 13),
+              // fonte mono: dividir por nº de caracteres dá largura impressa
+              // constante, então nomes longos ("American Express") não estouram
+              fontSize: fit(Math.min(19, 190 / card.bandeira.length), 11),
               fontWeight: 600,
               color: accent,
               textShadow: `0 0 22px color-mix(in srgb, ${accent} 25%, transparent)`,
-              whiteSpace: "nowrap",
+              textAlign: "right",
+              marginLeft: "auto",
             }}
           >
             {card.bandeira}
