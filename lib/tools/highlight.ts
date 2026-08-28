@@ -108,3 +108,39 @@ export function tokenizeXML(s: string): XmlToken[] {
   }
   return out;
 }
+
+export type MarkdownTokenType = "heading" | "marker" | "code" | "strong" | "link" | "muted" | "plain";
+export interface MarkdownToken {
+  text: string;
+  type: MarkdownTokenType;
+}
+
+const MARKDOWN_RE = new RegExp(
+  [
+    "(^ {0,3}#{1,6} .*$)", //                                 1  título
+    "(^ {0,3}>.*$)", //                                       2  citação
+    "(^ {0,3}(?:`{3,}|~{3,}).*$|^ {0,3}(?:-{3,}|\\*{3,}|_{3,})\\s*$)", // 3 cerca e régua
+    "(^[ \\t]*(?:[-*+]|\\d{1,9}[.)])\\s)", //                    4  marcador de lista
+    "(`[^`\\n]+`)", //                                        5  código inline
+    "(\\*\\*[^*\\n]+\\*\\*|__[^_\\n]+__)", //                 6  forte
+    "(!?\\[[^\\]\\n]*\\]\\([^)\\n]*\\))", //                  7  link e imagem
+    "([\\s\\S])", //                                          8  resto
+  ].join("|"),
+  "gm",
+);
+
+/** Tokeniza markdown para o painel de fonte: títulos, marcadores, código, links e citações. */
+export function tokenizeMarkdown(s: string): MarkdownToken[] {
+  const out: MarkdownToken[] = [];
+  const push = makePush(out);
+  for (const m of s.matchAll(MARKDOWN_RE)) {
+    if (m[1]) push(m[1], "heading");
+    else if (m[2] || m[3]) push(m[2] || m[3], "muted");
+    else if (m[4]) push(m[4], "marker");
+    else if (m[5]) push(m[5], "code");
+    else if (m[6]) push(m[6], "strong");
+    else if (m[7]) push(m[7], "link");
+    else push(m[0], "plain");
+  }
+  return out;
+}

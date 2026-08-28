@@ -7,10 +7,12 @@ import { XmlFormatter } from "./XmlFormatter";
 import { SqlFormatter } from "./SqlFormatter";
 import { XsdValidator } from "./XsdValidator";
 import { MermaidViewer } from "./mermaid/MermaidViewer";
+import { MarkdownViewer } from "./markdown/MarkdownViewer";
 import { CpfGenerator } from "./CpfGenerator";
 import { CnpjGenerator } from "./CnpjGenerator";
 import { CompanyGenerator } from "./CompanyGenerator";
 import { PessoaGenerator } from "./PessoaGenerator";
+import { CardGenerator } from "./CardGenerator";
 import { UuidGenerator } from "./UuidGenerator";
 import { PasswordGenerator } from "./PasswordGenerator";
 import { LoremGenerator } from "./LoremGenerator";
@@ -35,10 +37,12 @@ export const TOOL_REGISTRY: Record<string, () => ReactNode> = {
   "format/sql": () => <SqlFormatter />,
   "format/xsdval": () => <XsdValidator />,
   "diagram/mermaid": () => <MermaidViewer />,
+  "view/markdown": () => <MarkdownViewer />,
   "generate/cpf": () => <CpfGenerator active />,
   "generate/cnpj": () => <CnpjGenerator active />,
   "generate/empresa": () => <CompanyGenerator active />,
   "generate/pessoa": () => <PessoaGenerator active />,
+  "generate/cartao": () => <CardGenerator active />,
   "generate/uuid": () => <UuidGenerator active />,
   "generate/senha": () => <PasswordGenerator active />,
   "generate/lorem": () => <LoremGenerator active />,
