@@ -9,6 +9,11 @@
   min-height: 0;
   overflow: hidden;
 }
+/* em tela cheia o painel vira a página inteira: sem fundo próprio sobraria o
+   preto do backdrop nas frestas entre barra, sumário e documento */
+.viewer:fullscreen {
+  background: var(--color-bg);
+}
 
 /* ---- header da tool ---- */
 .header {

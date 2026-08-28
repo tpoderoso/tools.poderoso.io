@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Minus, Plus, List } from "lucide-react";
+import { Minus, Plus, List, Maximize2 } from "lucide-react";
 import styles from "./markdown.module.css";
 
 /** Corpo do texto em px e largura da coluna em ch — índices 0..2 nos dois casos. */
@@ -50,12 +50,26 @@ interface Props {
   setTheme: (t: DocTheme) => void;
   toc: boolean;
   toggleToc: () => void;
+  onToggleFullscreen: () => void;
   /** sem documento não há o que ajustar: controles apagados e fora de alcance */
   dim?: boolean;
 }
 
 /** Controles de leitura: família da fonte, corpo do texto, largura da coluna, tema e sumário. */
-export function ReadBar({ font, setFont, size, setSize, width, setWidth, theme, setTheme, toc, toggleToc, dim }: Props) {
+export function ReadBar({
+  font,
+  setFont,
+  size,
+  setSize,
+  width,
+  setWidth,
+  theme,
+  setTheme,
+  toc,
+  toggleToc,
+  onToggleFullscreen,
+  dim,
+}: Props) {
   return (
     <div className={styles.readbar} style={dim ? { opacity: 0.4, pointerEvents: "none" } : undefined} aria-hidden={dim}>
       <span className={`mono-label ${styles.readbarLabel}`}>{"// leitura"}</span>
@@ -117,6 +131,9 @@ export function ReadBar({ font, setFont, size, setSize, width, setWidth, theme, 
             <List size={14} />
             sumário
           </span>
+        </Btn>
+        <Btn title="tela cheia — tecla f" onClick={onToggleFullscreen}>
+          <Maximize2 size={14} style={{ verticalAlign: "middle" }} />
         </Btn>
       </div>
     </div>

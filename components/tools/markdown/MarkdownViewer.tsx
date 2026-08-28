@@ -99,6 +99,7 @@ export function MarkdownViewer() {
   const [activeId, setActiveId] = useState("");
 
   const docRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const doc = useMemo(() => parseMarkdown(input), [input]);
@@ -152,16 +153,28 @@ export function MarkdownViewer() {
     return () => document.removeEventListener("paste", onPaste);
   }, [load]);
 
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else frameRef.current?.requestFullscreen().catch(() => {});
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === "b" || e.key === "B")) {
         e.preventDefault();
         setSrcOpen((o) => !o);
+        return;
+      }
+      const tag = (e.target as HTMLElement)?.tagName || "";
+      if (tag === "INPUT" || tag === "TEXTAREA" || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [toggleFullscreen]);
 
   const onScroll = () => {
     const pane = docRef.current;
@@ -194,6 +207,7 @@ export function MarkdownViewer() {
 
   return (
     <div
+      ref={frameRef}
       className={styles.viewer}
       onDragOver={(e) => {
         e.preventDefault();
@@ -250,6 +264,7 @@ export function MarkdownViewer() {
         setTheme={setTheme}
         toc={toc}
         toggleToc={() => setToc((t) => !t)}
+        onToggleFullscreen={toggleFullscreen}
         dim={empty}
       />
 
