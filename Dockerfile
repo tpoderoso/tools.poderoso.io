@@ -23,6 +23,8 @@ RUN addgroup --system --gid 1001 nodejs \
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# o output standalone nao inclui public/, entao as imagens dos docs precisam vir a parte
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
