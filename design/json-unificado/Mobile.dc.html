@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root {
+      --bg: #21222c;
+      --bg-alt: #191a21;
+      --fg: #f8f8f2;
+      --muted: #8290bd;
+      --muted-soft: #9aa0bf;
+      --faint: #7f8bb5;
+      --border: #343746;
+      --line: #44475a;
+      --primary: #50fa7b;
+      --secondary: #bd93f9;
+      --cyan: #8be9fd;
+      --yellow: #f1fa8c;
+      --danger: #ff5555;
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    body {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--fg);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(420px 300px at 20% 30%, rgba(189, 147, 249, 0.075), transparent 68%),
+        radial-gradient(360px 280px at 86% 74%, rgba(80, 250, 123, 0.055), transparent 66%);
+      background-repeat: no-repeat;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { color: var(--primary); }
+    * { box-sizing: border-box; }
+
+    .surface { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 10px; }
+    .mono-label { font-size: 9.5px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+    .field-col { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+    .pills { display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+    .pill { display: flex; align-items: center; height: 26px; padding: 0 14px; border-radius: 7px; color: var(--muted); font-size: 12px; }
+    .pill-on { background: rgba(80, 250, 123, 0.1); color: var(--primary); }
+    .toggle { padding: 6px 11px; border-radius: 8px; font-size: 11.5px; border: 1px solid var(--line); color: var(--muted-soft); display: flex; align-items: center; }
+    .toggle-on { border-color: var(--primary); background: rgba(80, 250, 123, 0.08); color: var(--primary); }
+    .icon-btn { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); }
+    svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .ico { width: 11px; height: 11px; flex: none; }
+    .k { color: var(--cyan); }
+    .br { color: var(--line); }
+    .tline { white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+  </style>
+</helmet>
+
+<div style="display: flex; flex-direction: column; width: 390px; height: 844px; overflow: hidden">
+
+  <div style="display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 52px; flex: none; background: var(--bg-alt); border-bottom: 1px solid var(--border)">
+    <div style="display: flex; align-items: center; gap: 4px; font-size: 13px">
+      <span style="color: var(--primary)">tools</span><span style="color: var(--muted)">.</span><span style="color: var(--cyan)">poderoso</span><span style="color: var(--muted)">.io</span>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 11.5px; color: var(--muted)">
+      <span>buscar</span>
+      <span style="border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 10.5px">Ctrl K</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 16px">
+
+    <div style="display: flex; align-items: center; gap: 8px">
+      <span style="display: flex; align-items: center; gap: 1px; font-size: 12px">
+        <span style="color: var(--muted)">~</span><span style="color: var(--faint)">/</span><span style="color: var(--cyan)">format</span><span style="color: var(--faint)">/</span><span style="color: var(--primary)">json</span>
+        <span style="width: 6px; height: 13px; margin-left: 4px; background: var(--primary)"></span>
+      </span>
+      <div class="pills" style="margin-left: auto">
+        <span class="pill pill-on">ferramenta</span>
+        <span class="pill">manual</span>
+      </div>
+    </div>
+
+    <!-- entrada -->
+    <div class="field-col" style="flex: none">
+      <span class="mono-label">// entrada</span>
+      <div class="surface" style="display: flex; height: 200px; padding: 12px; font-size: 13px; line-height: 1.7; overflow: hidden">
+        <div style="flex: none; margin-right: 10px; text-align: right; color: var(--faint); white-space: pre">1
+2
+3
+4</div>
+        <div style="flex: 1; min-width: 0; white-space: pre; color: var(--fg)">{
+  projeto: 'tools.poderoso.io',
+  "stack": ["Next.js", "React",],
+  "ativo": true</div>
+      </div>
+    </div>
+
+    <!-- barra de status: em telas estreitas quebra em duas linhas -->
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 8px; background: rgba(255, 85, 85, 0.08); border: 1px solid rgba(255, 85, 85, 0.3); font-size: 11.5px; flex: none">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span style="color: var(--danger)">&#10007; linha 2, coluna 3</span>
+        <button style="margin-left: auto; display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border: none; border-radius: 6px; background: var(--primary); color: var(--bg); font-family: var(--mono); font-size: 11.5px; font-weight: 600">
+          <svg viewBox="0 0 24 24" style="width: 12px; height: 12px"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"></path><path d="m14 7 3 3"></path><path d="M5 6v4"></path><path d="M19 14v4"></path><path d="M10 2v2"></path><path d="M7 8H3"></path><path d="M21 16h-4"></path><path d="M11 3H9"></path></svg>
+          Corrigir
+        </button>
+      </div>
+      <span style="color: #ff8f8f; line-height: 1.5">esperado nome de propriedade ou "}"! V&#237;rgula sobrando?</span>
+    </div>
+
+    <!-- saida -->
+    <div class="field-col" style="flex: 1">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; row-gap: 8px">
+        <div class="pills">
+          <span class="pill">formatado</span>
+          <span class="pill pill-on">&#225;rvore</span>
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center">
+          <span class="toggle toggle-on">Valores</span>
+          <span class="toggle">Estrutura</span>
+          <span class="icon-btn">
+            <svg viewBox="0 0 24 24"><path d="M10 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"></path><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- enquanto a entrada esta quebrada, a saida segura o ultimo resultado valido, apagada -->
+      <div class="surface" style="flex: 1; min-height: 0; overflow: hidden; padding: 12px; font-size: 12px; line-height: 1.8; opacity: 0.4">
+        <div class="tline">
+          <svg class="ico" viewBox="0 0 24 24" style="width: 12px; height: 12px; color: var(--muted)"><path d="m6 9 6 6 6-6"></path></svg>
+          <svg class="ico" viewBox="0 0 24 24" style="color: var(--secondary)"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"></path><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"></path></svg>
+          <span class="br">{</span>
+        </div>
+        <div class="tline" style="padding-left: 18px">
+          <svg class="ico" viewBox="0 0 24 24" style="color: var(--yellow)"><path d="M12 4v16"></path><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"></path><path d="M9 20h6"></path></svg>
+          <span class="k">projeto:</span><span style="color: var(--yellow)">"tools.poderoso.io"</span>
+        </div>
+        <div class="tline" style="padding-left: 18px">
+          <svg class="ico" viewBox="0 0 24 24" style="width: 12px; height: 12px; color: var(--muted)"><path d="m9 18 6-6-6-6"></path></svg>
+          <svg class="ico" viewBox="0 0 24 24" style="color: var(--secondary)"><path d="M16 3h3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-3"></path><path d="M8 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h3"></path></svg>
+          <span class="k">stack:</span><span class="br">[</span><span style="color: var(--muted); font-size: 10.5px">3</span><span class="br">]</span>
+        </div>
+        <div class="tline" style="padding-left: 18px">
+          <svg class="ico" viewBox="0 0 24 24" style="color: var(--primary)"><path d="M9 5h6a7 7 0 0 1 0 14H9A7 7 0 0 1 9 5z"></path><path d="M12 12a3 3 0 1 0-6 0 3 3 0 1 0 6 0"></path></svg>
+          <span class="k">ativo:</span><span style="color: var(--primary)">true</span>
+        </div>
+        <div class="tline" style="padding-left: 18px">
+          <svg class="ico" viewBox="0 0 24 24" style="color: var(--danger)"><path d="m2 2 20 20"></path><path d="M8.35 2.69A10 10 0 0 1 21.3 15.65"></path><path d="M19.08 19.08A10 10 0 1 1 4.92 4.92"></path></svg>
+          <span class="k">sunset:</span><span style="color: var(--danger)">null</span>
+        </div>
+        <div class="tline" style="padding-left: 18px">
+          <span class="br">}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

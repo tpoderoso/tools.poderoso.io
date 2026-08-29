@@ -122,7 +122,7 @@ export function DiagramCanvas({
       {stale && (
         <div className={styles.staleBadge}>
           <span>✗</span>
-          <span>erro de sintaxe — exibindo a última versão válida</span>
+          <span>erro de sintaxe, exibindo a última versão válida</span>
         </div>
       )}
 

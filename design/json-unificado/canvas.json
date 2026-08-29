@@ -1,0 +1,23 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 900, "title": "Desktop — protótipo", "is_interactive": true },
+    { "file": "Mobile.dc.html", "x": 1560, "y": 0, "w": 390, "h": 844, "title": "Mobile — estado de erro" }
+  ],
+  "annotations": [
+    {
+      "id": "merge",
+      "x": 0,
+      "y": -190,
+      "w": 620,
+      "text": "3 ferramentas viram 1: ~/format/json.\njson-validate e json-tree redirecionam pra cá (301), os textos de SEO das duas viram seções do manual.\nUma entrada, duas visões (formatado / árvore) e a validação sempre visível embaixo do editor."
+    },
+    {
+      "id": "vivo",
+      "x": 1560,
+      "y": -190,
+      "w": 390,
+      "text": "Sem botão Formatar: o resultado acompanha a digitação.\nEnquanto a entrada está quebrada, a saída segura o último resultado válido, apagada, em vez de piscar vazia."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

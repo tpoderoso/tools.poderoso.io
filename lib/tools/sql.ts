@@ -1,4 +1,13 @@
-import { format, type FormatOptionsWithLanguage } from "sql-formatter";
+import type { FormatOptionsWithLanguage } from "sql-formatter";
+
+// sql-formatter sozinho é ~74KB gzip. Como as 23 ferramentas vivem numa rota só,
+// um import estático aqui vai parar no bundle de TODAS as páginas — inclusive a do
+// gerador de CPF. Carregado sob demanda, ele só chega quando alguém formata SQL.
+let format: typeof import("sql-formatter").format | undefined;
+
+async function loadFormatter() {
+  format ??= (await import("sql-formatter")).format;
+}
 
 const DIALECTS = ["sql", "transactsql", "plsql", "postgresql", "mysql"] as const;
 type Dialect = (typeof DIALECTS)[number];
@@ -13,7 +22,7 @@ function fmtOnce(s: string, language: Dialect): string {
     // aceita parâmetros @Var (SQL Server), :var (Oracle) e $1/$var (Postgres) no dialeto genérico
     opts.paramTypes = { named: [":", "@", "$"], numbered: ["$"] };
   }
-  return format(s, opts);
+  return format!(s, opts);
 }
 
 /** Tenta cada dialeto em ordem; retorna o texto formatado e o dialeto que aceitou. */
@@ -91,8 +100,12 @@ export function splitStatements(s: string): string[] {
  * Arquivos grandes são fatiados em statements e formatados em blocos para
  * não estourar memória; um trecho inválido fica como está em vez de
  * derrubar o arquivo inteiro. Throws apenas se o input inteiro for inválido.
+ *
+ * Assíncrona só por causa do import sob demanda do sql-formatter; depois da
+ * primeira chamada o módulo está em cache e ela resolve no mesmo tick.
  */
-export function fmtSQL(s: string): string {
+export async function fmtSQL(s: string): Promise<string> {
+  await loadFormatter();
   if (s.length <= CHUNK_CHARS) return fmtCascade(s)[0];
 
   // agrupa statements em chunks de até CHUNK_CHARS

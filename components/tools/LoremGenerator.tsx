@@ -17,21 +17,22 @@ export function LoremGenerator({ active }: { active: boolean }) {
     <ToolPanel path="~/generate/lorem" description="gera texto placeholder Lorem Ipsum">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <span className="text-muted-sm">parágrafos:</span>
-        <button type="button" className="lorem-step-btn" onClick={() => setCount((c) => Math.max(LOREM_MIN, c - 1))}>
+        <button type="button" aria-label="um parágrafo a menos" className="lorem-step-btn" onClick={() => setCount((c) => Math.max(LOREM_MIN, c - 1))}>
           −
         </button>
         <span style={{ fontSize: 15, color: "var(--color-fg)", width: 22, textAlign: "center" }}>{count}</span>
-        <button type="button" className="lorem-step-btn" onClick={() => setCount((c) => Math.min(LOREM_MAX, c + 1))}>
+        <button type="button" aria-label="um parágrafo a mais" className="lorem-step-btn" onClick={() => setCount((c) => Math.min(LOREM_MAX, c + 1))}>
           +
         </button>
         <PrimaryButton style={{ padding: "8px 18px", marginLeft: 8 }} onClick={() => setText(loremText(count))}>
           Gerar
         </PrimaryButton>
         <div style={{ marginLeft: "auto" }}>
-          <CopyButton variant="text" text={text} style={{ padding: "8px 18px" }} />
+          <CopyButton text={text} />
         </div>
       </div>
       <textarea
+        aria-label="texto Lorem Ipsum gerado"
         value={text}
         readOnly
         className="surface"

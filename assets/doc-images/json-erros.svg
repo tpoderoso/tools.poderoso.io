@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="366" viewBox="0 0 440 366">
+  <style>
+    .m { font-family: "Liberation Mono","Noto Sans Mono",monospace; font-size: 13px }
+    .lb { font-family: "Liberation Sans","Noto Sans",sans-serif; font-size: 11px; fill: #6272a4; letter-spacing: 0.8px }
+    .bad { fill: #ff8a8a } .ok { fill: #9ff5b6 }
+  </style>
+  <defs>
+    <g id="x" stroke="#ff5555" stroke-width="1.8" stroke-linecap="round"><line x1="-4" y1="-4" x2="4" y2="4"/><line x1="4" y1="-4" x2="-4" y2="4"/></g>
+    <g id="v" stroke="#50fa7b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="-4.5,0 -1.5,3.5 4.5,-4"/></g>
+  </defs>
+  <rect x="0.5" y="0.5" width="439" height="365" rx="10" fill="#191a21" stroke="#343746"/>
+
+  <g>
+    <text class="lb" x="24" y="34">VÍRGULA SOBRANDO</text>
+    <use href="#x" x="30" y="52"/><text class="m bad" x="46" y="56">{"a": 1,}</text>
+    <use href="#v" x="30" y="76"/><text class="m ok" x="46" y="80">{"a": 1}</text>
+
+    <text class="lb" x="24" y="112">ASPAS SIMPLES</text>
+    <use href="#x" x="30" y="130"/><text class="m bad" x="46" y="134">{'a': 1}</text>
+    <use href="#v" x="30" y="154"/><text class="m ok" x="46" y="158">{"a": 1}</text>
+
+    <text class="lb" x="24" y="190">CHAVE SEM ASPAS</text>
+    <use href="#x" x="30" y="208"/><text class="m bad" x="46" y="212">{a: 1}</text>
+    <use href="#v" x="30" y="232"/><text class="m ok" x="46" y="236">{"a": 1}</text>
+
+    <text class="lb" x="24" y="268">COMENTÁRIO</text>
+    <use href="#x" x="30" y="286"/><text class="m bad" x="46" y="290">{"a": 1} // teste</text>
+    <use href="#v" x="30" y="310"/><text class="m ok" x="46" y="314">{"a": 1}</text>
+  </g>
+
+  <line x1="20" y1="332" x2="420" y2="332" stroke="#343746"/>
+  <text class="lb" x="24" y="354" style="letter-spacing:0">undefined e NaN também não existem em JSON. o vazio é null</text>
+</svg>

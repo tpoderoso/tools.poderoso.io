@@ -61,6 +61,7 @@ export function PasswordGenerator({ active }: { active: boolean }) {
             </div>
             <input
               type="range"
+              aria-label="comprimento da senha em caracteres"
               min={8}
               max={64}
               value={len}
@@ -113,7 +114,7 @@ export function PasswordGenerator({ active }: { active: boolean }) {
             <RotateCcw size={13} style={{ verticalAlign: -2, marginRight: 6 }} />
             Gerar nova
           </PrimaryButton>
-          <CopyButton variant="text" text={value} />
+          <CopyButton text={value} />
         </div>
       </CenteredColumn>
     </ToolPanel>

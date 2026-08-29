@@ -53,6 +53,8 @@ interface Props {
   onToggleFullscreen: () => void;
   /** sem documento não há o que ajustar: controles apagados e fora de alcance */
   dim?: boolean;
+  /** classe extra no root, usada pela aba do manual pra sumir com a barra */
+  className?: string;
 }
 
 /** Controles de leitura: família da fonte, corpo do texto, largura da coluna, tema e sumário. */
@@ -69,9 +71,10 @@ export function ReadBar({
   toggleToc,
   onToggleFullscreen,
   dim,
+  className,
 }: Props) {
   return (
-    <div className={styles.readbar} style={dim ? { opacity: 0.4, pointerEvents: "none" } : undefined} aria-hidden={dim}>
+    <div className={className ? `${styles.readbar} ${className}` : styles.readbar} style={dim ? { opacity: 0.4 } : undefined} inert={dim}>
       <span className={`mono-label ${styles.readbarLabel}`}>{"// leitura"}</span>
 
       <span className={`mono-label ${styles.tag}`}>fonte</span>
@@ -132,7 +135,7 @@ export function ReadBar({
             sumário
           </span>
         </Btn>
-        <Btn title="tela cheia — tecla f" onClick={onToggleFullscreen}>
+        <Btn title="tela cheia (tecla f)" onClick={onToggleFullscreen}>
           <Maximize2 size={14} style={{ verticalAlign: "middle" }} />
         </Btn>
       </div>

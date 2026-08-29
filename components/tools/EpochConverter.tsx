@@ -127,6 +127,7 @@ export function EpochConverter({ active }: { active: boolean }) {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <input
               type="date"
+              aria-label="data"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="surface text-input"
@@ -134,6 +135,7 @@ export function EpochConverter({ active }: { active: boolean }) {
             />
             <input
               type="time"
+              aria-label="hora"
               step={1}
               value={time}
               onChange={(e) => setTime(e.target.value)}
@@ -141,6 +143,7 @@ export function EpochConverter({ active }: { active: boolean }) {
               style={{ flex: "1 1 120px" }}
             />
             <select
+              aria-label="fuso horário da data informada"
               value={inputOffset}
               onChange={(e) => setInputOffset(Number(e.target.value))}
               className="surface text-input"
@@ -243,7 +246,7 @@ export function EpochConverter({ active }: { active: boolean }) {
                 color="var(--color-accent-cyan)"
               />
               <Row
-                label={`local — ${local.tz} (${offsetLabel(local.off)})`}
+                label={`local · ${local.tz} (${offsetLabel(local.off)})`}
                 value={formatInOffset(shown, local.off)}
                 color="var(--color-accent-pink)"
               />
@@ -258,7 +261,7 @@ export function EpochConverter({ active }: { active: boolean }) {
             </>
           ) : (
             <div className="gen-footnote" style={{ margin: 0 }}>
-              —
+              sem data válida
             </div>
           )}
         </div>

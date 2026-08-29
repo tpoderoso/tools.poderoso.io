@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="444" viewBox="0 0 440 444">
+  <style>
+    .m { font-family: "Liberation Mono","Noto Sans Mono",monospace; font-size: 13px }
+    .hd { font-family: "Liberation Sans","Noto Sans",sans-serif; font-size: 10.5px; fill: #6272a4; letter-spacing: 1.2px }
+    .pu { fill: #6272a4 } .ke { fill: #8be9fd } .st { fill: #f1fa8c }
+    .nu { fill: #bd93f9 } .kw { fill: #ff79c6 } .mu { fill: #9aa0bf }
+  </style>
+  <rect x="0.5" y="0.5" width="439" height="443" rx="10" fill="#191a21" stroke="#343746"/>
+
+  <text class="hd" x="24" y="32">O TEXTO</text>
+  <g class="m">
+    <text x="24" y="58" xml:space="preserve"><tspan class="pu">{</tspan></text>
+    <text x="24" y="80" xml:space="preserve"><tspan class="ke">  "nome"</tspan><tspan class="pu">: </tspan><tspan class="st">"Ana"</tspan><tspan class="pu">,</tspan></text>
+    <text x="24" y="102" xml:space="preserve"><tspan class="ke">  "idade"</tspan><tspan class="pu">: </tspan><tspan class="nu">30</tspan><tspan class="pu">,</tspan></text>
+    <text x="24" y="124" xml:space="preserve"><tspan class="ke">  "tags"</tspan><tspan class="pu">: [</tspan><tspan class="st">"dev"</tspan><tspan class="pu">, </tspan><tspan class="st">"qa"</tspan><tspan class="pu">],</tspan></text>
+    <text x="24" y="146" xml:space="preserve"><tspan class="ke">  "extra"</tspan><tspan class="pu">: </tspan><tspan class="kw">null</tspan></text>
+    <text x="24" y="168" xml:space="preserve"><tspan class="pu">}</tspan></text>
+  </g>
+
+  <g stroke="#50fa7b" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="220" y1="188" x2="220" y2="212"/>
+    <polyline points="213,205 220,212 227,205"/>
+  </g>
+
+  <text class="hd" x="24" y="240">A MESMA COISA EM ÁRVORE</text>
+
+  <g stroke="#44475a" fill="none" stroke-linecap="round">
+    <path d="M32 272 V 416"/>
+    <path d="M32 286 h 14"/><path d="M32 312 h 14"/><path d="M32 338 h 14"/><path d="M32 416 h 14"/>
+    <path d="M72 350 V 390"/><path d="M72 364 h 14"/><path d="M72 390 h 14"/>
+  </g>
+  <g fill="#50fa7b">
+    <polygon points="20,260 30,260 25,268"/>
+    <polygon points="52,338 62,338 57,346"/>
+  </g>
+
+  <g class="m">
+    <text x="38" y="266" xml:space="preserve"><tspan class="mu">objeto</tspan><tspan class="pu">  ·  4 campos</tspan></text>
+    <text x="52" y="290" xml:space="preserve"><tspan class="ke">nome</tspan><tspan class="pu">: </tspan><tspan class="st">"Ana"</tspan></text>
+    <text x="52" y="316" xml:space="preserve"><tspan class="ke">idade</tspan><tspan class="pu">: </tspan><tspan class="nu">30</tspan></text>
+    <text x="70" y="342" xml:space="preserve"><tspan class="ke">tags</tspan><tspan class="pu">  ·  array de 2</tspan></text>
+    <text x="92" y="368" xml:space="preserve"><tspan class="pu">0: </tspan><tspan class="st">"dev"</tspan></text>
+    <text x="92" y="394" xml:space="preserve"><tspan class="pu">1: </tspan><tspan class="st">"qa"</tspan></text>
+    <text x="52" y="420" xml:space="preserve"><tspan class="ke">extra</tspan><tspan class="pu">: </tspan><tspan class="kw">null</tspan></text>
+  </g>
+</svg>

@@ -1,0 +1,565 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root {
+      --bg: #21222c;
+      --bg-alt: #191a21;
+      --fg: #f8f8f2;
+      --muted: #8290bd;
+      --muted-soft: #9aa0bf;
+      --faint: #7f8bb5;
+      --border: #343746;
+      --line: #44475a;
+      --primary: #50fa7b;
+      --secondary: #bd93f9;
+      --cyan: #8be9fd;
+      --yellow: #f1fa8c;
+      --danger: #ff5555;
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    body {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--fg);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(760px 420px at 22% 34%, rgba(189, 147, 249, 0.075), transparent 68%),
+        radial-gradient(620px 380px at 84% 72%, rgba(80, 250, 123, 0.055), transparent 66%);
+      background-repeat: no-repeat;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { color: var(--primary); }
+    button { font-family: var(--mono); }
+    * { box-sizing: border-box; }
+
+    .surface { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 10px; }
+    .surface:focus-within { border-color: var(--primary); }
+    .mono-label { font-size: 9.5px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+    .label-row { display: flex; align-items: center; justify-content: space-between; height: 28px; gap: 12px; }
+    .field-col { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+
+    /* pill de abas: mesmo desenho do .tool-tabs do app */
+    .pills { display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+    .pill { display: flex; align-items: center; height: 26px; padding: 0 14px; border: none; background: transparent; border-radius: 7px; color: var(--muted); font-size: 12px; cursor: pointer; }
+    .pill:hover { color: var(--fg); }
+    .pill-on { background: rgba(80, 250, 123, 0.1); color: var(--primary); }
+
+    .toggle { padding: 6px 11px; border-radius: 8px; font-size: 11.5px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--muted-soft); display: flex; align-items: center; }
+    .toggle-on { border-color: var(--primary); background: rgba(80, 250, 123, 0.08); color: var(--primary); }
+    .icon-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: transparent; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); cursor: pointer; padding: 0; }
+    .icon-btn:hover { border-color: var(--secondary); color: var(--fg); }
+
+    svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .ico { width: 11px; height: 11px; flex: none; }
+
+    /* barra de status: valida direto embaixo da entrada, vale pras duas visões */
+    .status { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: 8px; font-size: 11.5px; flex: none; }
+    .status-ok { background: rgba(80, 250, 123, 0.08); border: 1px solid rgba(80, 250, 123, 0.28); color: var(--primary); }
+    .status-bad { background: rgba(255, 85, 85, 0.08); border: 1px solid rgba(255, 85, 85, 0.3); color: var(--danger); }
+    .fix-btn { display: flex; align-items: center; gap: 6px; height: 25px; padding: 0 11px; border: none; border-radius: 6px; background: var(--primary); color: var(--bg); font-size: 11px; font-weight: 600; cursor: pointer; }
+    .fix-btn:hover { background: #69ff94; }
+
+    /* editor: gutter de linhas + textarea, igual ao LinedTextarea */
+    .editor { display: flex; flex: 1; min-height: 0; overflow: hidden; padding: 14px; font-size: 12px; line-height: 1.65; }
+    .gutter { flex: none; margin-right: 12px; text-align: right; color: var(--faint); user-select: none; white-space: pre; }
+    .editor textarea { flex: 1; min-width: 0; padding: 0; border: none; outline: none; background: transparent; color: inherit; font: inherit; resize: none; white-space: pre; overflow-x: auto; }
+
+    .out { flex: 1; min-height: 0; overflow: auto; padding: 14px; font-size: 12px; line-height: 1.7; }
+    .out pre { margin: 0; white-space: pre; font-family: var(--mono); }
+
+    /* árvore: numeração por contador CSS, só as linhas visíveis contam */
+    .tree { position: relative; padding-left: 42px; counter-reset: ln; }
+    .tline { white-space: nowrap; background-repeat: no-repeat; background-image: repeating-linear-gradient(to right, transparent 0 17px, var(--border) 17px 18px); }
+    .tline::before { counter-increment: ln; content: counter(ln); position: absolute; left: 0; width: 30px; text-align: right; font-size: 11px; color: var(--line); }
+    .tbtn { display: inline-flex; align-items: center; gap: 4px; background: transparent; border: none; padding: 0; font-size: 12px; color: inherit; cursor: pointer; }
+    .tleaf { display: inline-flex; align-items: center; gap: 4px; }
+    .k { color: var(--cyan); }
+    .br { color: var(--line); }
+    .cnt { color: var(--muted); font-size: 10.5px; padding: 0 2px; }
+    .stale { opacity: 0.4; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  </style>
+</helmet>
+
+<div style="display: flex; flex-direction: column; width: 1440px; height: 900px; overflow: hidden">
+
+  <!-- header do app -->
+  <div style="display: flex; align-items: center; gap: 16px; padding: 0 20px; height: 52px; flex: none; background: var(--bg-alt); border-bottom: 1px solid var(--border)">
+    <div style="display: flex; gap: 7px; align-items: center">
+      <span style="width: 12px; height: 12px; border-radius: 50%; background: var(--danger)"></span>
+      <span style="width: 12px; height: 12px; border-radius: 50%; background: var(--yellow)"></span>
+      <span style="width: 12px; height: 12px; border-radius: 50%; background: var(--primary)"></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 4px; font-size: 13px">
+      <span style="color: var(--primary)">tools</span><span style="color: var(--muted)">.</span><span style="color: var(--cyan)">poderoso</span><span style="color: var(--muted)">.io</span>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 11.5px; color: var(--muted)">
+        <span>buscar</span>
+        <span style="border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 10.5px">Ctrl K</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--primary); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px">
+        <span>1.284</span>
+      </div>
+      <span style="font-size: 11.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px">&#8592; poderoso.io</span>
+    </div>
+  </div>
+
+  <!-- painel da ferramenta -->
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 28px 36px">
+
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px">
+      <span style="display: flex; align-items: center; gap: 1px; font-size: 12px">
+        <span style="color: var(--muted)">~</span><span style="color: var(--faint)">/</span><span style="color: var(--cyan)">format</span><span style="color: var(--faint)">/</span><span style="color: var(--primary)">json</span>
+        <span style="width: 6px; height: 13px; margin-left: 4px; background: var(--primary)"></span>
+      </span>
+      <span style="color: var(--line)">&#183;</span>
+      <span style="color: var(--muted)">formata, valida e navega JSON em &#225;rvore</span>
+      <div class="pills" style="margin-left: auto">
+        <span class="pill pill-on">ferramenta</span>
+        <span class="pill">manual</span>
+      </div>
+    </div>
+
+    <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+
+      <!-- entrada + status -->
+      <div class="field-col">
+        <div class="label-row"><span class="mono-label">// entrada</span></div>
+        <div class="surface editor">
+          <div class="gutter">{{lineNums}}</div>
+          <textarea spellcheck="false" value="{{src}}" onChange="{{onSrc}}"></textarea>
+        </div>
+        <sc-if value="{{ok}}" hint-placeholder-val="{{ true }}">
+          <div class="status status-ok">
+            <span>&#10003; JSON v&#225;lido</span>
+            <span style="color: var(--muted)">&#183;</span>
+            <span style="color: var(--muted-soft)">{{stats}}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{bad}}" hint-placeholder-val="{{ false }}">
+          <div class="status status-bad">
+            <span style="flex: none">&#10007; linha {{err.line}}, coluna {{err.column}}</span>
+            <span style="color: var(--line); flex: none">&#183;</span>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ff8f8f">{{err.message}}</span>
+            <sc-if value="{{canFix}}" hint-placeholder-val="{{ true }}">
+              <button class="fix-btn" style="margin-left: auto; flex: none" onClick="{{onFix}}">
+                <svg viewBox="0 0 24 24" style="width: 12px; height: 12px"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"></path><path d="m14 7 3 3"></path><path d="M5 6v4"></path><path d="M19 14v4"></path><path d="M10 2v2"></path><path d="M7 8H3"></path><path d="M21 16h-4"></path><path d="M11 3H9"></path></svg>
+                Corrigir
+              </button>
+            </sc-if>
+            <sc-if value="{{noFix}}" hint-placeholder-val="{{ false }}">
+              <span class="mono-label" style="margin-left: auto; flex: none">sem correcao automatica</span>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- saida: abas formatado / arvore -->
+      <div class="field-col">
+        <div class="label-row">
+          <div class="pills">
+            <button class="pill {{fmtOn}}" onClick="{{onTabFmt}}">formatado</button>
+            <button class="pill {{treeOn}}" onClick="{{onTabTree}}">&#225;rvore</button>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <sc-if value="{{isTree}}" hint-placeholder-val="{{ true }}">
+              <button class="toggle {{valOn}}" onClick="{{onValores}}">Valores</button>
+              <button class="toggle {{estOn}}" onClick="{{onEstrutura}}">Estrutura</button>
+              <button class="toggle {{expOn}}" title="Expandir tudo" onClick="{{onExpand}}">
+                <svg viewBox="0 0 24 24" style="width: 14px; height: 14px"><path d="M12 22v-6"></path><path d="M12 8V2"></path><path d="M4 12H2"></path><path d="M10 12H8"></path><path d="M16 12h-2"></path><path d="M22 12h-2"></path><path d="m15 19-3 3-3-3"></path><path d="m15 5-3-3-3 3"></path></svg>
+              </button>
+              <button class="toggle {{colOn}}" title="Recolher tudo" onClick="{{onCollapse}}">
+                <svg viewBox="0 0 24 24" style="width: 14px; height: 14px"><path d="M12 22v-6"></path><path d="M12 8V2"></path><path d="M4 12H2"></path><path d="M10 12H8"></path><path d="M16 12h-2"></path><path d="M22 12h-2"></path><path d="m15 19-3-3-3 3"></path><path d="m15 5-3 3-3-3"></path></svg>
+              </button>
+            </sc-if>
+            <button class="icon-btn" title="Copiar" onClick="{{onCopy}}">
+              <sc-if value="{{copied}}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 24 24" style="color: var(--primary)"><path d="M20 6 9 17l-5-5"></path></svg>
+              </sc-if>
+              <sc-if value="{{notCopied}}" hint-placeholder-val="{{ true }}">
+                <svg viewBox="0 0 24 24"><path d="M10 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"></path><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+              </sc-if>
+            </button>
+          </div>
+        </div>
+
+        <div class="surface out {{staleClass}}">
+          <sc-if value="{{isFmt}}" hint-placeholder-val="{{ true }}">
+            <pre><sc-for list="{{tokens}}" as="t" hint-placeholder-count="12"><span style="color: {{t.c}}">{{t.s}}</span></sc-for></pre>
+          </sc-if>
+          <sc-if value="{{isTree}}" hint-placeholder-val="{{ false }}">
+            <div class="tree">
+              <sc-for list="{{rows}}" as="row" hint-placeholder-count="10">
+                <div class="tline" style="padding-left: {{row.pad}}px; background-size: {{row.pad}}px 100%">
+                  <sc-if value="{{row.isBranch}}" hint-placeholder-val="{{ true }}">
+                    <button class="tbtn" onClick="{{row.onToggle}}">
+                      <svg class="ico" viewBox="0 0 24 24" style="width: 12px; height: 12px; color: var(--muted)"><path d="{{row.chevD}}"></path></svg>
+                      <svg class="ico" viewBox="0 0 24 24" style="color: {{row.iconColor}}"><path d="{{row.p1}}"></path><path d="{{row.p2}}"></path><path d="{{row.p3}}"></path><path d="{{row.p4}}"></path></svg>
+                      <sc-if value="{{row.hasKey}}" hint-placeholder-val="{{ true }}"><span class="k">{{row.key}}</span></sc-if>
+                      <span class="br">{{row.open}}</span>
+                      <sc-if value="{{row.showCount}}" hint-placeholder-val="{{ false }}"><span class="cnt">{{row.count}}</span><span class="br">{{row.close}}</span></sc-if>
+                      <sc-if value="{{row.showTimes}}" hint-placeholder-val="{{ false }}"><span class="cnt">{{row.times}}</span></sc-if>
+                    </button>
+                  </sc-if>
+                  <sc-if value="{{row.isLeaf}}" hint-placeholder-val="{{ true }}">
+                    <span class="tleaf">
+                      <svg class="ico" viewBox="0 0 24 24" style="color: {{row.iconColor}}"><path d="{{row.p1}}"></path><path d="{{row.p2}}"></path><path d="{{row.p3}}"></path><path d="{{row.p4}}"></path></svg>
+                      <sc-if value="{{row.hasKey}}" hint-placeholder-val="{{ true }}"><span class="k">{{row.key}}</span></sc-if>
+                      <span style="color: {{row.valColor}}">{{row.valText}}</span>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{row.isClose}}" hint-placeholder-val="{{ false }}">
+                    <span class="br">{{row.close}}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+const SAMPLE = '{\n  "projeto": "tools.poderoso.io",\n  "stack": ["Next.js", "React", "TypeScript"],\n  "ativo": true,\n  "sunset": null,\n  "manutencao": {\n    "responsavel": "Thiago Poderoso",\n    "horas_mes": 6\n  }\n}';
+
+const CHEV_DOWN = 'm6 9 6 6 6-6';
+const CHEV_RIGHT = 'm9 18 6-6-6-6';
+
+// mesmos icones do lucide usados hoje no JsonTreeViewer
+const ICONS = {
+  obj: ['M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1', 'M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1'],
+  arr: ['M16 3h3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-3', 'M8 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h3'],
+  str: ['M12 4v16', 'M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2', 'M9 20h6'],
+  num: ['M4 9h16', 'M4 15h16', 'M10 3 8 21', 'M16 3 14 21'],
+  bool: ['M9 5h6a7 7 0 0 1 0 14H9A7 7 0 0 1 9 5z', 'M12 12a3 3 0 1 0-6 0 3 3 0 1 0 6 0'],
+  nul: ['m2 2 20 20', 'M8.35 2.69A10 10 0 0 1 21.3 15.65', 'M19.08 19.08A10 10 0 1 1 4.92 4.92'],
+};
+
+const C_STR = '#f1fa8c';
+const C_NUM = '#bd93f9';
+const C_BOOL = '#50fa7b';
+const C_NULL = '#ff5555';
+const C_CONT = '#bd93f9';
+const C_KEY = '#8be9fd';
+const C_PUNCT = '#8290bd';
+
+function isCont(v) { return v !== null && typeof v === 'object'; }
+function typeName(v) { return v === null ? 'null' : typeof v; }
+function valColor(v) {
+  if (v === null) return C_NULL;
+  if (typeof v === 'string') return C_STR;
+  if (typeof v === 'number') return C_NUM;
+  if (typeof v === 'boolean') return C_BOOL;
+  return '#f8f8f2';
+}
+function iconFor(v) {
+  if (Array.isArray(v)) return ICONS.arr;
+  if (isCont(v)) return ICONS.obj;
+  if (v === null) return ICONS.nul;
+  if (typeof v === 'string') return ICONS.str;
+  if (typeof v === 'number') return ICONS.num;
+  return ICONS.bool;
+}
+
+// ---- traducao + reparo, portados de lib/tools/jsonValidate.ts ----
+const TRANSLATIONS = [
+  [/Expected double-quoted property name/i, 'nome de propriedade deve usar aspas duplas'],
+  [/Expected property name or '}'/i, 'esperado nome de propriedade ou "}"! Virgula sobrando?'],
+  [/Expected ',' or '}'/i, 'esperado "," ou "}" apos o valor da propriedade'],
+  [/Expected ',' or ']'/i, 'esperado "," ou "]" apos o elemento do array'],
+  [/Expected ':'/i, 'esperado ":" apos o nome da propriedade'],
+  [/Unterminated string/i, 'string sem aspas de fechamento'],
+  [/Unexpected end of (JSON input|data)|end of input/i, 'fim inesperado do JSON! Chave, colchete ou aspas sem fechar'],
+  [/non-whitespace character after JSON/i, 'conteudo extra apos o fim do JSON'],
+];
+function translate(raw) {
+  for (const pair of TRANSLATIONS) if (pair[0].test(raw)) return pair[1];
+  const m = raw.match(/Unexpected token '?([^',\s]+)'?/i);
+  if (m) return 'caractere inesperado "' + m[1] + '"';
+  return raw;
+}
+function lineColOf(s, pos) {
+  const upTo = s.slice(0, pos);
+  return { line: upTo.split('\n').length, column: pos - upTo.lastIndexOf('\n') };
+}
+function mapOutsideStrings(s, fn) {
+  return s.split(/("(?:[^"\\]|\\.)*")/).map((seg, i) => (i % 2 ? seg : fn(seg))).join('');
+}
+function repairJson(src) {
+  const s = src.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+  let out = '';
+  const stack = [];
+  let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (c === '"' || c === "'") {
+      let str = '"';
+      i++;
+      while (i < s.length && s[i] !== c) {
+        if (s[i] === '\\') { str += s[i] + (s[i + 1] || ''); i += 2; }
+        else if (s[i] === '"') { str += '\\"'; i++; }
+        else if (s[i] === '\n') { str += '\\n'; i++; }
+        else { str += s[i++]; }
+      }
+      i++;
+      out += str + '"';
+    } else if (c === '/' && s[i + 1] === '/') {
+      while (i < s.length && s[i] !== '\n') i++;
+    } else if (c === '/' && s[i + 1] === '*') {
+      i += 2;
+      while (i < s.length && !(s[i] === '*' && s[i + 1] === '/')) i++;
+      i += 2;
+    } else {
+      if (c === '{' || c === '[') stack.push(c === '{' ? '}' : ']');
+      else if (c === '}' || c === ']') stack.pop();
+      out += c;
+      i++;
+    }
+  }
+  out += stack.reverse().join('');
+  out = mapOutsideStrings(out, (seg) => seg
+    .replace(/,(\s*[}\]])/g, '$1')
+    .replace(/([{,]\s*)([A-Za-z_$][\w$]*)(\s*:)/g, '$1"$2"$3')
+    .replace(/\bTrue\b/g, 'true')
+    .replace(/\bFalse\b/g, 'false')
+    .replace(/\b(None|undefined|NaN)\b/g, 'null'));
+  try { return JSON.stringify(JSON.parse(out), null, 2); } catch (e) { return null; }
+}
+function validate(s) {
+  try { JSON.parse(s); return { ok: true }; } catch (e) {
+    const raw = e.message;
+    let line = 1, column = 1, m;
+    if ((m = raw.match(/line (\d+) column (\d+)/))) { line = +m[1]; column = +m[2]; }
+    else if ((m = raw.match(/position (\d+)/))) { const lc = lineColOf(s, +m[1]); line = lc.line; column = lc.column; }
+    else if (/end of/i.test(raw)) { const lc = lineColOf(s, s.length); line = lc.line; column = lc.column; }
+    return { ok: false, line: line, column: column, message: translate(raw), fixed: repairJson(s) };
+  }
+}
+
+// ---- modo estrutura, portado do JsonTreeViewer ----
+function primArrayLabel(arr) {
+  if (arr.some(isCont)) return null;
+  if (arr.length === 0) return 'unknown[]';
+  const types = Array.from(new Set(arr.map(typeName)));
+  return types.length === 1 ? types[0] + '[]' : '(' + types.join(' | ') + ')[]';
+}
+function structureText(v, indent) {
+  indent = indent || '';
+  if (!isCont(v)) return typeName(v);
+  const isArr = Array.isArray(v);
+  let items = isArr ? v : null;
+  if (isArr) {
+    const collapsed = primArrayLabel(v);
+    if (collapsed !== null) return collapsed;
+    const sample = homogeneousSample(v);
+    if (sample !== null) items = [sample];
+  }
+  const open = isArr ? '[' : '{', close = isArr ? ']' : '}';
+  const entries = items ? items.map((x, i) => [String(i), x]) : Object.entries(v);
+  if (entries.length === 0) return open + close;
+  const child = indent + '  ';
+  const lines = entries.map((e) => child + (isArr ? '' : '"' + e[0] + '": ') + structureText(e[1], child));
+  return open + '\n' + lines.join(',\n') + '\n' + indent + close;
+}
+function homogeneousSample(arr) {
+  if (arr.length < 2) return null;
+  const shape = structureText(arr[0]);
+  return arr.every((x) => structureText(x) === shape) ? arr[0] : null;
+}
+
+function tokenizeJson(s) {
+  const out = [];
+  const re = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b/g;
+  let last = 0, m;
+  while ((m = re.exec(s)) !== null) {
+    if (m.index > last) out.push({ s: s.slice(last, m.index), c: C_PUNCT });
+    if (m[1]) {
+      out.push({ s: m[1], c: m[2] ? C_KEY : C_STR });
+      if (m[2]) out.push({ s: m[2], c: C_PUNCT });
+    } else if (m[3]) {
+      out.push({ s: m[3], c: C_NUM });
+    } else {
+      out.push({ s: m[4], c: m[4] === 'null' ? C_NULL : C_BOOL });
+    }
+    last = re.lastIndex;
+  }
+  if (last < s.length) out.push({ s: s.slice(last), c: C_PUNCT });
+  return out;
+}
+
+function countKeys(v) {
+  if (!isCont(v)) return 0;
+  const children = Array.isArray(v) ? v : Object.values(v);
+  let n = Array.isArray(v) ? 0 : Object.keys(v).length;
+  for (const c of children) n += countKeys(c);
+  return n;
+}
+function fmtBytes(n) {
+  return n < 1024 ? n + ' B' : (n / 1024).toFixed(1).replace('.', ',') + ' kB';
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { src: SAMPLE, good: SAMPLE, tab: 'formatado', mode: 'valores', closed: {}, copied: false };
+  }
+
+  setSrc(value) {
+    const ok = validate(value).ok;
+    this.setState({ src: value, good: ok ? value : this.state.good });
+  }
+
+  fix() {
+    const fixed = validate(this.state.src).fixed;
+    if (fixed) this.setState({ src: fixed, good: fixed });
+  }
+
+  collapseAll() {
+    const closed = {};
+    const walk = (v, path) => {
+      if (!isCont(v)) return;
+      closed[path] = true;
+      const entries = Array.isArray(v) ? v.map((x, i) => [String(i), x]) : Object.entries(v);
+      entries.forEach((e) => walk(e[1], path + '/' + e[0]));
+    };
+    walk(JSON.parse(this.state.good), '$');
+    this.setState({ closed: closed });
+  }
+
+  copy(text) {
+    try { navigator.clipboard.writeText(text); } catch (e) { /* sandbox */ }
+    this.setState({ copied: true });
+    setTimeout(() => this.setState({ copied: false }), 1500);
+  }
+
+  buildRows(root) {
+    const rows = [];
+    const mode = this.state.mode;
+    const closed = this.state.closed;
+    const base = (o) => Object.assign({
+      pad: 0, isBranch: false, isLeaf: false, isClose: false, hasKey: false, key: '',
+      p1: '', p2: '', p3: '', p4: '', chevD: '', iconColor: '', open: '', close: '',
+      showCount: false, count: '', showTimes: false, times: '', valText: '', valColor: '',
+      onToggle: null,
+    }, o);
+    const paths = (icon) => ({ p1: icon[0] || '', p2: icon[1] || '', p3: icon[2] || '', p4: icon[3] || '' });
+
+    const walk = (label, value, depth, path) => {
+      if (!isCont(value)) {
+        rows.push(base(Object.assign({
+          isLeaf: true, pad: depth * 18, hasKey: label !== null, key: (label || '') + ':',
+          iconColor: valColor(value),
+          valText: mode === 'estrutura' ? typeName(value) : (typeof value === 'string' ? '"' + value + '"' : String(value)),
+          valColor: valColor(value),
+        }, paths(iconFor(value)))));
+        return;
+      }
+      const isArr = Array.isArray(value);
+      if (isArr && mode === 'estrutura') {
+        const collapsed = primArrayLabel(value);
+        if (collapsed !== null) {
+          rows.push(base(Object.assign({
+            isLeaf: true, pad: depth * 18, hasKey: label !== null, key: (label || '') + ':',
+            iconColor: C_CONT, valText: collapsed, valColor: C_CONT,
+          }, paths(ICONS.arr))));
+          return;
+        }
+      }
+      let entries = isArr ? value.map((x, i) => [String(i), x]) : Object.entries(value);
+      const total = entries.length;
+      let times = '';
+      if (isArr && mode === 'estrutura') {
+        const sample = homogeneousSample(value);
+        if (sample !== null) { entries = [entries[0]]; times = '× ' + total; }
+      }
+      const open = isArr ? '[' : '{', close = isArr ? ']' : '}';
+      const isOpen = !closed[path];
+      rows.push(base(Object.assign({
+        isBranch: true, pad: depth * 18, hasKey: label !== null, key: (label || '') + ':',
+        chevD: isOpen ? CHEV_DOWN : CHEV_RIGHT, iconColor: C_CONT, open: open, close: close,
+        showCount: !isOpen, count: String(total),
+        showTimes: isOpen && times !== '', times: times,
+        onToggle: () => {
+          const next = Object.assign({}, this.state.closed);
+          if (next[path]) delete next[path]; else next[path] = true;
+          this.setState({ closed: next });
+        },
+      }, paths(isArr ? ICONS.arr : ICONS.obj))));
+      if (isOpen) {
+        entries.forEach((e) => walk(isArr ? null : e[0], e[1], depth + 1, path + '/' + e[0]));
+        rows.push(base({ isClose: true, pad: (depth + 1) * 18, close: close }));
+      }
+    };
+    walk(null, root, 0, '$');
+    return rows;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const check = validate(s.src);
+    const value = JSON.parse(s.good);
+    const formatted = JSON.stringify(value, null, 2);
+    const isTree = s.tab === 'arvore';
+    const isEst = s.mode === 'estrutura';
+    const copyText = isTree && isEst ? structureText(value) : formatted;
+    const bytes = new TextEncoder().encode(s.src).length;
+
+    return {
+      src: s.src,
+      onSrc: (e) => this.setSrc(e.target.value),
+      lineNums: Array.from({ length: s.src.split('\n').length }, (_, i) => i + 1).join('\n'),
+
+      ok: check.ok,
+      bad: !check.ok,
+      err: check.ok ? { line: 0, column: 0, message: '' } : check,
+      canFix: !check.ok && !!check.fixed,
+      noFix: !check.ok && !check.fixed,
+      onFix: () => this.fix(),
+      stats: countKeys(value) + ' chaves · ' + fmtBytes(bytes),
+
+      isFmt: !isTree,
+      isTree: isTree,
+      fmtOn: isTree ? '' : 'pill-on',
+      treeOn: isTree ? 'pill-on' : '',
+      onTabFmt: () => this.setState({ tab: 'formatado' }),
+      onTabTree: () => this.setState({ tab: 'arvore' }),
+
+      valOn: isEst ? '' : 'toggle-on',
+      estOn: isEst ? 'toggle-on' : '',
+      onValores: () => this.setState({ mode: 'valores' }),
+      onEstrutura: () => this.setState({ mode: 'estrutura' }),
+      expOn: Object.keys(s.closed).length === 0 ? 'toggle-on' : '',
+      colOn: Object.keys(s.closed).length === 0 ? '' : 'toggle-on',
+      onExpand: () => this.setState({ closed: {} }),
+      onCollapse: () => this.collapseAll(),
+
+      copied: s.copied,
+      notCopied: !s.copied,
+      onCopy: () => this.copy(copyText),
+
+      staleClass: check.ok ? '' : 'stale',
+      tokens: tokenizeJson(formatted),
+      rows: this.buildRows(value),
+    };
+  }
+}
+</script>
+</body>
+</html>

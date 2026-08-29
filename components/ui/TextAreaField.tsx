@@ -1,4 +1,4 @@
-import type { CSSProperties, KeyboardEvent } from "react";
+import { useId, type CSSProperties, type KeyboardEvent } from "react";
 import { LinedTextarea } from "./LinedTextarea";
 
 interface TextAreaFieldProps {
@@ -25,15 +25,24 @@ export function TextAreaField({
   style,
   labelRight,
 }: TextAreaFieldProps) {
+  // <label htmlFor> e não <span>: sem a associação, o leitor de tela anuncia
+  // "caixa de edição" e nada mais — o "// entrada" fica só na tela.
+  const id = useId();
+
   return (
     <div className="field-col">
       {(label || labelRight) && (
         <div className={labelRight ? "label-row--between" : "label-row"}>
-          {label && <span className="mono-label">{label}</span>}
+          {label && (
+            <label className="mono-label" htmlFor={id}>
+              {label}
+            </label>
+          )}
           {labelRight}
         </div>
       )}
       <LinedTextarea
+        id={id}
         value={value}
         onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         onKeyDown={onKeyDown}

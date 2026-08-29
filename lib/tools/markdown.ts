@@ -55,14 +55,18 @@ const INLINE_SRC = [
     "(`+)([\\s\\S]*?)\\1", //                                  1,2  código
     "!\\[([^\\]]*)\\]\\(\\s*([^)\\s]*)[^)]*\\)", //            3,4  imagem
     "\\[([^\\]]*)\\]\\(\\s*([^)\\s]*)[^)]*\\)", //             5,6  link
-    "\\*\\*(?!\\s)([\\s\\S]+?)\\*\\*", //                      7    **forte**
-    "__(?!\\s)([\\s\\S]+?)__", //                              8    __forte__
-    "~~(?!\\s)([\\s\\S]+?)~~", //                              9    ~~riscado~~
-    "\\*(?!\\s)([^*]+?)\\*", //                                10   *ênfase*
-    "(?<![\\w])_(?!\\s)([^_]+?)_(?![\\w])", //                 11   _ênfase_
-    "<((?:https?|mailto):[^>\\s]+)>", //                       12   <autolink>
-    "(?<![(\"'\\w])(https?:\\/\\/[^\\s<>()\\[\\]]+)", //       13   url solta
-    "( {2,}\\n|\\\\\\n)", //                                   14   quebra forte
+    // os triplos vêm antes dos duplos: `**` é lazy e casaria `***a***` deixando
+    // um asterisco solto de cada lado
+    "\\*\\*\\*(?!\\s)([\\s\\S]+?)\\*\\*\\*", //             7    ***forte e ênfase***
+    "___(?!\\s)([\\s\\S]+?)___", //                            8    ___forte e ênfase___
+    "\\*\\*(?!\\s)([\\s\\S]+?)\\*\\*", //                      9    **forte**
+    "__(?!\\s)([\\s\\S]+?)__", //                              10   __forte__
+    "~~(?!\\s)([\\s\\S]+?)~~", //                              11   ~~riscado~~
+    "\\*(?!\\s)([^*]+?)\\*", //                                12   *ênfase*
+    "(?<![\\w])_(?!\\s)([^_]+?)_(?![\\w])", //                 13   _ênfase_
+    "<((?:https?|mailto):[^>\\s]+)>", //                       14   <autolink>
+    "(?<![(\"'\\w])(https?:\\/\\/[^\\s<>()\\[\\]]+)", //       15   url solta
+    "( {2,}\\n|\\\\\\n)", //                                   16   quebra forte
 ].join("|");
 
 /**
@@ -100,13 +104,15 @@ export function parseInline(src: string): Inline[] {
     if (m[1] !== undefined) out.push({ t: "code", v: m[2].trim() });
     else if (m[3] !== undefined) out.push({ t: "img", src: safeUrl(m[4], true), alt: m[3] });
     else if (m[5] !== undefined) out.push({ t: "link", href: safeUrl(m[6]), c: parseInline(m[5]) });
-    else if (m[7] !== undefined) out.push({ t: "strong", c: parseInline(m[7]) });
-    else if (m[8] !== undefined) out.push({ t: "strong", c: parseInline(m[8]) });
-    else if (m[9] !== undefined) out.push({ t: "del", c: parseInline(m[9]) });
-    else if (m[10] !== undefined) out.push({ t: "em", c: parseInline(m[10]) });
-    else if (m[11] !== undefined) out.push({ t: "em", c: parseInline(m[11]) });
-    else if (m[12] !== undefined) out.push({ t: "link", href: safeUrl(m[12]), c: [{ t: "text", v: m[12] }] });
-    else if (m[13] !== undefined) out.push({ t: "link", href: safeUrl(m[13]), c: [{ t: "text", v: m[13] }] });
+    else if (m[7] !== undefined) out.push({ t: "strong", c: [{ t: "em", c: parseInline(m[7]) }] });
+    else if (m[8] !== undefined) out.push({ t: "strong", c: [{ t: "em", c: parseInline(m[8]) }] });
+    else if (m[9] !== undefined) out.push({ t: "strong", c: parseInline(m[9]) });
+    else if (m[10] !== undefined) out.push({ t: "strong", c: parseInline(m[10]) });
+    else if (m[11] !== undefined) out.push({ t: "del", c: parseInline(m[11]) });
+    else if (m[12] !== undefined) out.push({ t: "em", c: parseInline(m[12]) });
+    else if (m[13] !== undefined) out.push({ t: "em", c: parseInline(m[13]) });
+    else if (m[14] !== undefined) out.push({ t: "link", href: safeUrl(m[14]), c: [{ t: "text", v: m[14] }] });
+    else if (m[15] !== undefined) out.push({ t: "link", href: safeUrl(m[15]), c: [{ t: "text", v: m[15] }] });
     else out.push({ t: "br" });
   }
   pushText(out, src.slice(last));
@@ -429,4 +435,20 @@ if (process.env.NODE_ENV !== "production") {
   // link hostil não pode sobreviver ao parser
   const evil = parseMarkdown("[x](javascript:alert(1))").blocks[0] as Extract<Block, { t: "para" }>;
   ok((evil.c[0] as Extract<Inline, { t: "link" }>).href === "#", "javascript: devia virar #");
+
+  // ênfases: é onde a ordem das alternativas do regex importa. `***a***` já saiu
+  // quebrado uma vez, porque o `**` lazy casava primeiro e sobrava um asterisco.
+  const forma = (src: string) => JSON.stringify(parseInline(src), (k, v) => (k === "v" ? undefined : v));
+  const triplo = '[{"t":"strong","c":[{"t":"em","c":[{"t":"text"}]}]}]';
+  for (const [src, esperado] of [
+    ["***a***", triplo],
+    ["___a___", triplo],
+    ["**a**", '[{"t":"strong","c":[{"t":"text"}]}]'],
+    ["*a*", '[{"t":"em","c":[{"t":"text"}]}]'],
+    ["~~a~~", '[{"t":"del","c":[{"t":"text"}]}]'],
+    ["minha_variavel_longa", '[{"t":"text"}]'],
+  ] as const) {
+    ok(forma(src) === esperado, `parseInline("${src}") virou ${forma(src)}`);
+  }
 }
+

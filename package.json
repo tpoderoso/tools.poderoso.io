@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "doc-images": "for f in assets/doc-images/*.svg; do magick -background none -density 192 \"$f\" \"public/img/$(basename ${f%.svg}).webp\"; done"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",

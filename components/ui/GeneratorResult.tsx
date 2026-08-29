@@ -32,10 +32,19 @@ export function GeneratorResult({
   return (
     <CenteredColumn>
       <div className="mono-label mono-label--wide">{label}</div>
+      {/* o valor nasce vazio e só é sorteado depois da hidratação (ver
+          useOnActivate), então a caixa reserva uma linha de altura pra nada
+          empurrar o botão pra baixo quando ele aparece.
+          aria-live: sem isso o leitor de tela não anuncia nada quando o botão
+          "gerar" troca o valor — a única coisa que muda na tela fica muda. */}
       <div
+        aria-live="polite"
+        aria-atomic="true"
         style={{
           fontWeight: 500,
           fontSize: valueSize,
+          lineHeight: 1.2,
+          minHeight: `calc(${valueSize} * 1.2)`,
           color: valueColor,
           letterSpacing: valueLetterSpacing,
           maxWidth: "100%",
@@ -50,7 +59,7 @@ export function GeneratorResult({
           <RotateCcw size={13} style={{ verticalAlign: -2, marginRight: 6 }} />
           {regenerateLabel}
         </PrimaryButton>
-        <CopyButton variant="text" text={value} />
+        <CopyButton text={value} />
       </div>
       {footnote && <p className="gen-footnote">{footnote}</p>}
     </CenteredColumn>

@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Star } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { ALL_TOOLS, NAV_GROUPS, type ToolId } from "@/lib/nav";
-import { getFavorites, getUsage, toggleFavorite } from "@/lib/storage";
+import { ALL_TOOLS, NAV_GROUPS, toolHref, type ToolId } from "@/lib/nav";
+import { getFavorites, getUsage, recordToolUse, toggleFavorite } from "@/lib/storage";
 import { useToolSearch } from "@/lib/hooks/useToolSearch";
 import { useOpenTool } from "@/lib/hooks/useOpenTool";
 import { useToolShortcuts } from "@/lib/hooks/useToolShortcuts";
@@ -31,6 +32,7 @@ export function HomeLauncher() {
   useEffect(refresh, []);
 
   function handlePinClick(e: React.MouseEvent, id: ToolId) {
+    e.preventDefault();
     e.stopPropagation();
     setFavorites(toggleFavorite(id));
   }
@@ -54,13 +56,14 @@ export function HomeLauncher() {
       }}
     >
       <Header onOpenPalette={focusInput} />
-      <div
+      <main
+        id="conteudo"
         style={{
           flex: 1,
           overflowY: "auto",
           display: "flex",
           justifyContent: "center",
-          padding: "56px 36px 40px",
+          padding: "28px 36px 40px",
         }}
       >
         <div
@@ -72,6 +75,12 @@ export function HomeLauncher() {
             gap: 36,
           }}
         >
+          {/* h1 pro crawler; o herói visual da home é o prompt de busca. Curto
+              e honesto de propósito: a lista de palavra-chave escondida que
+              morava aqui é justamente o padrão que o Google penaliza, e as
+              palavras já aparecem no texto dos links do índice abaixo. */}
+          <h1 className="visually-hidden">Ferramentas para desenvolvedores</h1>
+
           {/* busca */}
           <div
             style={{
@@ -156,12 +165,14 @@ export function HomeLauncher() {
               </div>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 {pinnedItems.map((t) => (
-                  <span
+                  <Link
                     key={t.id}
+                    href={toolHref(t)}
                     className="home-chip"
-                    onClick={() => openTool(t)}
+                    onClick={() => recordToolUse(t.id)}
                     title={t.description}
                     style={{
+                      textDecoration: "none",
                       display: "flex",
                       alignItems: "center",
                       gap: 8,
@@ -181,14 +192,14 @@ export function HomeLauncher() {
                       color="var(--color-accent-yellow)"
                       onClick={(e) => handlePinClick(e, t.id)}
                     />
-                  </span>
+                  </Link>
                 ))}
               </div>
             </div>
           )}
 
           {/* índice */}
-          <div className="home-index-grid">
+          <nav className="home-index-grid" aria-label="Índice de ferramentas">
             {filteredGroups.map((group) => (
               <div
                 key={group.heading}
@@ -219,10 +230,11 @@ export function HomeLauncher() {
                 {group.items.map((t) => {
                   const isPinned = favorites.includes(t.id);
                   return (
-                    <div
+                    <Link
                       key={t.id}
+                      href={toolHref(t)}
                       className="home-index-row"
-                      onClick={() => openTool(t)}
+                      onClick={() => recordToolUse(t.id)}
                       title={t.description}
                       style={{
                         display: "flex",
@@ -230,13 +242,14 @@ export function HomeLauncher() {
                         gap: 8,
                         padding: "4px 0",
                         cursor: "pointer",
+                        textDecoration: "none",
                         color: "var(--color-muted-soft)",
                       }}
                     >
                       <span style={{ color: "var(--color-primary)" }}>
                         &gt;
                       </span>
-                      <span>{t.label}</span>
+                      <span className="link-underline">{t.label}</span>
                       <span
                         className="home-index-leader"
                         style={{
@@ -260,12 +273,12 @@ export function HomeLauncher() {
                         }
                         onClick={(e) => handlePinClick(e, t.id)}
                       />
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
             ))}
-          </div>
+          </nav>
 
           {/* rodapé */}
           <div
@@ -286,7 +299,7 @@ export function HomeLauncher() {
             </span>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

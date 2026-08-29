@@ -1,56 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, type LucideIcon } from "lucide-react";
+import { useCopy } from "@/lib/hooks/useCopy";
 
 interface CopyButtonProps {
   text: string;
-  variant?: "icon" | "text";
-  style?: CSSProperties;
+  /** Tooltip do botão, ex. "Copiar tudo" / "Copiar JSON". */
   label?: string;
+  /** Ícone alternativo, para diferenciar dois botões de copiar lado a lado. */
+  icon?: LucideIcon;
 }
 
 /**
- * Copy-to-clipboard button with a transient "copiado" confirmation (1.5s).
- * `variant="icon"` renders an icon-only button; `variant="text"` adds a "Copiar"/"Copiado" label
- * (customizable via `label`, e.g. "Copiar tudo").
+ * Botão de copiar (só ícone) com confirmação transitória de "copiado" (1,5s).
  */
-export function CopyButton({ text, variant = "icon", style, label = "Copiar" }: CopyButtonProps) {
-  const [copied, setCopied] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  }, []);
-
-  const handleClick = () => {
-    if (text) navigator.clipboard?.writeText(text);
-    setCopied(true);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setCopied(false), 1500);
-  };
-
-  if (variant === "text") {
-    return (
-      <button type="button" onClick={handleClick} className="btn-copy-text" style={style}>
-        {copied ? (
-          <>
-            <Check size={13} color="var(--color-primary)" strokeWidth={2.5} />
-            Copiado
-          </>
-        ) : (
-          <>
-            <Copy size={13} strokeWidth={2} />
-            {label}
-          </>
-        )}
-      </button>
-    );
-  }
+export function CopyButton({ text, label = "Copiar", icon: Icon = Copy }: CopyButtonProps) {
+  const { copied, copy } = useCopy();
 
   return (
-    <button type="button" onClick={handleClick} title="Copiar" className="btn-copy-icon">
-      {copied ? <Check size={13} color="var(--color-primary)" strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
+    <button type="button" onClick={() => copy(text)} title={label} aria-label={label} className="btn-copy-icon">
+      {copied ? <Check size={13} color="var(--color-primary)" strokeWidth={2.5} /> : <Icon size={13} strokeWidth={2} />}
     </button>
   );
 }

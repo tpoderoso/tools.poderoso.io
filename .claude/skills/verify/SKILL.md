@@ -27,3 +27,22 @@ args `--no-sandbox --disable-dev-shm-usage`.
   painel ativo por screenshot ou filtre por visibilidade.
 - Overflow horizontal: `document.documentElement.scrollWidth <= innerWidth`.
 - Drawer mobile: abrir com `.menu-btn`, fechar tocando `.sidebar-backdrop`.
+
+## Invariante: o `<html>` nunca pode rolar
+
+`html`/`body` têm `overflow: hidden`, mas isso só esconde a barra: `scrollIntoView`
+e o scroll que o foco dispara ainda rolam o elemento. Quando isso acontece a tela
+fica deslocada e o usuário não tem como voltar, porque não existe barra.
+
+Cheque em toda rota, e depois de qualquer interação que mova foco:
+
+```js
+document.documentElement.scrollHeight === document.documentElement.clientHeight
+```
+
+A causa recorrente é `position: absolute` **sem `top`/`left`**: sem ancoragem o
+elemento fica na posição estática, e se ela estiver abaixo da dobra ele estica o
+`scrollHeight` do `<html>`. Foi exatamente isso com os radios de `.tool-tab-input`
+(361px de área fantasma, tela pulando 279px ao trocar a aba de linguagem). Todo
+`position: absolute` decorativo ou escondido precisa de offset explícito, ou de um
+ancestral `position: relative`.

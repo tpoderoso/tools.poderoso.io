@@ -147,7 +147,7 @@ export function TextDiffTool() {
             const l = ignoreLeading ? stripLeadingWhitespace(left) : left;
             const r = ignoreLeading ? stripLeadingWhitespace(right) : right;
             if (l.length > MAX_INPUT_CHARS || r.length > MAX_INPUT_CHARS) {
-              toastError("Texto muito grande (máx. 20MB) — reduza o tamanho para comparar.");
+              toastError("Texto muito grande (máx. 20MB). Reduza o tamanho para comparar.");
               return;
             }
             const result = computeDiff(l, r);
@@ -172,7 +172,7 @@ export function TextDiffTool() {
           active={onlyDiffs}
           onClick={() => {
             if (onlyDiffs && forceOnlyDiffs) {
-              toastError("Resultado grande demais para mostrar linhas iguais — mantenha \"apenas diferenças\" ativado.");
+              toastError("Resultado grande demais para mostrar linhas iguais. Mantenha \"apenas diferenças\" ativado.");
               return;
             }
             setOnlyDiffs((v) => !v);

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="328" viewBox="0 0 440 328">
+  <style>
+    .m { font-family: "Liberation Mono","Noto Sans Mono",monospace; font-size: 14px }
+    .s { font-family: "Liberation Sans","Noto Sans",sans-serif; font-size: 12px }
+    .pu { fill: #6272a4 } .ke { fill: #8be9fd } .st { fill: #f1fa8c }
+    .nu { fill: #bd93f9 } .kw { fill: #ff79c6 }
+    .bn { font-family: "Liberation Sans","Noto Sans",sans-serif; font-size: 11px; fill: #50fa7b }
+    .lg { fill: #cdd0de }
+  </style>
+  <rect x="0.5" y="0.5" width="439" height="327" rx="10" fill="#191a21" stroke="#343746"/>
+
+  <text class="m" x="24" y="44" xml:space="preserve"><tspan class="pu">{</tspan></text>
+  <text class="m" x="24" y="67" xml:space="preserve"><tspan class="ke">  "nome"</tspan><tspan class="pu">: </tspan><tspan class="st">"Ana"</tspan><tspan class="pu">,</tspan></text>
+  <text class="m" x="24" y="90" xml:space="preserve"><tspan class="ke">  "idade"</tspan><tspan class="pu">: </tspan><tspan class="nu">30</tspan><tspan class="pu">,</tspan></text>
+  <text class="m" x="24" y="113" xml:space="preserve"><tspan class="ke">  "tags"</tspan><tspan class="pu">: [</tspan><tspan class="st">"dev"</tspan><tspan class="pu">, </tspan><tspan class="st">"qa"</tspan><tspan class="pu">],</tspan></text>
+  <text class="m" x="24" y="136" xml:space="preserve"><tspan class="ke">  "extra"</tspan><tspan class="pu">: </tspan><tspan class="kw">null</tspan></text>
+  <text class="m" x="24" y="159" xml:space="preserve"><tspan class="pu">}</tspan></text>
+
+  <g fill="none" stroke="#50fa7b" stroke-opacity="0.55">
+    <circle cx="404" cy="39.5" r="10"/><circle cx="404" cy="62.5" r="10"/>
+    <circle cx="404" cy="108.5" r="10"/><circle cx="404" cy="131.5" r="10"/>
+  </g>
+  <g class="bn" text-anchor="middle">
+    <text x="404" y="43.5">1</text><text x="404" y="66.5">2</text>
+    <text x="404" y="112.5">3</text><text x="404" y="135.5">4</text>
+  </g>
+
+  <line x1="20" y1="182" x2="420" y2="182" stroke="#343746"/>
+
+  <g class="bn"><text x="24" y="206">1</text><text x="24" y="230">2</text><text x="24" y="254">3</text><text x="24" y="278">4</text></g>
+  <g class="s lg">
+    <text x="44" y="206">chaves { } marcam um objeto: pares de chave e valor</text>
+    <text x="44" y="230">a chave é sempre uma string entre aspas duplas</text>
+    <text x="44" y="254">colchetes [ ] marcam um array: uma lista ordenada</text>
+    <text x="44" y="278">null é um valor de verdade, não é campo ausente</text>
+  </g>
+
+  <circle cx="27" cy="303" r="4" fill="#ff5555"/>
+  <text class="s" x="44" y="307" fill="#ff8a8a">vírgula depois do último item quebra o JSON</text>
+</svg>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { Braces, RotateCcw } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { CopyButton } from "@/components/ui/CopyButton";
@@ -80,8 +80,8 @@ export function PessoaGenerator({ active }: { active: boolean }) {
 
       {pessoa && (
         <div className="gen-actions" style={{ justifyContent: "center" }}>
-          <CopyButton variant="text" label="Copiar tudo" text={personToText(pessoa)} />
-          <CopyButton variant="text" label="Copiar JSON" text={personToJSON(pessoa)} />
+          <CopyButton label="Copiar tudo" text={personToText(pessoa)} />
+          <CopyButton label="Copiar JSON" icon={Braces} text={personToJSON(pessoa)} />
         </div>
       )}
 

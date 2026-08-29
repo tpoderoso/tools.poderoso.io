@@ -23,6 +23,12 @@ export function Header({ onOpenPalette }: { onOpenPalette?: () => void }) {
         flexShrink: 0,
       }}
     >
+      {/* primeiro item focável da página: quem navega por teclado pula o
+          cabeçalho inteiro em vez de tabular por ele em toda ferramenta */}
+      <a href="#conteudo" className="skip-link">
+        pular para o conteúdo
+      </a>
+
       <div className="header-dots">
         <span style={{ ...DOT, background: "var(--color-danger)" }} />
         <span style={{ ...DOT, background: "var(--color-accent-yellow)" }} />
@@ -31,6 +37,7 @@ export function Header({ onOpenPalette }: { onOpenPalette?: () => void }) {
       <Link
         href="/"
         aria-label="Ir para a home"
+        className="no-underline"
         style={{
           display: "flex",
           alignItems: "center",
@@ -58,11 +65,6 @@ export function Header({ onOpenPalette }: { onOpenPalette?: () => void }) {
           />
         )}
       </Link>
-      {onTool && (
-        <span className="header-tagline" style={{ fontSize: 12, color: "var(--color-muted)" }}>
-          ~{pathname}
-        </span>
-      )}
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
         {onOpenPalette && (
           <button type="button" onClick={onOpenPalette} className="header-cmdk" aria-label="Buscar ferramenta">

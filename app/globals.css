@@ -9,7 +9,9 @@
   /* text */
   --foreground: #f8f8f2;
   --foreground-muted: #9aa0bf;
-  --foreground-subtle: #6272a4;
+  /* clareado do #6272a4 original: naquele tom o texto secundário ficava em
+     3,4:1 sobre o fundo dos painéis, abaixo dos 4,5:1 que o WCAG AA pede. */
+  --foreground-subtle: #8290bd;
   --foreground-prose: #cdd0de;
 
   /* accent verde — Direção B: Terminal */
@@ -20,7 +22,7 @@
   --accent-foreground: #21222c;
 
   --muted: #282a36;
-  --muted-foreground: #6272a4;
+  --muted-foreground: #8290bd;
 
   --border: #44475a;
   --border-subtle: #343746;
@@ -45,11 +47,16 @@
   --color-fg: var(--foreground);
   --color-muted: var(--foreground-subtle);
   --color-muted-soft: var(--foreground-muted);
+  /* texto de apoio (números de linha, notas de rodapé, metadados): um degrau
+     abaixo do --color-muted e ainda acima dos 4,5:1 do WCAG AA. Antes disso
+     esses trechos usavam --color-line, que é cor de borda e dava 1,9:1. */
+  --color-faint: #7f8bb5;
 
   --color-primary: var(--primary);
   --color-primary-hover: #69ff94;
   --color-primary-tint: rgba(80, 250, 123, 0.08);
   --color-primary-tint-strong: rgba(80, 250, 123, 0.1);
+  --color-primary-tint-border: rgba(80, 250, 123, 0.3);
   --color-secondary: var(--accent);
   --color-danger: var(--accent-red);
   --color-danger-tint: rgba(255, 85, 85, 0.08);
@@ -90,6 +97,36 @@ body {
 
 a {
   color: inherit;
+}
+
+/* links de texto (âncoras sem classe própria): sublinhado verde que abre do
+   centro pros cantos no hover. Gradiente como background em vez de ::after
+   pra funcionar em link que quebra linha e não brigar com pseudo-elemento. */
+a:not([class]),
+.link-underline {
+  background-image: linear-gradient(var(--color-primary), var(--color-primary));
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: 0 1px;
+  transition: background-size 220ms ease;
+}
+
+a:not([class]):hover,
+a:hover .link-underline,
+.link-underline:hover {
+  background-size: 100% 1px;
+}
+
+/* opt-out: link sem classe que não deve ganhar o sublinhado */
+a.no-underline {
+  background-image: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a:not([class]),
+  .link-underline {
+    transition: none;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -236,22 +273,7 @@ textarea {
   padding: 0;
 }
 
-.btn-copy-text {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: transparent;
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
-  padding: 11px 22px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--color-muted-soft);
-  cursor: pointer;
-}
-
-.btn-copy-icon:hover,
-.btn-copy-text:hover {
+.btn-copy-icon:hover {
   border-color: var(--color-secondary);
   color: var(--color-fg);
 }
@@ -298,16 +320,65 @@ textarea {
 /* resultado de geradores (GeneratorResult + PasswordGenerator/UuidGenerator) */
 .gen-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
 .gen-footnote {
   font-size: 10px;
-  color: var(--color-line);
+  color: var(--color-faint);
   max-width: 38ch;
   text-align: center;
   line-height: 1.7;
   margin: 0;
+}
+
+/* linha da ficha de empresa: o alvo de copiar é o próprio valor, e o botão de
+   regerar só aparece quando o ponteiro está na linha. Mora aqui, e não inline no
+   componente, porque `:hover` não existe em style inline. */
+.field-cell:hover {
+  background: var(--color-primary-tint);
+}
+
+.field-value {
+  border: none;
+  background: none;
+  color: inherit;
+  font-family: var(--font-mono);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  /* o padding cria a caixa do hover; a margem negativa devolve o espaço, então
+     acender o valor não empurra nada */
+  padding: 1px 5px;
+  margin: -1px -5px;
+  overflow-wrap: anywhere;
+}
+
+.field-value:hover {
+  background: var(--color-bg-alt);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+}
+
+.field-value:active {
+  background: var(--color-primary-tint-strong);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.field-regen {
+  opacity: 0;
+}
+
+.field-cell:hover .field-regen,
+.field-regen:focus-visible {
+  opacity: 1;
+}
+
+/* sem ponteiro não existe hover: no toque o botão fica sempre visível */
+@media (hover: none) {
+  .field-regen {
+    opacity: 1;
+  }
 }
 
 /* select do tema (Select — usado pelo cartão e pela empresa) */
@@ -638,7 +709,6 @@ textarea {
     padding: 16px;
   }
 
-  .header-tagline,
   .header-dots,
   .header-visit-counter {
     display: none;
@@ -669,4 +739,402 @@ textarea {
   .home-index-row {
     min-height: 44px;
   }
+
+  .tool-crumb .desc {
+    display: none;
+  }
+}
+
+/* ============ breadcrumb pwd ============ */
+/* Mesmas cores do `tools.poderoso.io` do header, com o cursor do prompt no fim. */
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.crumb-home,
+.crumb-dir,
+.crumb-here {
+  padding: 1px 2px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.crumb-home {
+  color: var(--color-muted);
+}
+
+.crumb-sep {
+  color: var(--color-faint);
+}
+
+.crumb-dir {
+  color: var(--color-accent-cyan);
+}
+
+.crumb-here {
+  color: var(--color-primary);
+}
+
+/* só o `~` é clicável: categoria e página atual não reagem ao mouse */
+a.crumb-home:hover {
+  background: var(--color-primary-tint-strong);
+  color: var(--color-primary);
+}
+
+/* o cursor do prompt: mesmo keyframes do header */
+.crumb-caret {
+  width: 6px;
+  height: 13px;
+  margin-left: 4px;
+  background: var(--color-primary);
+  animation: caret 1s steps(1) infinite;
+}
+
+/* respeita quem pediu menos movimento: o cursor fica aceso, parado */
+@media (prefers-reduced-motion: reduce) {
+  .crumb-caret {
+    animation: none;
+  }
+}
+
+/* usado pelo h1 real da home e das ferramentas: conta pro leitor de tela e pro
+   buscador, não ocupa espaço na tela */
+.visually-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============ abas ferramenta / manual ============ */
+/* Radios escondidos + `:checked ~`: troca de painel sem JS e sem estado, com os
+   dois painéis sempre no HTML. Precisa ser CSS porque `:checked` e `:hover` não
+   existem em style inline. */
+
+/* `top`/`left` não são decoração: sem eles o radio fica na posição estática, que
+   num documento de altura fixa estica o scrollHeight do <html>. Como html tem
+   overflow: hidden, a barra não aparece, mas o scroll-into-view que o foco
+   dispara ao clicar no label desloca a tela inteira sem volta. */
+.tool-tab-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tool-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+}
+
+.tool-tabs label {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 14px;
+  border-radius: 7px;
+  color: var(--color-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tool-tabs label:hover {
+  color: var(--color-fg);
+}
+
+/* `~ *` e não `~ .tool-crumb`: markdown e mermaid montam o cabeçalho deles, e
+   label[for=...] só existe dentro das abas mesmo. */
+#tab-tool:checked ~ * label[for="tab-tool"],
+#tab-doc:checked ~ * label[for="tab-doc"] {
+  background: var(--color-primary-tint-strong);
+  color: var(--color-primary);
+}
+
+.tool-tab-input:focus-visible ~ * .tool-tabs {
+  border-color: var(--color-accent-cyan);
+}
+
+/* painéis: exatamente a mesma caixa, então trocar não desloca nada */
+.tool-tab-panel--tool {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* altura natural de propósito: multicol com altura limitada transborda pra
+   direita em vez de rolar pra baixo. Em 1280x800 o texto cabe sem rolagem; em
+   tela curta quem rola é o .tool-panel, na vertical. */
+.tool-tab-panel--doc {
+  flex: 0 0 auto;
+}
+
+#tab-doc:checked ~ .tool-tab-panel--tool,
+#tab-doc:checked ~ .tool-tab-panel--bare,
+#tab-tool:checked ~ .tool-tab-panel--doc,
+#tab-tool:checked ~ .tool-tab-panel--manual {
+  display: none;
+}
+
+/* markdown e mermaid ocupam a tela inteira e já têm layout próprio: `--bare` só
+   some com o corpo da ferramenta, sem impor flex nenhum. E o manual, numa caixa
+   de altura fixa, precisa rolar sozinho em vez de crescer. */
+.tool-tab-panel--manual {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 22px 24px 40px;
+}
+
+/* ---- conteúdo da aba "manual" ---- */
+
+/* texto corrido é serifado de propósito: mono em parágrafo longo cansa. O resto
+   do painel (títulos, código, referências) continua mono, que é a identidade.
+   `columns: 28em 2` faz o número de colunas cair pra 1 sozinho quando a caixa
+   não comporta duas medidas legíveis, sem media query. */
+.tool-doc-body {
+  columns: 28em 2;
+  column-gap: 48px;
+  color: var(--foreground-prose);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.tool-doc-body p {
+  margin-bottom: 14px;
+  break-inside: avoid;
+  text-wrap: pretty;
+}
+
+/* título tem que ser maior que o corpo. Mono no tamanho necessário fica largo
+   demais numa coluna estreita, então título e corpo compartilham a serifada e a
+   hierarquia sai do tamanho e da cor. */
+.tool-doc-body h2 {
+  margin: 30px 0 10px;
+  color: var(--color-accent-cyan);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+  break-after: avoid;
+}
+
+.tool-doc-body h3 {
+  margin: 22px 0 6px;
+  color: var(--color-fg);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-wrap: balance;
+  break-after: avoid;
+}
+
+.tool-doc-body > p:first-child {
+  margin-top: 0;
+}
+
+.tool-doc-body a {
+  color: var(--color-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(189, 147, 249, 0.35);
+}
+
+.tool-doc-body a:hover {
+  color: var(--color-accent-cyan);
+  /* some pro sublinhado verde animado ocupar o lugar */
+  border-bottom-color: transparent;
+}
+
+.tool-doc-refs {
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.tool-doc-refs li {
+  margin-bottom: 8px;
+  break-inside: avoid;
+}
+
+.tool-doc-refs span {
+  display: block;
+  color: var(--color-muted);
+}
+
+/* largura/altura no <img> + width:100%/height:auto: o navegador reserva a caixa
+   pela proporção antes do arquivo chegar, então a coluna não pula. */
+.tool-doc-fig {
+  margin: 16px 0 20px;
+  break-inside: avoid;
+}
+
+.tool-doc-fig img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.tool-doc-fig figcaption {
+  margin-top: 8px;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* bloco de código: break-inside evita o corte no meio entre uma coluna e outra */
+.tool-doc-code {
+  position: relative;
+  font-family: var(--font-mono);
+  margin: 10px 0 14px;
+  break-inside: avoid;
+}
+
+.tool-doc-langs {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 6px;
+  padding: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+}
+
+.tool-doc-langs label {
+  padding: 3px 11px;
+  border-radius: 6px;
+  color: var(--color-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.tool-doc-langs label:hover {
+  color: var(--color-fg);
+}
+
+/* Casa por nth-of-type e não por id, pra o estilo não conhecer o nome da
+   linguagem. Uma terceira linguagem pede um terceiro par de seletores. */
+.tool-doc-code input:nth-of-type(1):checked ~ .tool-doc-langs label:nth-of-type(1),
+.tool-doc-code input:nth-of-type(2):checked ~ .tool-doc-langs label:nth-of-type(2) {
+  background: var(--color-primary-tint-strong);
+  color: var(--color-primary);
+}
+
+.tool-doc-code input:focus-visible ~ .tool-doc-langs {
+  border-color: var(--color-accent-cyan);
+}
+
+.tool-doc-code pre {
+  display: none;
+  overflow-x: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-alt);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+.tool-doc-code input:nth-of-type(1):checked ~ pre:nth-of-type(1),
+.tool-doc-code input:nth-of-type(2):checked ~ pre:nth-of-type(2) {
+  display: block;
+}
+
+/* tokens do tokenizeCode; mesma paleta do resto do app */
+.tool-doc-code .tk-keyword {
+  color: var(--color-accent-pink);
+}
+.tool-doc-code .tk-type {
+  color: var(--color-accent-cyan);
+}
+.tool-doc-code .tk-string {
+  color: var(--color-accent-yellow);
+}
+.tool-doc-code .tk-number {
+  color: var(--color-secondary);
+}
+.tool-doc-code .tk-comment {
+  color: var(--color-muted);
+}
+
+
+/* Link de pular navegação: fora da tela até receber foco pelo teclado. Vive aqui
+   e não inline porque depende de :focus. */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  transform: translateY(-200%);
+  border: 1px solid var(--color-primary);
+  border-radius: 7px;
+  padding: 8px 14px;
+  background: var(--color-bg-alt);
+  color: var(--color-primary);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* amostra "fonte → resultado" do manual do Markdown. break-inside porque o corpo
+   do manual é multicoluna e cortar a amostra no meio perderia o par. */
+.tool-doc-demo {
+  margin: 12px 0 18px;
+  break-inside: avoid;
+}
+
+.tool-doc-demo-tag {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tool-doc-demo-tag:not(:first-child) {
+  margin-top: 12px;
+}
+
+.tool-doc-demo-src {
+  overflow-x: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-alt);
+  color: var(--color-muted-soft);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  white-space: pre;
 }

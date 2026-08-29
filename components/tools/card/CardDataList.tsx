@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, RotateCcw } from "lucide-react";
+import { Braces, Copy, RotateCcw } from "lucide-react";
 import { CopyButton } from "@/components/ui/CopyButton";
 import {
   CARD_FIELDS,
@@ -104,18 +104,8 @@ export function CardDataList({
       ))}
 
       <div className="gen-actions" style={{ paddingTop: 20 }}>
-        <CopyButton
-          variant="text"
-          label="Copiar tudo"
-          text={cardToText(card)}
-          style={{ padding: "9px 15px" }}
-        />
-        <CopyButton
-          variant="text"
-          label="Copiar JSON"
-          text={cardToJSON(card)}
-          style={{ padding: "9px 15px" }}
-        />
+        <CopyButton label="Copiar tudo" text={cardToText(card)} />
+        <CopyButton label="Copiar JSON" icon={Braces} text={cardToJSON(card)} />
       </div>
     </div>
   );

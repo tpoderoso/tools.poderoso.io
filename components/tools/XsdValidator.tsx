@@ -41,7 +41,7 @@ export function XsdValidator() {
     const merged = [...schemas.filter((s) => !uploaded.some((u) => u.name === s.name)), ...uploaded];
     const ignored = merged.length - MAX_SCHEMAS;
     const capped = ignored > 0 ? merged.slice(0, MAX_SCHEMAS) : merged;
-    if (ignored > 0) toastError(`limite de 100 schemas — ${ignored} arquivo(s) ignorado(s)`);
+    if (ignored > 0) toastError(`limite de 100 schemas: ${ignored} arquivo(s) ignorado(s)`);
     setSchemas(capped);
     setMainSchema((current) => (capped.some((s) => s.name === current) ? current : detectMainSchema(capped)));
   };
@@ -241,7 +241,7 @@ export function XsdValidator() {
               text={
                 validatedSchemaCount > 0
                   ? `✓ XML válido conforme o schema\n\nbem-formado · ${validatedSchemaCount} schema(s)`
-                  : "✓ XML bem-formado\n\nnenhum schema carregado — apenas a boa-formação do XML foi verificada."
+                  : "✓ XML bem-formado\n\nnenhum schema carregado, apenas a boa-formação do XML foi verificada."
               }
               color="var(--color-primary)"
             />
@@ -254,7 +254,7 @@ export function XsdValidator() {
                 .map((e, i) => `${i + 1}. ${e.line ? `linha ${e.line}: ` : ""}${e.message}`)
                 .join("\n")}${
                 validatedSchemaCount === 0
-                  ? "\n\nnenhum schema carregado — apenas a boa-formação do XML foi verificada."
+                  ? "\n\nnenhum schema carregado, apenas a boa-formação do XML foi verificada."
                   : ""
               }`}
               color="var(--color-danger)"

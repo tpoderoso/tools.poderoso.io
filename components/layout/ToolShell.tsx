@@ -23,7 +23,9 @@ export function ToolShell({ children }: { children: ReactNode }) {
       }}
     >
       <Header onOpenPalette={openPalette} />
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>{children}</div>
+      <main id="conteudo" style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        {children}
+      </main>
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
       <Toaster />
     </div>

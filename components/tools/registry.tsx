@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import { ALL_TOOLS, toolHref } from "@/lib/nav";
-import { JsonFormatter } from "./JsonFormatter";
-import { JsonValidator } from "./JsonValidator";
-import { JsonTreeViewer } from "./JsonTreeViewer";
+import { JsonTool } from "./json/JsonTool";
 import { XmlFormatter } from "./XmlFormatter";
 import { SqlFormatter } from "./SqlFormatter";
 import { XsdValidator } from "./XsdValidator";
@@ -30,9 +28,7 @@ import { TextToolkit } from "./TextToolkit";
  * inicial no load.
  */
 export const TOOL_REGISTRY: Record<string, () => ReactNode> = {
-  "format/json": () => <JsonFormatter />,
-  "format/json-validate": () => <JsonValidator />,
-  "format/json-tree": () => <JsonTreeViewer />,
+  "format/json": () => <JsonTool />,
   "format/xml": () => <XmlFormatter />,
   "format/sql": () => <SqlFormatter />,
   "format/xsdval": () => <XsdValidator />,

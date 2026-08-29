@@ -8,6 +8,9 @@ import { parseMarkdown } from "@/lib/tools/markdown";
 import { tokenizeMarkdown, type MarkdownTokenType } from "@/lib/tools/highlight";
 import { MarkdownDoc } from "./MarkdownDoc";
 import { ReadBar, SIZES, WIDTHS, type DocFont, type DocTheme } from "./ReadBar";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { ToolTabInputs, ToolTabs } from "@/components/ui/ToolTabs";
+import { useToolDoc } from "@/components/ui/ToolDocSlot";
 import styles from "./markdown.module.css";
 
 const INITIAL_INPUT = `# API de Cobranças
@@ -87,6 +90,7 @@ const MAX_FILE_BYTES = 2_000_000;
 const ACTIVE_OFFSET = 90;
 
 export function MarkdownViewer() {
+  const manual = useToolDoc();
   // abre vazio: primeiro a tela de colar, o documento só aparece depois que o texto entra
   const [input, setInput] = useState("");
   const [font, setFont] = useState<DocFont>("serif");
@@ -233,9 +237,12 @@ export function MarkdownViewer() {
         style={{ display: "none" }}
       />
 
+      <ToolTabInputs />
+      <h1 className="visually-hidden">Visualizador de Markdown online</h1>
+
       <div className={styles.header}>
-        <span className={styles.headerTitle}>~/view/markdown</span>
-        <span className={styles.headerDash}>—</span>
+        <Breadcrumb path="~/view/markdown" />
+        <span className={styles.headerDash}>·</span>
         <span className={styles.headerDesc}>renderiza markdown colado, com controles de leitura</span>
         <div className={styles.grow} />
         <div className={styles.pill}>
@@ -251,6 +258,7 @@ export function MarkdownViewer() {
             {empty ? "aguardando" : "renderizado"}
           </span>
         </div>
+        <ToolTabs />
       </div>
 
       <ReadBar
@@ -266,10 +274,11 @@ export function MarkdownViewer() {
         toggleToc={() => setToc((t) => !t)}
         onToggleFullscreen={toggleFullscreen}
         dim={empty}
+        className="tool-tab-panel--bare"
       />
 
       {empty ? (
-        <div className={styles.empty}>
+        <div className={`${styles.empty} tool-tab-panel--bare`}>
           <div className={styles.emptyCol}>
             <div className={`${styles.drop} ${dragging ? styles.dropOver : ""}`}>
               <FileText size={34} strokeWidth={1.4} color="var(--color-line)" />
@@ -307,7 +316,7 @@ export function MarkdownViewer() {
           </div>
         </div>
       ) : (
-        <div className={styles.body}>
+        <div className={`${styles.body} tool-tab-panel--bare`}>
           {srcOpen ? (
             <div className={styles.srcPane}>
               <div className={styles.srcHead}>
@@ -326,13 +335,13 @@ export function MarkdownViewer() {
                 >
                   <Upload size={14} />
                 </button>
-                <CopyButton text={input} variant="icon" />
+                <CopyButton text={input} />
                 <button type="button" title="limpar" className="mmd-icon-btn" onClick={() => load("")}>
                   <X size={14} />
                 </button>
                 <button
                   type="button"
-                  title="recolher painel — ctrl+b"
+                  title="recolher painel (ctrl+b)"
                   className="mmd-icon-btn"
                   onClick={() => setSrcOpen(false)}
                 >
@@ -359,7 +368,7 @@ export function MarkdownViewer() {
           ) : (
             <button
               type="button"
-              title="mostrar o markdown de origem — ctrl+b"
+              title="mostrar o markdown de origem (ctrl+b)"
               className={styles.rail}
               onClick={() => setSrcOpen(true)}
             >
@@ -431,6 +440,8 @@ export function MarkdownViewer() {
           </div>
         </div>
       )}
+
+      {manual && <div className="tool-tab-panel--manual">{manual}</div>}
     </div>
   );
 }

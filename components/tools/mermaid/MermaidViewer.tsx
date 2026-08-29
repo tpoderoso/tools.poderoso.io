@@ -7,11 +7,15 @@ import { useMermaidRender, type Status } from "@/lib/hooks/useMermaidRender";
 import { usePanZoom } from "@/lib/hooks/usePanZoom";
 import { CodePanel } from "./CodePanel";
 import { DiagramCanvas } from "./DiagramCanvas";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { ToolTabInputs, ToolTabs } from "@/components/ui/ToolTabs";
+import { useToolDoc } from "@/components/ui/ToolDocSlot";
 import styles from "./mermaid.module.css";
 
 const INITIAL_PANE = "25%";
 
 export function MermaidViewer() {
+  const doc = useToolDoc();
   const [input, setInput] = useState(INITIAL_INPUT);
   const [theme, setTheme] = useState<ThemeName>("dracula");
   const [auto, setAuto] = useState(true);
@@ -112,9 +116,12 @@ export function MermaidViewer() {
 
   return (
     <div className={styles.viewer}>
+      <ToolTabInputs />
+      <h1 className="visually-hidden">Visualizador de diagramas Mermaid</h1>
+
       <div className={styles.header}>
-        <span className={styles.headerTitle}>~/diagram/mermaid</span>
-        <span className={styles.headerDash}>—</span>
+        <Breadcrumb path="~/diagram/mermaid" />
+        <span className={styles.headerDash}>·</span>
         <span className={styles.headerDesc}>visualiza e navega diagramas Mermaid com zoom e arraste</span>
         <div className={styles.grow} />
         <div className={styles.statusPill}>
@@ -130,9 +137,10 @@ export function MermaidViewer() {
             </ToggleButton>
           ))}
         </div>
+        <ToolTabs />
       </div>
 
-      <div className={styles.body}>
+      <div className={`${styles.body} tool-tab-panel--bare`}>
         {codeOpen ? (
           <>
             <CodePanel
@@ -157,7 +165,7 @@ export function MermaidViewer() {
             />
           </>
         ) : (
-          <button type="button" title="mostrar código — ctrl+b" onClick={toggleCode} className={styles.collapsedBtn}>
+          <button type="button" title="mostrar código (ctrl+b)" onClick={toggleCode} className={styles.collapsedBtn}>
             <span className={styles.collapsedLabel}>CÓDIGO ›</span>
           </button>
         )}
@@ -178,6 +186,8 @@ export function MermaidViewer() {
           onToggleFullscreen={toggleFullscreen}
         />
       </div>
+
+      {doc && <div className="tool-tab-panel--manual">{doc}</div>}
     </div>
   );
 }

@@ -35,7 +35,10 @@ export function Toaster() {
   }, []);
 
   return (
+    // role=alert: erro de validação é interrupção, o leitor de tela lê na hora
     <div
+      role="alert"
+      aria-live="assertive"
       style={{
         position: "fixed",
         bottom: 20,

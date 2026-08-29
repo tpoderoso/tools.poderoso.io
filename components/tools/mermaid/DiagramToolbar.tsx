@@ -42,7 +42,7 @@ export function DiagramToolbar({ svg, size, scale, fit, zoom100, zoomBy, onToggl
       <div className="mmd-btn-group">
         <button
           type="button"
-          title="diminuir zoom — tecla -"
+          title="diminuir zoom (tecla -)"
           className="mmd-tool-btn"
           style={{ width: 30, fontSize: 15 }}
           onClick={() => zoomBy(1 / 1.2)}
@@ -51,7 +51,7 @@ export function DiagramToolbar({ svg, size, scale, fit, zoom100, zoomBy, onToggl
         </button>
         <button
           type="button"
-          title="zoom 100% — tecla 1"
+          title="zoom 100% (tecla 1)"
           className="mmd-tool-btn"
           style={{ minWidth: 56, color: "var(--color-fg)", fontSize: 12, fontVariantNumeric: "tabular-nums" }}
           onClick={zoom100}
@@ -60,7 +60,7 @@ export function DiagramToolbar({ svg, size, scale, fit, zoom100, zoomBy, onToggl
         </button>
         <button
           type="button"
-          title="aumentar zoom — tecla +"
+          title="aumentar zoom (tecla +)"
           className="mmd-tool-btn"
           style={{ width: 30, fontSize: 15 }}
           onClick={() => zoomBy(1.2)}
@@ -69,12 +69,12 @@ export function DiagramToolbar({ svg, size, scale, fit, zoom100, zoomBy, onToggl
         </button>
       </div>
       <div className="mmd-btn-group">
-        <button type="button" title="ajustar à tela — tecla 0" className="mmd-tool-btn" style={{ width: 32 }} onClick={fit}>
+        <button type="button" title="ajustar à tela (tecla 0)" className="mmd-tool-btn" style={{ width: 32 }} onClick={fit}>
           <Scan size={15} style={{ verticalAlign: "middle" }} />
         </button>
         <button
           type="button"
-          title="tela cheia — tecla f"
+          title="tela cheia (tecla f)"
           className="mmd-tool-btn"
           style={{ width: 32 }}
           onClick={onToggleFullscreen}

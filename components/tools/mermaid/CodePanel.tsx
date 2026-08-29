@@ -88,11 +88,11 @@ export function CodePanel({
         <button type="button" title="abrir arquivo" className="mmd-icon-btn" onClick={() => fileRef.current?.click()}>
           <Upload size={14} />
         </button>
-        <CopyButton text={input} variant="icon" />
+        <CopyButton text={input} />
         <button type="button" title="limpar" className="mmd-icon-btn" onClick={clearCode}>
           <X size={14} />
         </button>
-        <button type="button" title="recolher painel — ctrl+b" className="mmd-icon-btn" onClick={onToggleCode}>
+        <button type="button" title="recolher painel (ctrl+b)" className="mmd-icon-btn" onClick={onToggleCode}>
           <PanelLeftClose size={14} />
         </button>
       </div>

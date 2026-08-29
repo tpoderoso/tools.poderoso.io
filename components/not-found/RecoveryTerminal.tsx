@@ -8,13 +8,13 @@ interface Line {
 }
 
 const HELP: Line[] = [
-  { text: "  help      — este menu" },
-  { text: "  ls        — o que sobrou por aqui" },
-  { text: "  whoami    — crise existencial rápida" },
-  { text: "  cd ~      — voltar pra home" },
-  { text: "  coffee    — ☕" },
-  { text: "  sudo      — tente a sorte" },
-  { text: "  clear     — limpar a tela" },
+  { text: "  help      : este menu" },
+  { text: "  ls        : o que sobrou por aqui" },
+  { text: "  whoami    : crise existencial rápida" },
+  { text: "  cd ~      : voltar pra home" },
+  { text: "  coffee    : ☕" },
+  { text: "  sudo      : tente a sorte" },
+  { text: "  clear     : limpar a tela" },
 ];
 
 /** Easter egg: mini-shell que responde a comandos digitados, com poucos atalhos reais (cd ~, clear) */
@@ -84,7 +84,7 @@ export function RecoveryTerminal() {
     } else if (low === "rm -rf /" || low.startsWith("rm ")) {
       out.push({ text: "Boa tentativa. Aqui só se deleta débito técnico.", color: "var(--accent-pink)" });
     } else {
-      out.push({ text: `command not found: ${cmd} — digite 'help'`, color: "var(--accent-red)" });
+      out.push({ text: `command not found: ${cmd}. digite 'help'`, color: "var(--accent-red)" });
     }
     push(out);
   }
@@ -101,7 +101,7 @@ export function RecoveryTerminal() {
           textTransform: "uppercase",
         }}
       >
-        terminal de recuperação — digite <span style={{ color: "var(--accent-yellow)" }}>help</span>
+        terminal de recuperação. digite <span style={{ color: "var(--accent-yellow)" }}>help</span>
       </div>
       <div
         onClick={() => inputRef.current?.focus()}

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="300" viewBox="0 0 440 300">
+  <style>
+    .m { font-family: "Liberation Mono","Noto Sans Mono",monospace; font-size: 13.5px }
+    .s { font-family: "Liberation Sans","Noto Sans",sans-serif; font-size: 12px }
+    .hd { font-family: "Liberation Sans","Noto Sans",sans-serif; font-size: 10.5px; fill: #6272a4; letter-spacing: 1.2px }
+    .ty { fill: #8be9fd } .pu { fill: #6272a4 } .st { fill: #f1fa8c }
+    .nu { fill: #bd93f9 } .kw { fill: #ff79c6 } .ke { fill: #8be9fd }
+  </style>
+  <rect x="0.5" y="0.5" width="439" height="299" rx="10" fill="#191a21" stroke="#343746"/>
+
+  <text class="hd" x="24" y="34">TIPO</text>
+  <text class="hd" x="152" y="34">EXEMPLO DE VALOR</text>
+  <line x1="20" y1="46" x2="420" y2="46" stroke="#343746"/>
+
+  <g class="m">
+    <text class="ty" x="24" y="72">string</text>
+    <text x="152" y="72" xml:space="preserve"><tspan class="st">"Ana"</tspan></text>
+
+    <text class="ty" x="24" y="106">number</text>
+    <text x="152" y="106" xml:space="preserve"><tspan class="nu">30</tspan><tspan class="pu">   </tspan><tspan class="nu">-1.5</tspan><tspan class="pu">   </tspan><tspan class="nu">2e10</tspan></text>
+
+    <text class="ty" x="24" y="140">boolean</text>
+    <text x="152" y="140" xml:space="preserve"><tspan class="kw">true</tspan><tspan class="pu">   </tspan><tspan class="kw">false</tspan></text>
+
+    <text class="ty" x="24" y="174">null</text>
+    <text x="152" y="174" xml:space="preserve"><tspan class="kw">null</tspan></text>
+
+    <text class="ty" x="24" y="208">object</text>
+    <text x="152" y="208" xml:space="preserve"><tspan class="pu">{ </tspan><tspan class="ke">"id"</tspan><tspan class="pu">: </tspan><tspan class="nu">1</tspan><tspan class="pu"> }</tspan></text>
+
+    <text class="ty" x="24" y="242">array</text>
+    <text x="152" y="242" xml:space="preserve"><tspan class="pu">[</tspan><tspan class="nu">1</tspan><tspan class="pu">, </tspan><tspan class="nu">2</tspan><tspan class="pu">, </tspan><tspan class="nu">3</tspan><tspan class="pu">]</tspan></text>
+  </g>
+  <g stroke="#26283a">
+    <line x1="20" y1="86" x2="420" y2="86"/><line x1="20" y1="120" x2="420" y2="120"/>
+    <line x1="20" y1="154" x2="420" y2="154"/><line x1="20" y1="188" x2="420" y2="188"/>
+    <line x1="20" y1="222" x2="420" y2="222"/>
+  </g>
+
+  <line x1="20" y1="258" x2="420" y2="258" stroke="#343746"/>
+  <text class="s" x="24" y="282" fill="#9aa0bf">são só esses seis. data é string por convenção, não é tipo</text>
+</svg>

@@ -42,9 +42,9 @@ export function SqlFormatter() {
   const displayText = output || "-- o sql formatado aparecerá aqui";
   const highlighted = useMemo(() => highlightSQL(displayText), [displayText]);
 
-  const format = () => {
+  const format = async () => {
     try {
-      setOutput(fmtSQL(input));
+      setOutput(await fmtSQL(input));
     } catch (e) {
       toastError("Erro ao formatar SQL: " + (e as Error).message);
     }

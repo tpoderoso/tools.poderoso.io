@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, type RefObject } from "react";
+import { useRef, type CSSProperties, type RefObject } from "react";
+import { CodeLines } from "@/components/ui/CodeLines";
 import { tokenizeMermaid, type MermaidTokenType } from "@/lib/tools/highlight";
 import styles from "./mermaid.module.css";
 
@@ -11,9 +12,6 @@ const TOKEN_COLORS: Partial<Record<MermaidTokenType, string>> = {
   comment: "var(--color-muted)",
 };
 
-// ponytail: acima disso o overlay vira texto puro — dezenas de milhares de spans travam o DOM
-const HIGHLIGHT_MAX_CHARS = 50_000;
-
 interface Props {
   input: string;
   setInput: (v: string) => void;
@@ -21,35 +19,18 @@ interface Props {
 }
 
 /**
- * Editor de código: gutter de linhas + overlay de syntax-highlight + textarea
- * transparente sobreposto. O scroll do textarea sincroniza gutter e overlay.
+ * Editor de código: overlay de syntax-highlight (com os números de linha) + textarea
+ * transparente sobreposto, ambos com soft-wrap. Os números vivem dentro do overlay
+ * justamente por causa do wrap: como uma linha lógica pode ocupar N linhas visuais,
+ * um gutter separado sairia do lugar na primeira linha longa.
  */
 export function CodeEditor({ input, setInput, textareaRef }: Props) {
-  const gutterRef = useRef<HTMLPreElement>(null);
-  const overlayRef = useRef<HTMLPreElement>(null);
-  const lines = input.split("\n");
-
-  const highlighted = useMemo(() => {
-    if (input.length > HIGHLIGHT_MAX_CHARS) return input;
-    return tokenizeMermaid(input).map((tok, i) =>
-      tok.type === "plain" ? (
-        tok.text
-      ) : (
-        <span key={i} style={{ color: TOKEN_COLORS[tok.type] }}>
-          {tok.text}
-        </span>
-      ),
-    );
-  }, [input]);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const digits = String(input.split("\n").length).length;
 
   const syncScroll = () => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    if (gutterRef.current) gutterRef.current.scrollTop = ta.scrollTop;
-    if (overlayRef.current) {
-      overlayRef.current.scrollTop = ta.scrollTop;
-      overlayRef.current.scrollLeft = ta.scrollLeft;
-    }
+    if (overlayRef.current && textareaRef.current)
+      overlayRef.current.scrollTop = textareaRef.current.scrollTop;
   };
 
   const onCodeKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -66,14 +47,10 @@ export function CodeEditor({ input, setInput, textareaRef }: Props) {
 
   return (
     <div className={styles.editorWrap}>
-      <pre ref={gutterRef} aria-hidden className={styles.gutter}>
-        {lines.map((_, i) => i + 1).join("\n")}
-      </pre>
-      <div className={styles.editorArea}>
-        <pre ref={overlayRef} aria-hidden className={styles.overlay}>
-          {highlighted}
-          {"\n"}
-        </pre>
+      <div className={styles.editorArea} style={{ "--gutter": `calc(${digits}ch + 20px)` } as CSSProperties}>
+        <div ref={overlayRef} aria-hidden className={styles.overlay}>
+          <CodeLines text={input} tokenize={tokenizeMermaid} colors={TOKEN_COLORS} />
+        </div>
         <textarea
           ref={textareaRef}
           value={input}
@@ -81,9 +58,9 @@ export function CodeEditor({ input, setInput, textareaRef }: Props) {
           onScroll={syncScroll}
           onKeyDown={onCodeKey}
           spellCheck={false}
-          wrap="off"
-          placeholder="cole o código Mermaid aqui — graph TD, erDiagram, sequenceDiagram, ..."
+          placeholder="cole o código Mermaid aqui: graph TD, erDiagram, sequenceDiagram, ..."
           className={styles.codeTextarea}
+          style={{ paddingLeft: `calc(${digits}ch + 26px)` }}
         />
       </div>
     </div>

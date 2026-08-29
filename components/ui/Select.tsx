@@ -28,6 +28,7 @@ export function Select({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       title={title}
+      aria-label={title}
     >
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((o) => (

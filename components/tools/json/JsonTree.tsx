@@ -10,31 +10,9 @@ import {
   Hash,
   ToggleLeft,
   CircleOff,
-  UnfoldVertical,
-  FoldVertical,
 } from "lucide-react";
-import { ToolPanel } from "@/components/ui/ToolPanel";
-import { SplitPane } from "@/components/ui/SplitPane";
-import { TextAreaField } from "@/components/ui/TextAreaField";
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { ToggleButton } from "@/components/ui/ToggleButton";
-import { CopyButton } from "@/components/ui/CopyButton";
-import { toastError } from "@/components/ui/Toaster";
-import { tryParseJson } from "@/lib/tools/json";
 
-const INITIAL_INPUT = `{
-  "nome": "Thiago Poderoso",
-  "role": "Tech Lead",
-  "ativo": true,
-  "filhos": null,
-  "stack": ["C#", "Node.js", ".NET"],
-  "endereco": {
-    "cidade": "São Paulo",
-    "pais": "Brasil"
-  }
-}`;
-
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 const ROW = { whiteSpace: "nowrap" } as const;
 const KEY = { color: "var(--color-accent-cyan)" } as const;
@@ -88,7 +66,7 @@ function homogeneousArraySample(value: JsonValue[]): JsonValue | null {
 }
 
 /** Texto equivalente ao modo "estrutura" da árvore, para copiar. */
-function structureText(value: JsonValue, indent = ""): string {
+export function structureText(value: JsonValue, indent = ""): string {
   if (!isContainer(value)) return primitiveTypeName(value);
 
   const isArray = Array.isArray(value);
@@ -114,10 +92,10 @@ function structureText(value: JsonValue, indent = ""): string {
   return `${open}\n${lines.join(",\n")}\n${indent}${close}`;
 }
 
-const LARGE_TREE_NODES = 2000;
+export const LARGE_TREE_NODES = 2000;
 
 /** Conta nós até `limit` e para (early exit) — suficiente pra decidir "é grande?" sem varrer a árvore inteira. */
-function countNodes(value: JsonValue, limit: number): number {
+export function countNodes(value: JsonValue, limit: number): number {
   if (!isContainer(value)) return 1;
   let count = 1;
   const children = Array.isArray(value) ? value : Object.values(value);
@@ -128,7 +106,7 @@ function countNodes(value: JsonValue, limit: number): number {
   return count;
 }
 
-type ViewMode = "valores" | "estrutura";
+export type ViewMode = "valores" | "estrutura";
 
 function JsonNode({
   label,
@@ -230,99 +208,29 @@ function JsonNode({
   );
 }
 
-export function JsonTreeViewer() {
-  const [input, setInput] = useState(INITIAL_INPUT);
-  const [result, setResult] = useState(() => tryParseJson(INITIAL_INPUT));
-  const [expandAll, setExpandAll] = useState(true);
-  const [treeVersion, setTreeVersion] = useState(0);
-  const [mode, setMode] = useState<ViewMode>("valores");
-  const [tooLargeToExpand, setTooLargeToExpand] = useState(false);
-
-  const setAllExpanded = (value: boolean) => {
-    if (value && tooLargeToExpand) {
-      toastError("Árvore grande demais para expandir tudo de uma vez — abra os nós manualmente.");
-      return;
-    }
-    setExpandAll(value);
-    setTreeVersion((v) => v + 1);
-  };
-
-  const view = () => {
-    const r = tryParseJson(input);
-    if (!r.ok) {
-      toastError("JSON inválido: " + r.error);
-      return;
-    }
-    setResult(r);
-    const large = countNodes(r.value as JsonValue, LARGE_TREE_NODES) >= LARGE_TREE_NODES;
-    setTooLargeToExpand(large);
-    setExpandAll(!large);
-    setTreeVersion((v) => v + 1);
-  };
-
+/**
+ * A árvore em si: cabeçalho, modos e expandir/recolher são do JsonTool, aqui fica
+ * só o desenho. `expandAll` é o estado inicial de cada nó novo — para forçar os já
+ * montados a obedecerem, o JsonTool troca a `key` deste componente.
+ */
+export function JsonTree({ value, mode, expandAll }: { value: JsonValue; mode: ViewMode; expandAll: boolean }) {
   return (
-    <ToolPanel
-      path="~/format/json-tree"
-      description="visualiza JSON em árvore navegável, alternando entre valores e estrutura de tipos"
-    >
-      <SplitPane>
-        <div className="field-col">
-          <TextAreaField label="// entrada" value={input} onChange={setInput} />
-          <PrimaryButton onClick={view}>Visualizar →</PrimaryButton>
-        </div>
-        <div className="field-col">
-          <div className="label-row--between" style={{ flexWrap: "wrap", rowGap: 8 }}>
-            <span className="mono-label">{"// árvore"}</span>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <ToggleButton active={mode === "valores"} onClick={() => setMode("valores")}>
-                Valores
-              </ToggleButton>
-              <ToggleButton active={mode === "estrutura"} onClick={() => setMode("estrutura")}>
-                Estrutura
-              </ToggleButton>
-              <ToggleButton active={expandAll} onClick={() => setAllExpanded(true)} title="Expandir tudo">
-                <UnfoldVertical size={14} style={{ verticalAlign: -2 }} />
-              </ToggleButton>
-              <ToggleButton active={!expandAll} onClick={() => setAllExpanded(false)} title="Recolher tudo">
-                <FoldVertical size={14} style={{ verticalAlign: -2 }} />
-              </ToggleButton>
-              <CopyButton
-                text={
-                  result.ok
-                    ? mode === "estrutura"
-                      ? structureText(result.value as JsonValue)
-                      : JSON.stringify(result.value, null, 2)
-                    : input
-                }
-              />
-            </div>
-          </div>
-          <div
-            className="surface"
-            style={{ flex: 1, padding: 14, fontSize: 12, lineHeight: 1.7, overflow: "auto", minHeight: 380, contain: "size" }}
-          >
-            {/* contadores CSS numeram só as linhas visíveis — recolher um nó renumera sozinho */}
-            <style>{`
-              .json-tree { position: relative; padding-left: 42px; counter-reset: tree-ln; }
-              .json-tree-line::before {
-                counter-increment: tree-ln;
-                content: counter(tree-ln);
-                position: absolute;
-                left: 0;
-                width: 30px;
-                text-align: right;
-                font-size: 11px;
-                color: var(--color-line);
-              }
-            `}</style>
-            {result.ok && (
-              <div className="json-tree">
-                <JsonNode key={treeVersion} label={null} value={result.value as JsonValue} expandKey={expandAll} mode={mode} isRoot />
-              </div>
-            )}
-          </div>
-        </div>
-      </SplitPane>
-    </ToolPanel>
+    <div className="json-tree">
+      {/* contadores CSS numeram só as linhas visíveis — recolher um nó renumera sozinho */}
+      <style>{`
+        .json-tree { position: relative; padding-left: 42px; counter-reset: tree-ln; }
+        .json-tree-line::before {
+          counter-increment: tree-ln;
+          content: counter(tree-ln);
+          position: absolute;
+          left: 0;
+          width: 30px;
+          text-align: right;
+          font-size: 11px;
+          color: var(--color-line);
+        }
+      `}</style>
+      <JsonNode label={null} value={value} expandKey={expandAll} mode={mode} isRoot />
+    </div>
   );
 }

@@ -103,7 +103,7 @@ export function TextToolkit() {
             <ToggleButton active={false} onClick={() => setText("")} title="Limpar o campo">
               Limpar
             </ToggleButton>
-            <CopyButton text={text} variant="text" label="Copiar tudo" />
+            <CopyButton text={text} label="Copiar tudo" />
           </div>
         }
       />
