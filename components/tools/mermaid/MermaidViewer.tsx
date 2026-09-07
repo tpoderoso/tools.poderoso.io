@@ -22,7 +22,11 @@ export function MermaidViewer() {
   const [codeOpen, setCodeOpen] = useState(true);
 
   const { svg, size, status, error, errLine, stale, renderNow } = useMermaidRender(input, theme, auto);
-  const { t, grabbing, viewportRef, fit, zoom100, zoomBy, resetFit, pointerHandlers } = usePanZoom(size, svg);
+  // usePanZoom reenquadra quando essa identidade muda. O SVG renderizado carrega um
+  // id incremental (mmd-N) e por isso muda a cada render, mesmo sem alterar o
+  // desenho — usar as dimensões evita reenquadrar a cada pausa de digitação.
+  const fitKey = svg ? `${size.w}x${size.h}` : "";
+  const { t, grabbing, viewportRef, fit, zoom100, zoomBy, resetFit, pointerHandlers } = usePanZoom(size, fitKey);
 
   const paneRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);

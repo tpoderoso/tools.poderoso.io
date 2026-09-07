@@ -51,14 +51,13 @@ export function usePanZoom(size: Size, svg: string) {
     });
   }, []);
 
-  // enquadra automaticamente quando um diagrama novo (dimensão diferente) chega
+  // enquadra automaticamente quando um diagrama novo (identidade `svg` diferente) chega
   useEffect(() => {
-    const key = `${size.w}x${size.h}`;
-    if (svg && key !== fittedFor.current) {
-      fittedFor.current = key;
+    if (svg && svg !== fittedFor.current) {
+      fittedFor.current = svg;
       fit();
     }
-  }, [svg, size, fit]);
+  }, [svg, fit]);
 
   // reajusta ao redimensionar a janela (só depois do primeiro enquadramento)
   useEffect(() => {
