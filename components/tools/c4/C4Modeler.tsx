@@ -9,6 +9,7 @@ import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
 import { suggest } from "@/lib/tools/c4/suggest";
 import { C4Canvas } from "./C4Canvas";
+import { ModelTree } from "./ModelTree";
 import { SuggestionCard } from "./SuggestionCard";
 import styles from "./c4.module.css";
 
@@ -40,6 +41,16 @@ export function C4Modeler() {
 
   const pending = useMemo(() => suggest(model), [model]);
   const onModel = (fn: (m: C4Model) => C4Model) => setModel(fn);
+
+  /** Abre a view em que o elemento aparece: componente vai para a view do
+   *  container que o contém, container para a do sistema, o resto fica no Landscape. */
+  const focusOn = (id: string) => {
+    const el = byId(model, id);
+    if (!el) return;
+    if (el.kind === "component" && el.parent) setViewId(`component:${el.parent}`);
+    else if (el.kind === "container" && el.parent) setViewId(`container:${el.parent}`);
+    else setViewId("landscape");
+  };
 
   /** Trilha do nível atual até o Landscape, para voltar. */
   const trail: { id: ViewId; label: string }[] = useMemo(() => {
@@ -87,6 +98,7 @@ export function C4Modeler() {
         <div className={styles.split}>
           <aside className={styles.panel}>
             <SuggestionCard model={model} suggestion={pending[0]} onModel={onModel} />
+            <ModelTree model={model} onModel={onModel} onFocus={focusOn} />
           </aside>
           <C4Canvas view={view} model={model} layout={layout} onOpen={open} onMove={move} />
         </div>
