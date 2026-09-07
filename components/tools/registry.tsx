@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ALL_TOOLS, toolHref } from "@/lib/nav";
+import { MobileGate } from "./MobileGate";
 import { JsonTool } from "./json/JsonTool";
 import { XmlFormatter } from "./XmlFormatter";
 import { SqlFormatter } from "./SqlFormatter";
@@ -27,7 +28,7 @@ import { TextToolkit } from "./TextToolkit";
  * a barra inicial. Geradores montam sempre ativos (`active`) pra gerar o valor
  * inicial no load.
  */
-export const TOOL_REGISTRY: Record<string, () => ReactNode> = {
+const RAW_REGISTRY: Record<string, () => ReactNode> = {
   "format/json": () => <JsonTool />,
   "format/xml": () => <XmlFormatter />,
   "format/sql": () => <SqlFormatter />,
@@ -50,6 +51,18 @@ export const TOOL_REGISTRY: Record<string, () => ReactNode> = {
   "texto/ferramentas": () => <TextToolkit />,
   "diff/text": () => <TextDiffTool />,
 };
+
+/**
+ * Aplica o MobileGate em qualquer ferramenta marcada `mobileDisabled` em lib/nav.ts,
+ * sem precisar listar os ids aqui — o gate segue o dado, não o contrário.
+ */
+export const TOOL_REGISTRY: Record<string, () => ReactNode> = Object.fromEntries(
+  Object.entries(RAW_REGISTRY).map(([slug, render]) => {
+    const item = ALL_TOOLS.find((t) => toolHref(t).slice(1) === slug);
+    if (!item?.mobileDisabled) return [slug, render];
+    return [slug, () => <MobileGate item={item}>{render()}</MobileGate>];
+  })
+);
 
 // ponytail: self-check — toda tool tem rota e nenhuma rota é órfã. Roda no
 // import (build/dev), então uma tool nova sem entrada quebra cedo, não em runtime.

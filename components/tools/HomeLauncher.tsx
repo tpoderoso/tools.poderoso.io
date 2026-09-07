@@ -9,6 +9,7 @@ import { getFavorites, getUsage, recordToolUse, toggleFavorite } from "@/lib/sto
 import { useToolSearch } from "@/lib/hooks/useToolSearch";
 import { useOpenTool } from "@/lib/hooks/useOpenTool";
 import { useToolShortcuts } from "@/lib/hooks/useToolShortcuts";
+import { useIsMobile } from "@/lib/hooks/useIsMobile";
 
 export function HomeLauncher() {
   const [query, setQuery] = useState("");
@@ -17,6 +18,7 @@ export function HomeLauncher() {
   const inputRef = useRef<HTMLInputElement>(null);
   const openTool = useOpenTool();
   const filteredGroups = useToolSearch(query);
+  const isMobile = useIsMobile();
 
   // Ctrl+K na home foca o prompt herói (índice já está todo à mostra).
   const focusInput = useCallback(() => inputRef.current?.focus(), []);
@@ -164,36 +166,61 @@ export function HomeLauncher() {
                 />
               </div>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                {pinnedItems.map((t) => (
-                  <Link
-                    key={t.id}
-                    href={toolHref(t)}
-                    className="home-chip"
-                    onClick={() => recordToolUse(t.id)}
-                    title={t.description}
-                    style={{
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      border: "1px solid var(--color-border)",
-                      background: "var(--background-secondary)",
-                      borderRadius: 5,
-                      padding: "7px 10px 7px 14px",
-                      color: "var(--color-fg)",
-                      cursor: "pointer",
-                      fontSize: 13,
-                    }}
-                  >
-                    {t.label}
+                {pinnedItems.map((t) => {
+                  const disabled = isMobile && t.mobileDisabled;
+                  const chipStyle: React.CSSProperties = {
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    border: "1px solid var(--color-border)",
+                    background: "var(--background-secondary)",
+                    borderRadius: 5,
+                    padding: "7px 10px 7px 14px",
+                    color: disabled ? "var(--color-muted)" : "var(--color-fg)",
+                    cursor: disabled ? "not-allowed" : "pointer",
+                    opacity: disabled ? 0.6 : 1,
+                    fontSize: 13,
+                  };
+                  const chipContent = disabled ? (
+                    <span className="desktop-only-tag">desktop</span>
+                  ) : (
                     <Star
                       size={13}
                       fill="var(--color-accent-yellow)"
                       color="var(--color-accent-yellow)"
                       onClick={(e) => handlePinClick(e, t.id)}
                     />
-                  </Link>
-                ))}
+                  );
+
+                  if (disabled) {
+                    return (
+                      <div
+                        key={t.id}
+                        className="home-chip"
+                        title="disponível só no desktop"
+                        style={chipStyle}
+                      >
+                        {t.label}
+                        {chipContent}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={t.id}
+                      href={toolHref(t)}
+                      className="home-chip"
+                      onClick={() => recordToolUse(t.id)}
+                      title={t.description}
+                      style={chipStyle}
+                    >
+                      {t.label}
+                      {chipContent}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -229,6 +256,64 @@ export function HomeLauncher() {
                 </div>
                 {group.items.map((t) => {
                   const isPinned = favorites.includes(t.id);
+                  const disabled = isMobile && t.mobileDisabled;
+
+                  const rowInner = (
+                    <>
+                      <span style={{ color: disabled ? "var(--color-muted)" : "var(--color-primary)" }}>
+                        &gt;
+                      </span>
+                      <span className={disabled ? undefined : "link-underline"}>{t.label}</span>
+                      <span
+                        className="home-index-leader"
+                        style={{
+                          flex: 1,
+                          borderBottom: "1px dotted var(--color-border)",
+                          transform: "translateY(-3px)",
+                        }}
+                      />
+                      {disabled ? (
+                        <span className="desktop-only-tag">desktop</span>
+                      ) : (
+                        <>
+                          <span style={{ color: "var(--color-muted)", fontSize: 12 }}>
+                            {usage[t.id] ?? 0}
+                          </span>
+                          <Star
+                            size={13}
+                            fill={isPinned ? "var(--color-accent-yellow)" : "none"}
+                            color={
+                              isPinned
+                                ? "var(--color-accent-yellow)"
+                                : "var(--color-line)"
+                            }
+                            onClick={(e) => handlePinClick(e, t.id)}
+                          />
+                        </>
+                      )}
+                    </>
+                  );
+
+                  if (disabled) {
+                    return (
+                      <div
+                        key={t.id}
+                        title="disponível só no desktop"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "4px 0",
+                          cursor: "not-allowed",
+                          color: "var(--color-muted)",
+                          opacity: 0.6,
+                        }}
+                      >
+                        {rowInner}
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={t.id}
@@ -246,33 +331,7 @@ export function HomeLauncher() {
                         color: "var(--color-muted-soft)",
                       }}
                     >
-                      <span style={{ color: "var(--color-primary)" }}>
-                        &gt;
-                      </span>
-                      <span className="link-underline">{t.label}</span>
-                      <span
-                        className="home-index-leader"
-                        style={{
-                          flex: 1,
-                          borderBottom: "1px dotted var(--color-border)",
-                          transform: "translateY(-3px)",
-                        }}
-                      />
-                      <span
-                        style={{ color: "var(--color-muted)", fontSize: 12 }}
-                      >
-                        {usage[t.id] ?? 0}
-                      </span>
-                      <Star
-                        size={13}
-                        fill={isPinned ? "var(--color-accent-yellow)" : "none"}
-                        color={
-                          isPinned
-                            ? "var(--color-accent-yellow)"
-                            : "var(--color-line)"
-                        }
-                        onClick={(e) => handlePinClick(e, t.id)}
-                      />
+                      {rowInner}
                     </Link>
                   );
                 })}
