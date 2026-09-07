@@ -4,14 +4,16 @@ import { useMemo, useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
 import { exampleModel } from "@/lib/tools/c4/example";
-import { byId, childrenOf, setPosition, type ViewId } from "@/lib/tools/c4/model";
+import { byId, childrenOf, emptyModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
 import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
+import { suggest } from "@/lib/tools/c4/suggest";
 import { C4Canvas } from "./C4Canvas";
+import { SuggestionCard } from "./SuggestionCard";
 import styles from "./c4.module.css";
 
 export function C4Modeler() {
-  const [model, setModel] = useState(exampleModel);
+  const [model, setModel] = useState(emptyModel);
   const [viewId, setViewId] = useState<ViewId>("landscape");
 
   const views = useMemo(() => availableViews(model), [model]);
@@ -36,6 +38,9 @@ export function C4Modeler() {
     setModel((m) => setPosition(m, active, id, pos));
   };
 
+  const pending = useMemo(() => suggest(model), [model]);
+  const onModel = (fn: (m: C4Model) => C4Model) => setModel(fn);
+
   /** Trilha do nível atual até o Landscape, para voltar. */
   const trail: { id: ViewId; label: string }[] = useMemo(() => {
     const { kind, focus } = parseViewId(active);
@@ -54,7 +59,6 @@ export function C4Modeler() {
     <ToolPanel path="~/diagram/c4" description="monta o C4 model do seu sistema respondendo perguntas">
       <div className={styles.modeler}>
         <div className={styles.bar}>
-          <span className="mono-label mono-label--wide">{"// view"}</span>
           <nav className={styles.trail} aria-label="nível do diagrama">
             {trail.map((step, i) => (
               <span key={step.id}>
@@ -75,8 +79,17 @@ export function C4Modeler() {
             onChange={(v) => setViewId(v as ViewId)}
             options={views.map((v) => ({ value: v.id, label: v.title }))}
           />
+          <div style={{ flex: "1 1 0", minWidth: 8 }} />
+          <button type="button" className={styles.ghost} onClick={() => setModel(exampleModel())}>
+            ver um exemplo
+          </button>
         </div>
-        <C4Canvas view={view} model={model} layout={layout} onOpen={open} onMove={move} />
+        <div className={styles.split}>
+          <aside className={styles.panel}>
+            <SuggestionCard model={model} suggestion={pending[0]} onModel={onModel} />
+          </aside>
+          <C4Canvas view={view} model={model} layout={layout} onOpen={open} onMove={move} />
+        </div>
       </div>
     </ToolPanel>
   );
