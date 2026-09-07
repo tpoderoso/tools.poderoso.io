@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { useRef, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { byId, type C4Model, type ElementKind } from "@/lib/tools/c4/model";
 import type { C4View } from "@/lib/tools/c4/views";
 import { edgeLine, type Box, type LayoutResult } from "@/lib/tools/c4/layout";
@@ -52,9 +52,10 @@ interface Props {
   layout: LayoutResult;
   onOpen?: (id: string) => void;
   onMove?: (id: string, pos: { x: number; y: number }) => void;
+  svgRef?: RefObject<SVGSVGElement | null>;
 }
 
-export function C4Canvas({ view, model, layout, onOpen, onMove }: Props) {
+export function C4Canvas({ view, model, layout, onOpen, onMove, svgRef }: Props) {
   // a chave de refit muda quando entra ou sai um nó, e ao trocar de view; não
   // muda ao arrastar, senão a tela pularia no meio do arrasto
   const { t, grabbing, viewportRef, pointerHandlers } = usePanZoom(
@@ -99,6 +100,7 @@ export function C4Canvas({ view, model, layout, onOpen, onMove }: Props) {
         style={{ cursor: grabbing ? "grabbing" : "grab" }}
       >
         <svg
+          ref={svgRef}
           width={layout.width}
           height={layout.height}
           viewBox={`0 0 ${layout.width} ${layout.height}`}

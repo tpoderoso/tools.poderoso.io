@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
 import { exampleModel } from "@/lib/tools/c4/example";
@@ -8,14 +8,68 @@ import { byId, childrenOf, emptyModel, setPosition, type C4Model, type ViewId } 
 import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
 import { suggest } from "@/lib/tools/c4/suggest";
+import { toMermaidC4, toStructurizrDsl } from "@/lib/tools/c4/export";
+import { downloadBlob, svgToPngBlob } from "@/lib/tools/mermaidExport";
 import { C4Canvas } from "./C4Canvas";
 import { ModelTree } from "./ModelTree";
 import { SuggestionCard } from "./SuggestionCard";
 import styles from "./c4.module.css";
 
+const STORAGE_KEY = "tools.poderoso.io/c4";
+
+/**
+ * O modelo salvo é reconstruído com o que veio do JSON, mas só depois de checar
+ * a versão: é um arquivo que a pessoa pode ter editado à mão ou trazido de outro
+ * lugar, então é fronteira de confiança e não dá para confiar no formato.
+ */
+function parseModel(text: string): C4Model | null {
+  try {
+    const raw = JSON.parse(text) as Partial<C4Model>;
+    if (raw?.version !== 1 || !Array.isArray(raw.elements) || !Array.isArray(raw.relations)) return null;
+    return {
+      version: 1,
+      name: typeof raw.name === "string" ? raw.name : "Modelo",
+      elements: raw.elements,
+      relations: raw.relations,
+      layout: raw.layout ?? {},
+      dismissed: Array.isArray(raw.dismissed) ? raw.dismissed : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Troca cada var(--x) pelo valor computado. Sem isso a imagem exportada sai sem
+ *  cor, porque fora do documento não existe quem defina as variáveis. */
+function inlineCssVars(svg: string): string {
+  const cs = getComputedStyle(document.documentElement);
+  return svg.replace(/var\((--[a-z0-9-]+)\)/gi, (_, name: string) => cs.getPropertyValue(name).trim() || "#f8f8f2");
+}
+
 export function C4Modeler() {
   const [model, setModel] = useState(emptyModel);
   const [viewId, setViewId] = useState<ViewId>("landscape");
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // carrega uma vez, no cliente: localStorage não existe no servidor
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const parsed = saved ? parseModel(saved) : null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (parsed) setModel(parsed);
+  }, []);
+
+  // autosave com atraso, para não escrever a cada tecla digitada no formulário
+  useEffect(() => {
+    const id = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(model));
+      } catch {
+        // cota cheia ou navegador em modo restrito: não vale derrubar a ferramenta
+      }
+    }, 400);
+    return () => clearTimeout(id);
+  }, [model]);
 
   const views = useMemo(() => availableViews(model), [model]);
   // se a view atual deixou de existir (o elemento em foco sumiu), cai no landscape
@@ -37,6 +91,35 @@ export function C4Modeler() {
 
   const move = (id: string, pos: { x: number; y: number }) => {
     setModel((m) => setPosition(m, active, id, pos));
+  };
+
+  const serializedSvg = () => {
+    const el = svgRef.current;
+    if (!el) return null;
+    return inlineCssVars(new XMLSerializer().serializeToString(el));
+  };
+
+  const exportSvg = () => {
+    const svg = serializedSvg();
+    if (svg) downloadBlob(new Blob([svg], { type: "image/svg+xml" }), `c4-${active}.svg`);
+  };
+
+  const exportPng = async () => {
+    const svg = serializedSvg();
+    if (!svg) return;
+    const bg = getComputedStyle(document.documentElement).getPropertyValue("--color-bg-alt").trim();
+    downloadBlob(await svgToPngBlob(svg, layout.width, layout.height, bg), `c4-${active}.png`);
+  };
+
+  const exportText = (text: string, name: string, type: string) =>
+    downloadBlob(new Blob([text], { type }), name);
+
+  const openJson = (file: File) => {
+    file.text().then((text) => {
+      const parsed = parseModel(text);
+      if (parsed) setModel(parsed);
+      else alert("Esse arquivo não é um modelo C4 desta ferramenta.");
+    });
   };
 
   const pending = useMemo(() => suggest(model), [model]);
@@ -94,13 +177,51 @@ export function C4Modeler() {
           <button type="button" className={styles.ghost} onClick={() => setModel(exampleModel())}>
             ver um exemplo
           </button>
+          <div className={styles.exportGroup}>
+            <button type="button" className={styles.ghost} onClick={exportSvg}>svg</button>
+            <button type="button" className={styles.ghost} onClick={exportPng}>png</button>
+            <button
+              type="button"
+              className={styles.ghost}
+              onClick={() => exportText(toStructurizrDsl(model), `${model.name}.dsl`, "text/plain")}
+            >
+              structurizr
+            </button>
+            <button
+              type="button"
+              className={styles.ghost}
+              onClick={() => exportText(toMermaidC4(model, active), `c4-${active}.mmd`, "text/plain")}
+            >
+              mermaid
+            </button>
+            <button
+              type="button"
+              className={styles.ghost}
+              onClick={() => exportText(JSON.stringify(model, null, 2), `${model.name}.c4.json`, "application/json")}
+            >
+              salvar
+            </button>
+            <label className={styles.ghost} style={{ cursor: "pointer" }}>
+              abrir
+              <input
+                type="file"
+                accept="application/json,.json"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) openJson(f);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </div>
         </div>
         <div className={styles.split}>
           <aside className={styles.panel}>
             <SuggestionCard model={model} suggestion={pending[0]} onModel={onModel} />
             <ModelTree model={model} onModel={onModel} onFocus={focusOn} />
           </aside>
-          <C4Canvas view={view} model={model} layout={layout} onOpen={open} onMove={move} />
+          <C4Canvas view={view} model={model} layout={layout} onOpen={open} onMove={move} svgRef={svgRef} />
         </div>
       </div>
     </ToolPanel>
