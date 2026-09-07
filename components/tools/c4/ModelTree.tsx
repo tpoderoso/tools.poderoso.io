@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { addElement, childrenOf, removeElement, type C4Model, type ElementKind } from "@/lib/tools/c4/model";
 import { ElementForm, type ElementField, type ElementFormValues } from "./ElementForm";
 import styles from "./c4.module.css";
@@ -75,33 +75,41 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
       <Section title="sistemas" count={systems.length} onAdd={() => openForm("system")}>
         <ul className={styles.treeList}>
           {systems.map((s) => (
-            <li key={s.id}>
+            <Fragment key={s.id}>
               {item(s.id, s.name, s.external ? "externo" : "")}
               {!s.external && (
-                <div className={styles.treeNest}>
-                  <ul className={styles.treeList}>
-                    {childrenOf(model, s.id).map((c) => (
-                      <li key={c.id}>
-                        {item(c.id, c.name, c.technology ?? "")}
-                        <div className={styles.treeNest}>
-                          <ul className={styles.treeList}>
-                            {childrenOf(model, c.id).map((k) => item(k.id, k.name, k.technology ?? ""))}
-                          </ul>
-                          <button type="button" className={styles.treeAdd} onClick={() => openForm("component", c.id)}>
-                            + componente
-                          </button>
-                          {form("component", c.id)}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                  <button type="button" className={styles.treeAdd} onClick={() => openForm("container", s.id)}>
-                    + container
-                  </button>
-                  {form("container", s.id)}
-                </div>
+                <li>
+                  <div className={styles.treeNest}>
+                    <ul className={styles.treeList}>
+                      {childrenOf(model, s.id).map((c) => (
+                        <Fragment key={c.id}>
+                          {item(c.id, c.name, c.technology ?? "")}
+                          <li>
+                            <div className={styles.treeNest}>
+                              <ul className={styles.treeList}>
+                                {childrenOf(model, c.id).map((k) => item(k.id, k.name, k.technology ?? ""))}
+                              </ul>
+                              <button
+                                type="button"
+                                className={styles.treeAdd}
+                                onClick={() => openForm("component", c.id)}
+                              >
+                                + componente
+                              </button>
+                              {form("component", c.id)}
+                            </div>
+                          </li>
+                        </Fragment>
+                      ))}
+                    </ul>
+                    <button type="button" className={styles.treeAdd} onClick={() => openForm("container", s.id)}>
+                      + container
+                    </button>
+                    {form("container", s.id)}
+                  </div>
+                </li>
               )}
-            </li>
+            </Fragment>
           ))}
         </ul>
         {form("system")}
