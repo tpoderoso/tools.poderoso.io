@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
+import { toastError } from "@/components/ui/Toaster";
 import { exampleModel } from "@/lib/tools/c4/example";
-import { byId, childrenOf, emptyModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
+import { byId, childrenOf, emptyModel, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
 import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
 import { suggest } from "@/lib/tools/c4/suggest";
@@ -18,22 +19,13 @@ import styles from "./c4.module.css";
 const STORAGE_KEY = "tools.poderoso.io/c4";
 
 /**
- * O modelo salvo é reconstruído com o que veio do JSON, mas só depois de checar
- * a versão: é um arquivo que a pessoa pode ter editado à mão ou trazido de outro
- * lugar, então é fronteira de confiança e não dá para confiar no formato.
+ * O texto salvo é JSON de um arquivo que a pessoa pode ter editado à mão ou
+ * trazido de outro lugar: é fronteira de confiança, então o parse cuida só do
+ * "isso é JSON válido?" e delega toda a validação de formato a `sanitizeModel`.
  */
 function parseModel(text: string): C4Model | null {
   try {
-    const raw = JSON.parse(text) as Partial<C4Model>;
-    if (raw?.version !== 1 || !Array.isArray(raw.elements) || !Array.isArray(raw.relations)) return null;
-    return {
-      version: 1,
-      name: typeof raw.name === "string" ? raw.name : "Modelo",
-      elements: raw.elements,
-      relations: raw.relations,
-      layout: raw.layout ?? {},
-      dismissed: Array.isArray(raw.dismissed) ? raw.dismissed : [],
-    };
+    return sanitizeModel(JSON.parse(text));
   } catch {
     return null;
   }
@@ -95,14 +87,22 @@ export function C4Modeler() {
     else if (el.kind === "container") setViewId(`component:${id}`);
   };
 
+  // clampa em não-negativo: o viewBox começa em "0 0", então uma caixa arrastada
+  // para coordenada negativa sai da vista (e de todo export) sem jeito de voltar
   const move = (id: string, pos: { x: number; y: number }) => {
-    setModel((m) => setPosition(m, active, id, pos));
+    setModel((m) => setPosition(m, active, id, { x: Math.max(0, pos.x), y: Math.max(0, pos.y) }));
   };
 
+  /** Serializa uma cópia do SVG, sem o transform de pan/zoom que a tela usa só
+   *  para exibição: sem isso o export sairia recortado no zoom/pan atual em vez
+   *  do diagrama inteiro em 1:1. O nó ao vivo (`svgRef.current`) não é tocado. */
   const serializedSvg = () => {
     const el = svgRef.current;
     if (!el) return null;
-    return inlineCssVars(new XMLSerializer().serializeToString(el));
+    const clone = el.cloneNode(true) as SVGSVGElement;
+    clone.style.transform = "";
+    clone.style.transformOrigin = "";
+    return inlineCssVars(new XMLSerializer().serializeToString(clone));
   };
 
   const exportSvg = () => {
@@ -113,19 +113,26 @@ export function C4Modeler() {
   const exportPng = async () => {
     const svg = serializedSvg();
     if (!svg) return;
-    const bg = getComputedStyle(document.documentElement).getPropertyValue("--color-bg-alt").trim();
-    downloadBlob(await svgToPngBlob(svg, layout.width, layout.height, bg), `c4-${active}.png`);
+    try {
+      const bg = getComputedStyle(document.documentElement).getPropertyValue("--color-bg-alt").trim();
+      downloadBlob(await svgToPngBlob(svg, layout.width, layout.height, bg), `c4-${active}.png`);
+    } catch {
+      toastError("Falha ao gerar PNG");
+    }
   };
 
   const exportText = (text: string, name: string, type: string) =>
     downloadBlob(new Blob([text], { type }), name);
 
   const openJson = (file: File) => {
-    file.text().then((text) => {
-      const parsed = parseModel(text);
-      if (parsed) setModel(parsed);
-      else alert("Esse arquivo não é um modelo C4 desta ferramenta.");
-    });
+    file
+      .text()
+      .then((text) => {
+        const parsed = parseModel(text);
+        if (parsed) setModel(parsed);
+        else toastError("Esse arquivo não é um modelo C4 desta ferramenta.");
+      })
+      .catch(() => toastError("Não foi possível ler o arquivo."));
   };
 
   const pending = useMemo(() => suggest(model), [model]);
@@ -180,7 +187,15 @@ export function C4Modeler() {
             options={views.map((v) => ({ value: v.id, label: v.title }))}
           />
           <div style={{ flex: "1 1 0", minWidth: 8 }} />
-          <button type="button" className={styles.ghost} onClick={() => setModel(exampleModel())}>
+          <button
+            type="button"
+            className={styles.ghost}
+            onClick={() => {
+              if (model.elements.length > 0 && !confirm("Isso substitui o modelo atual pelo exemplo. Continuar?"))
+                return;
+              setModel(exampleModel());
+            }}
+          >
             ver um exemplo
           </button>
           <div className={styles.exportGroup}>

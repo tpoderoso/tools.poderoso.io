@@ -14,14 +14,18 @@ const clampScale = (s: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 /**
  * Pan/zoom de um conteúdo de dimensão `size` dentro de um viewport próprio.
  * Dono do `viewportRef` (superfície de arraste + alvo do wheel). Enquadra
- * automaticamente quando chega um diagrama de dimensão nova (`svg` muda) e ao
- * redimensionar a janela. Retorna o transform e os handlers pra aplicar no DOM.
+ * automaticamente quando `fitKey` muda e ao redimensionar a janela. `fitKey` é
+ * uma identidade de reenquadramento escolhida pelo chamador: deve permanecer
+ * estável entre re-renders do "mesmo" conteúdo e mudar só quando o conteúdo é
+ * de fato outro (ex.: outra view, outro número de nós) — nunca o conteúdo bruto
+ * em si (passar o SVG renderizado reintroduziria o bug de re-fit a cada tecla
+ * que essa troca corrigiu). Retorna o transform e os handlers pra aplicar no DOM.
  */
-export function usePanZoom(size: Size, svg: string) {
+export function usePanZoom(size: Size, fitKey: string) {
   const [t, setT] = useState({ x: 0, y: 0, scale: 1 });
   const [grabbing, setGrabbing] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const fittedFor = useRef(""); // svg já enquadrado (evita re-fit a cada tecla)
+  const fittedFor = useRef(""); // fitKey já enquadrada (evita re-fit a cada tecla)
   const drag = useRef<{ px: number; py: number; ox: number; oy: number; id: number; moved: boolean } | null>(null);
 
   const fit = useCallback(() => {
@@ -51,13 +55,13 @@ export function usePanZoom(size: Size, svg: string) {
     });
   }, []);
 
-  // enquadra automaticamente quando um diagrama novo (identidade `svg` diferente) chega
+  // enquadra automaticamente quando chega uma `fitKey` diferente da já enquadrada
   useEffect(() => {
-    if (svg && svg !== fittedFor.current) {
-      fittedFor.current = svg;
+    if (fitKey && fitKey !== fittedFor.current) {
+      fittedFor.current = fitKey;
       fit();
     }
-  }, [svg, fit]);
+  }, [fitKey, fit]);
 
   // reajusta ao redimensionar a janela (só depois do primeiro enquadramento)
   useEffect(() => {

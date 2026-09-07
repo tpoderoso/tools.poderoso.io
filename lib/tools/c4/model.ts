@@ -175,6 +175,98 @@ export function dismiss(model: C4Model, suggestionId: string): C4Model {
   return { ...model, dismissed: [...model.dismissed, suggestionId] };
 }
 
+const ELEMENT_KINDS: readonly ElementKind[] = ["person", "system", "container", "component"];
+
+function isStringArray(v: unknown): v is string[] {
+  return Array.isArray(v) && v.every((x) => typeof x === "string");
+}
+
+function sanitizeElement(raw: unknown): C4Element | null {
+  if (!raw || typeof raw !== "object") return null;
+  const e = raw as Record<string, unknown>;
+  if (typeof e.id !== "string" || e.id === "") return null;
+  if (typeof e.kind !== "string" || !ELEMENT_KINDS.includes(e.kind as ElementKind)) return null;
+  if (typeof e.name !== "string") return null;
+  if (typeof e.description !== "string") return null;
+  if (typeof e.external !== "boolean") return null;
+  if (e.parent !== undefined && typeof e.parent !== "string") return null;
+  if (e.technology !== undefined && typeof e.technology !== "string") return null;
+  if (e.tags !== undefined && !isStringArray(e.tags)) return null;
+  const out: C4Element = {
+    id: e.id,
+    kind: e.kind as ElementKind,
+    name: e.name,
+    description: e.description,
+    external: e.external,
+  };
+  if (typeof e.parent === "string") out.parent = e.parent;
+  if (typeof e.technology === "string") out.technology = e.technology;
+  if (isStringArray(e.tags)) out.tags = e.tags;
+  return out;
+}
+
+function sanitizeRelation(raw: unknown, knownIds: Set<string>): C4Relation | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.id !== "string") return null;
+  if (typeof r.from !== "string" || typeof r.to !== "string") return null;
+  if (typeof r.label !== "string") return null;
+  if (!knownIds.has(r.from) || !knownIds.has(r.to)) return null;
+  if (r.technology !== undefined && typeof r.technology !== "string") return null;
+  const out: C4Relation = { id: r.id, from: r.from, to: r.to, label: r.label };
+  if (typeof r.technology === "string") out.technology = r.technology;
+  return out;
+}
+
+function sanitizeLayout(raw: unknown): C4Model["layout"] {
+  const out: C4Model["layout"] = {};
+  if (!raw || typeof raw !== "object") return out;
+  for (const [view, positions] of Object.entries(raw as Record<string, unknown>)) {
+    if (!positions || typeof positions !== "object") continue;
+    const kept: Record<string, { x: number; y: number }> = {};
+    for (const [id, pos] of Object.entries(positions as Record<string, unknown>)) {
+      if (!pos || typeof pos !== "object") continue;
+      const p = pos as Record<string, unknown>;
+      if (typeof p.x === "number" && Number.isFinite(p.x) && typeof p.y === "number" && Number.isFinite(p.y)) {
+        kept[id] = { x: p.x, y: p.y };
+      }
+    }
+    if (Object.keys(kept).length) out[view] = kept;
+  }
+  return out;
+}
+
+/**
+ * Import de JSON é a única porta de entrada de dado externo nesta ferramenta
+ * (o resto do estado nasce de cliques na própria UI), então é fronteira de
+ * confiança: um arquivo editado à mão, meio-truncado ou vindo de outra versão
+ * da ferramenta é um formato plausível mas inválido, e `parseModel`/`suggest`/
+ * o renderer do SVG não toleram um `description` ausente ou um `layout.x`
+ * string sem lançar. Como este app não tem `error.tsx`, esse throw aconteceria
+ * durante o render e derrubaria a ferramenta inteira, não só o import. Por
+ * isso este validador filtra em vez de confiar: descarta silenciosamente
+ * qualquer elemento, relação ou posição de layout fora de forma, em vez de
+ * lançar, para o resto do modelo continuar utilizável.
+ */
+export function sanitizeModel(raw: unknown): C4Model | null {
+  if (!raw || typeof raw !== "object") return null;
+  const m = raw as Record<string, unknown>;
+  if (m.version !== 1 || !Array.isArray(m.elements) || !Array.isArray(m.relations)) return null;
+
+  const elements = m.elements.map(sanitizeElement).filter((e): e is C4Element => e !== null);
+  const knownIds = new Set(elements.map((e) => e.id));
+  const relations = m.relations.map((r) => sanitizeRelation(r, knownIds)).filter((r): r is C4Relation => r !== null);
+
+  return {
+    version: 1,
+    name: typeof m.name === "string" ? m.name : "Modelo",
+    elements,
+    relations,
+    layout: sanitizeLayout(m.layout),
+    dismissed: isStringArray(m.dismissed) ? m.dismissed : [],
+  };
+}
+
 // ponytail: self-check — roda no import (dev/build) e via `node lib/tools/c4/model.ts`
 if (process.env.NODE_ENV !== "production") {
   const eq = (got: unknown, exp: unknown, what: string) => {
@@ -222,4 +314,31 @@ if (process.env.NODE_ENV !== "production") {
 
   const d1 = dismiss(m, "orphan:api");
   eq(dismiss(d1, "orphan:api").dismissed, ["orphan:api"], "dispensar é idempotente");
+
+  // sanitizeModel: fronteira de confiança do import de JSON
+  const validEl = { id: "a", kind: "system", name: "A", description: "d", external: false };
+  const raw1 = { version: 1, name: "M", elements: [validEl], relations: [], layout: {}, dismissed: [] };
+  eq(sanitizeModel(raw1)?.elements, [validEl], "sanitizeModel aceita elemento válido");
+
+  const missingDesc = { id: "b", kind: "system", name: "B", external: false };
+  const raw2 = { version: 1, elements: [validEl, missingDesc], relations: [] };
+  eq(sanitizeModel(raw2)?.elements.map((e) => e.id), ["a"], "sanitizeModel descarta elemento sem description");
+
+  const raw3 = {
+    version: 1,
+    elements: [validEl],
+    relations: [{ id: "r1", from: "a", to: "nao-existe", label: "x" }],
+  };
+  eq(sanitizeModel(raw3)?.relations, [], "sanitizeModel descarta relação para elemento inexistente/descartado");
+
+  const raw4 = {
+    version: 1,
+    elements: [validEl],
+    relations: [],
+    layout: { landscape: { a: { x: "10", y: 20 } } },
+  };
+  eq(sanitizeModel(raw4)?.layout, {}, "sanitizeModel descarta posição com x/y não numérico e não deixa {} sobrando");
+
+  eq(sanitizeModel(null), null, "sanitizeModel rejeita não-objeto");
+  eq(sanitizeModel({ version: 2, elements: [], relations: [] }), null, "sanitizeModel rejeita versão errada");
 }
