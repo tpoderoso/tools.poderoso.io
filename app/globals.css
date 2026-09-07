@@ -278,6 +278,26 @@ textarea {
   color: var(--color-fg);
 }
 
+/* botão secundário com texto (ex.: "colar da área de transferência", "ver o exemplo") */
+.btn-copy-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-muted-soft);
+  cursor: pointer;
+}
+
+.btn-copy-text:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-fg);
+}
+
 /* botões de barra de ferramentas (mermaid + markdown) */
 .mmd-icon-btn {
   display: flex;
