@@ -40,10 +40,16 @@ function parseModel(text: string): C4Model | null {
 }
 
 /** Troca cada var(--x) pelo valor computado. Sem isso a imagem exportada sai sem
- *  cor, porque fora do documento não existe quem defina as variáveis. */
+ *  cor, porque fora do documento não existe quem defina as variáveis.
+ *  O valor precisa ser escapado como XML antes de entrar no atributo `style="..."`:
+ *  `--font-mono` resolve para uma pilha de fontes entre aspas, e sem escapar o "&"
+ *  primeiro as próprias entidades inseridas (&quot; etc.) seriam escapadas de novo. */
 function inlineCssVars(svg: string): string {
   const cs = getComputedStyle(document.documentElement);
-  return svg.replace(/var\((--[a-z0-9-]+)\)/gi, (_, name: string) => cs.getPropertyValue(name).trim() || "#f8f8f2");
+  return svg.replace(/var\((--[a-z0-9-]+)\)/gi, (_, name: string) => {
+    const value = cs.getPropertyValue(name).trim() || "#f8f8f2";
+    return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  });
 }
 
 export function C4Modeler() {
