@@ -1,0 +1,48 @@
+/* Estrutura estática do C4 Modeler. Estilo dinâmico (transform do zoom, cor por
+   tipo de elemento, posição das caixas) fica inline no componente: não dá para
+   expressar como classe. */
+
+.modeler {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex: 0 0 auto;
+  min-height: 40px; /* reservado: o seletor de view muda de largura conforme o modelo cresce */
+}
+
+.canvas {
+  position: relative;
+  flex: 1;
+  min-height: 320px; /* reservado: evita o painel colapsar antes do primeiro desenho */
+  overflow: hidden;
+  background: var(--color-bg-alt);
+}
+
+.viewport {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.placeholder {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--color-faint);
+  font-size: 12px;
+  pointer-events: none;
+}

@@ -6,6 +6,7 @@ import { XmlFormatter } from "./XmlFormatter";
 import { SqlFormatter } from "./SqlFormatter";
 import { XsdValidator } from "./XsdValidator";
 import { MermaidViewer } from "./mermaid/MermaidViewer";
+import { C4Modeler } from "./c4/C4Modeler";
 import { MarkdownViewer } from "./markdown/MarkdownViewer";
 import { CpfGenerator } from "./CpfGenerator";
 import { CnpjGenerator } from "./CnpjGenerator";
@@ -34,6 +35,7 @@ const RAW_REGISTRY: Record<string, () => ReactNode> = {
   "format/sql": () => <SqlFormatter />,
   "format/xsdval": () => <XsdValidator />,
   "diagram/mermaid": () => <MermaidViewer />,
+  "diagram/c4": () => <C4Modeler />,
   "view/markdown": () => <MarkdownViewer />,
   "generate/cpf": () => <CpfGenerator active />,
   "generate/cnpj": () => <CnpjGenerator active />,

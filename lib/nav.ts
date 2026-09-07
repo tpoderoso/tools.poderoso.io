@@ -5,6 +5,7 @@ export type ToolId =
   | "sql"
   | "xsdval"
   | "mermaid"
+  | "c4"
   | "md"
   | "cpf"
   | "cnpj"
@@ -101,6 +102,14 @@ export const NAV_GROUPS: NavGroup[] = [
         seoTitle: "Visualizador de diagramas Mermaid",
         path: "~/diagram/mermaid",
         description: "visualiza e navega diagramas Mermaid com zoom e arraste",
+        mobileDisabled: true,
+      },
+      {
+        id: "c4",
+        label: "C4 Model",
+        seoTitle: "Gerador de C4 Model online",
+        path: "~/diagram/c4",
+        description: "monta o C4 model do seu sistema respondendo perguntas",
         mobileDisabled: true,
       },
     ],
