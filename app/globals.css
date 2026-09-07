@@ -730,7 +730,9 @@ textarea {
   }
 
   .header-dots,
-  .header-visit-counter {
+  .header-visit-counter,
+  .header-cmdk-key,
+  .header-back-link-label {
     display: none;
   }
 

@@ -73,8 +73,12 @@ export function Header({ onOpenPalette }: { onOpenPalette?: () => void }) {
           </button>
         )}
         <VisitCounter />
-        <Link href="https://poderoso.io" className="header-back-link">
-          ← poderoso.io
+        <Link
+          href="https://poderoso.io"
+          className="header-back-link"
+          aria-label="Voltar para poderoso.io"
+        >
+          ← <span className="header-back-link-label">poderoso.io</span>
         </Link>
       </div>
     </header>
