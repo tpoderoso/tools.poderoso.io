@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { byId, type C4Model, type ElementKind } from "@/lib/tools/c4/model";
 import type { C4View } from "@/lib/tools/c4/views";
 import { edgeLine, type Box, type LayoutResult } from "@/lib/tools/c4/layout";
@@ -49,9 +50,11 @@ interface Props {
   view: C4View;
   model: C4Model;
   layout: LayoutResult;
+  onOpen?: (id: string) => void;
+  onMove?: (id: string, pos: { x: number; y: number }) => void;
 }
 
-export function C4Canvas({ view, model, layout }: Props) {
+export function C4Canvas({ view, model, layout, onOpen, onMove }: Props) {
   // a chave de refit muda quando entra ou sai um nó, e ao trocar de view; não
   // muda ao arrastar, senão a tela pularia no meio do arrasto
   const { t, grabbing, viewportRef, pointerHandlers } = usePanZoom(
@@ -61,6 +64,31 @@ export function C4Canvas({ view, model, layout }: Props) {
 
   const boxOf = new Map(layout.boxes.map((b) => [b.id, b]));
   const empty = view.nodes.length === 0;
+
+  // arrasto de caixa. O delta vem em pixels de tela e precisa ser dividido pela
+  // escala do zoom para virar unidade do desenho, senão a caixa "foge" do cursor
+  // quando o zoom não está em 100%.
+  const dragRef = useRef<{ id: string; px: number; py: number; ox: number; oy: number } | null>(null);
+
+  const startDrag = (e: ReactPointerEvent<SVGGElement>, box: Box) => {
+    e.stopPropagation(); // não deixa o usePanZoom entender isso como pan
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+    dragRef.current = { id: box.id, px: e.clientX, py: e.clientY, ox: box.x, oy: box.y };
+  };
+
+  const moveDrag = (e: ReactPointerEvent<SVGGElement>) => {
+    const d = dragRef.current;
+    if (!d || !onMove) return;
+    e.stopPropagation();
+    onMove(d.id, {
+      x: Math.round(d.ox + (e.clientX - d.px) / t.scale),
+      y: Math.round(d.oy + (e.clientY - d.py) / t.scale),
+    });
+  };
+
+  const endDrag = () => {
+    dragRef.current = null;
+  };
 
   return (
     <div className={styles.canvas}>
@@ -143,7 +171,15 @@ export function C4Canvas({ view, model, layout }: Props) {
           })}
 
           {layout.boxes.map((box) => (
-            <ElementBox key={box.id} box={box} model={model} />
+            <ElementBox
+              key={box.id}
+              box={box}
+              model={model}
+              onOpen={onOpen}
+              onPointerDown={(e) => startDrag(e, box)}
+              onPointerMove={moveDrag}
+              onPointerUp={endDrag}
+            />
           ))}
         </svg>
       </div>
@@ -153,7 +189,21 @@ export function C4Canvas({ view, model, layout }: Props) {
   );
 }
 
-function ElementBox({ box, model }: { box: Box; model: C4Model }) {
+function ElementBox({
+  box,
+  model,
+  onOpen,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+}: {
+  box: Box;
+  model: C4Model;
+  onOpen?: (id: string) => void;
+  onPointerDown: (e: ReactPointerEvent<SVGGElement>) => void;
+  onPointerMove: (e: ReactPointerEvent<SVGGElement>) => void;
+  onPointerUp: () => void;
+}) {
   const el = byId(model, box.id);
   if (!el) return null;
 
@@ -162,7 +212,16 @@ function ElementBox({ box, model }: { box: Box; model: C4Model }) {
   const meta = [KIND_LABEL[el.kind] + (el.external ? " externo" : ""), el.technology].filter(Boolean).join(": ");
 
   return (
-    <g>
+    <g
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        onOpen?.(box.id);
+      }}
+      style={{ cursor: onOpen ? "pointer" : "default" }}
+    >
       <rect
         x={box.x}
         y={box.y}
