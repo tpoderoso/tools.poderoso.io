@@ -2,6 +2,7 @@
 
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { shapeFor, type Shape } from "@/lib/tools/c4/shape";
+import { truncate, wrap } from "@/lib/tools/c4/text";
 import type { C4Element, ElementKind } from "@/lib/tools/c4/model";
 import type { Box } from "@/lib/tools/c4/layout";
 
@@ -38,28 +39,6 @@ const INSET: Record<Shape, { top: number; side: number }> = {
   folder: { top: 12, side: 12 },
   blob: { top: 14, side: 28 },
 };
-
-export function truncate(text: string, maxChars: number): string {
-  return text.length <= maxChars ? text : `${text.slice(0, Math.max(0, maxChars - 1))}…`;
-}
-
-/** Quebra em até `maxLines` linhas de `perLine` caracteres, truncando o resto. */
-export function wrap(text: string, perLine: number, maxLines: number): string[] {
-  const out: string[] = [];
-  let rest = text.trim();
-  while (rest && out.length < maxLines) {
-    if (rest.length <= perLine) {
-      out.push(rest);
-      break;
-    }
-    const cut = rest.lastIndexOf(" ", perLine);
-    const at = cut > perLine * 0.5 ? cut : perLine;
-    out.push(rest.slice(0, at));
-    rest = rest.slice(at).trim();
-  }
-  if (rest && out.length === maxLines) out[maxLines - 1] = truncate(`${out[maxLines - 1]} ${rest}`, perLine);
-  return out;
-}
 
 /**
  * O contorno da forma. Todas as formas ocupam exatamente a mesma caixa de

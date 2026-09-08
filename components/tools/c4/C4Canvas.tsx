@@ -5,7 +5,8 @@ import { byId, type C4Model } from "@/lib/tools/c4/model";
 import type { C4View } from "@/lib/tools/c4/views";
 import { edgeLine, type Box, type LayoutResult } from "@/lib/tools/c4/layout";
 import { usePanZoom } from "@/lib/hooks/usePanZoom";
-import { ElementShape, truncate } from "./ElementShape";
+import { ElementShape } from "./ElementShape";
+import { truncate } from "@/lib/tools/c4/text";
 import styles from "./c4.module.css";
 
 /** Largura média do IBM Plex Mono em px por caractere, na escala do desenho. */
