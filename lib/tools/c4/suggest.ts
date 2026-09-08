@@ -14,6 +14,9 @@ export interface Suggestion {
   rule: string;
   priority: number;
   question: string;
+  /** A mesma pendência em forma declarativa, para a lista. `question` é o que
+   *  se pergunta a quem vai preencher; `issue` é o que se diz a quem revisa. */
+  issue: string;
   target?: string;
   action: SuggestionAction;
 }
@@ -48,6 +51,7 @@ export function suggest(model: C4Model): Suggestion[] {
       rule: "empty",
       priority: 0,
       question: "Qual sistema você está desenhando?",
+      issue: "nenhum sistema no modelo",
       action: { type: "add", kind: "system", external: false },
     });
   }
@@ -58,6 +62,7 @@ export function suggest(model: C4Model): Suggestion[] {
       rule: "no-people",
       priority: 10,
       question: `Quem usa o ${systems[0].name}?`,
+      issue: `${systems[0].name} não tem quem use`,
       target: systems[0].id,
       action: { type: "add", kind: "person" },
     });
@@ -70,6 +75,7 @@ export function suggest(model: C4Model): Suggestion[] {
         rule: "system-no-containers",
         priority: 20,
         question: `De que partes o ${s.name} é feito?`,
+        issue: `${s.name} não tem containers`,
         target: s.id,
         action: { type: "add", kind: "container", parent: s.id },
       });
@@ -82,6 +88,7 @@ export function suggest(model: C4Model): Suggestion[] {
         rule: "orphan",
         priority: 30,
         question: `Com quem o ${e.name} conversa?`,
+        issue: `${e.name} não conversa com ninguém`,
         target: e.id,
         action: { type: "relate", elementId: e.id },
       });
@@ -96,6 +103,7 @@ export function suggest(model: C4Model): Suggestion[] {
       rule: "relation-no-label",
       priority: 40,
       question: `O que trafega entre ${a} e ${b}?`,
+      issue: `a ligação ${a} → ${b} não tem rótulo`,
       action: { type: "editRelation", relationId: r.id },
     });
   }
@@ -107,6 +115,7 @@ export function suggest(model: C4Model): Suggestion[] {
         rule: "no-tech",
         priority: 50,
         question: `Em que o ${e.name} é escrito?`,
+        issue: `${e.name} sem tecnologia`,
         target: e.id,
         action: { type: "edit", elementId: e.id, field: "technology" },
       });
@@ -119,6 +128,7 @@ export function suggest(model: C4Model): Suggestion[] {
         rule: "no-description",
         priority: 60,
         question: `O que o ${e.name} faz?`,
+        issue: `${e.name} sem descrição`,
         target: e.id,
         action: { type: "edit", elementId: e.id, field: "description" },
       });
@@ -152,6 +162,14 @@ if (process.env.NODE_ENV !== "production") {
     "sugestões do modelo de exemplo",
   );
   eq(suggest(m).length, 3, "nada além disso pendente no exemplo");
+
+  eq(suggest(vazio)[0]?.issue, "nenhum sistema no modelo", "o issue do modelo vazio");
+  eq(suggest(comSistema)[0]?.issue, "Checkout não tem quem use", "issue de sistema sem pessoa");
+  eq(
+    suggest(m).map((s) => s.issue),
+    ["ERP não tem containers", "Auditor não conversa com ninguém", "Worker não conversa com ninguém"],
+    "issues do modelo de exemplo",
+  );
 
   const semErp = dismiss(m, "system-no-containers:erp");
   eq(suggest(semErp)[0]?.id, "orphan:auditor", "dispensar tira a sugestão da fila");
