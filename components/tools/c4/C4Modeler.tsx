@@ -5,6 +5,8 @@ import { AlertTriangle, FileCode, FilePlus2, FileText, FolderOpen, Image as Imag
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Select } from "@/components/ui/Select";
 import { toastError } from "@/components/ui/Toaster";
+import { ToolTabInputs, ToolTabs } from "@/components/ui/ToolTabs";
+import { useToolDoc } from "@/components/ui/ToolDocSlot";
 import { exampleModel } from "@/lib/tools/c4/example";
 import { addRelation, byId, childrenOf, clearLayout, emptyModel, removeElement, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
 import { suggest } from "@/lib/tools/c4/suggest";
@@ -46,6 +48,7 @@ function inlineCssVars(svg: string): string {
 }
 
 export function C4Modeler() {
+  const doc = useToolDoc();
   const [model, setModel] = useState(emptyModel);
   const [viewId, setViewId] = useState<ViewId>("landscape");
   const [selected, setSelected] = useState<string | null>(null);
@@ -201,6 +204,7 @@ export function C4Modeler() {
 
   return (
     <div className={styles.modeler}>
+      <ToolTabInputs />
       <h1 className="visually-hidden">Gerador de C4 Model online</h1>
       <div className={styles.bar}>
         <Breadcrumb path="~/diagram/c4" />
@@ -306,8 +310,9 @@ export function C4Modeler() {
             />
           </label>
         </div>
+        <ToolTabs />
       </div>
-      <div className={styles.split}>
+      <div className={`${styles.split} tool-tab-panel--bare`}>
         <aside className={styles.panel}>
           <ModelTree
             model={model}
@@ -352,6 +357,7 @@ export function C4Modeler() {
           <ElementDrawer model={model} state={drawer} onModel={onModel} onOpenDrawer={setDrawer} onClose={() => setDrawer(null)} />
         )}
       </div>
+      {doc && <div className="tool-tab-panel--manual">{doc}</div>}
     </div>
   );
 }

@@ -488,6 +488,151 @@ Detalhes na [especificação do CommonMark](https://commonmark.org/).`,
     ],
   },
 
+  c4: {
+    intro:
+      "O C4 model desenha a arquitetura de um sistema em quatro níveis de zoom, cada um para uma audiência diferente — do panorama que cabe numa reunião de negócio até o container que o time técnico discute todo dia. Esta ferramenta monta o modelo com você respondendo o wizard, desenha as quatro views sozinha a partir de um único cadastro, e exporta em SVG, PNG, Structurizr DSL ou Mermaid C4.",
+    sections: [
+      {
+        h: "O problema que o C4 resolve",
+        body: [
+          "Arquitetura de software costuma ser desenhada de duas formas ruins. Uma é o quadro-branco fotografado: caixas e setas sem notação consistente, que só quem estava na sala entende, e que ninguém atualiza depois. A outra é o diagrama de infraestrutura genérico, cheio de ícone de nuvem, que mostra tudo — e por mostrar tudo, não explica nada para quem está tentando entender uma parte específica.",
+          "O C4 model, criado por Simon Brown, resolve isso com uma ideia simples: em vez de um diagrama só, você desenha uma série de mapas, cada um num nível de zoom diferente, do jeito que um mapa mostra o país, depois a cidade, depois a rua. Cada nível usa a mesma notação pequena e fixa — pessoa, sistema, container, componente — e cada um responde uma pergunta diferente.",
+          "Essa consistência é o que faz um diagrama C4 ser lido sem legenda depois da segunda vez. Quem já viu um, reconhece o próximo, mesmo vindo de um projeto diferente.",
+        ],
+      },
+      {
+        h: "Os quatro níveis, do mais distante ao mais perto",
+        body: [
+          "Panorama mostra todos os sistemas da empresa e como conversam entre si, sem entrar em nenhum. É o mapa que alguém novo no time usa para entender que sistemas existem e quem fala com quem.",
+          "Contexto foca em um sistema e nas pessoas e sistemas vizinhos com quem ele troca informação, sem mostrar o que tem dentro dele. É a pergunta \"o que esse sistema faz e quem depende dele\", respondida numa única caixa.",
+          "Container abre esse sistema e mostra as partes que o compõem: aplicações, apis, bancos de dados, filas, cada uma rodando separada, com sua própria tecnologia. É o nível que o time técnico usa no dia a dia para discutir onde uma mudança entra.",
+          "Componente desce mais um nível, abrindo um container e mostrando as peças internas dele — módulos, serviços, controllers. É o mais raro de se manter atualizado à mão, e por isso o mais opcional dos quatro.",
+          "Existe ainda um quinto nível, Código, que mostra classe e função — mas o próprio C4 model recomenda gerar esse a partir do código, com a IDE, em vez de desenhar à mão. Esta ferramenta para no Componente de propósito.",
+        ],
+        img: {
+          src: "/img/c4-niveis.webp",
+          alt: "Quatro painéis lado a lado mostrando o mesmo sistema Checkout em zoom crescente: Panorama com três sistemas e uma pessoa, Contexto com o Checkout e um sistema vizinho, Container com Web/API/Banco dentro do Checkout, e Componente com Pedido e Cobrança dentro da API.",
+          caption: "Os quatro níveis são o mesmo modelo, vistos de zooms diferentes — não quatro diagramas separados.",
+          w: 1120,
+          h: 380,
+        },
+      },
+      {
+        h: "O vocabulário: quatro formas e uma seta",
+        body: [
+          "O C4 usa só quatro tipos de caixa. Pessoa é quem usa o sistema — cliente, operador, outro time. Sistema é a maior unidade, o que aparece no Panorama e no Contexto, marcado como externo quando não é seu — um gateway de pagamento, um provedor de autenticação. Container é uma parte do sistema que roda sozinha e pode ser implantada em separado: uma SPA, uma API, um banco de dados, uma fila. Componente é uma peça de dentro de um container.",
+          "Uma seta liga duas caixas e carrega um rótulo curto dizendo o que passa por ela — \"consulta saldo\", \"publica evento\" — nunca uma linha muda. Rótulo em toda seta é o que separa um diagrama C4 de um diagrama de caixinha qualquer.",
+          "Nesta ferramenta, a forma da caixa também carrega informação: além do retângulo padrão, um cilindro indica banco de dados, uma janela indica aplicação de tela, um terminal indica processo de linha de comando, entre outras — tudo deduzido automaticamente da tecnologia que você digita, e sempre trocável à mão.",
+        ],
+        img: {
+          src: "/img/c4-notacao.webp",
+          alt: "Legenda com os oito elementos da notação: pessoa, sistema, sistema externo, container, componente, banco de dados, relação e relação implícita, cada um com o desenho e uma frase curta.",
+          caption: "A notação inteira cabe numa lista curta — é isso que a torna reconhecível.",
+          w: 960,
+          h: 480,
+        },
+      },
+      {
+        h: "Um modelo só, várias views",
+        body: [
+          "A diferença entre esta ferramenta e um editor de caixinhas genérico é que aqui você cadastra cada pessoa, sistema, container e componente uma vez só. Panorama, Contexto, Container e Componente não são quatro desenhos separados: são quatro filtros sobre o mesmo modelo, calculados na hora.",
+          "Isso significa que renomear um sistema muda o nome nos quatro níveis de uma vez, e que um container novo aparece sozinho na view de Container do sistema certo, sem redesenhar nada à mão em outro lugar.",
+        ],
+      },
+      {
+        h: "Relação elevada: declare uma vez, ela sobe sozinha",
+        body: [
+          "Uma API de um sistema conversando com um container de outro sistema é uma relação de nível Container. Mas essa mesma relação também é verdadeira lá em cima, no Panorama: os dois sistemas conversam, mesmo que a caixa de Panorama não saiba, nem precise saber, qual container específico faz a chamada.",
+          "Esta ferramenta cuida disso sozinha. Declare a relação no nível mais fino em que ela realmente acontece, e ela aparece automaticamente elevada nos níveis acima, entre os ancestrais — desenhada com linha tracejada, pra diferenciar do que foi digitado à mão naquele nível. Você nunca precisa desenhar a mesma conversa duas vezes.",
+        ],
+        img: {
+          src: "/img/c4-elevacao.webp",
+          alt: "Dois painéis empilhados: em cima, no nível Container, o container API do sistema Checkout conecta ao container Faturamento do sistema ERP com a seta \"confirma pedido\"; embaixo, no nível Landscape, os sistemas Checkout e ERP aparecem ligados pela mesma seta, agora tracejada e marcada como implícita.",
+          caption: "A relação foi digitada uma vez, no nível Container. O nível Landscape a herda sozinho.",
+          w: 920,
+          h: 540,
+        },
+      },
+      {
+        h: "Passo a passo: montando seu primeiro modelo",
+        body: [
+          "Abra a ferramenta com o modelo vazio e escolha \"começar do zero\" — ou \"ver um exemplo\" para explorar um modelo pronto antes de criar o seu. Isso abre o drawer, um painel lateral com passos, que conduz o cadastro de cada elemento.",
+          "Passo 1 escolhe o tipo — Pessoa, Sistema, Container ou Componente — e é pulado quando o contexto já sabe qual é, como ao clicar em \"+ detalhar\" dentro de um sistema, que já assume Container. Passo 2 pede nome e o que o elemento faz. Passo 3, para container e componente, pede a tecnologia, e é aí que a forma da caixa já aparece com o palpite certo, trocável num clique. Passo 4, quando já existe outro elemento pra conversar, pergunta com quem e o que trafega.",
+          "No canvas, toda caixa com filhos mostra um selo \"⊞ n\" — clicar nele desce um nível. Uma caixa vazia mostra \"+ detalhar\" ao passar o mouse, que já abre o drawer com o tipo e o pai certos. Arrastar a bolinha que aparece na borda direita de uma caixa até outra cria a relação direto no desenho, sem abrir formulário nenhum.",
+          "O resultado, para um Checkout simples com SPA, API e banco: um sistema com três containers, ligados por relações rotuladas. O mesmo cadastro já virou a view de Contexto, a de Container e a entrada dele no Panorama, sem nenhum passo extra.",
+        ],
+        img: {
+          src: "/img/c4-exemplo.webp",
+          alt: "Diagrama de container do sistema Checkout: a pessoa Cliente usa o container Web, que chama o container API, que lê e grava no container Banco (desenhado como cilindro), cada um com sua tecnologia entre colchetes.",
+          caption: "O resultado de seguir o wizard uma vez por elemento: três containers, dois deles ligados, um sistema pronto.",
+          w: 960,
+          h: 440,
+        },
+      },
+      {
+        h: "O selo de pendências: o que falta, sem interromper",
+        body: [
+          "Enquanto você modela, a ferramenta repara no que está incompleto — um sistema sem container, um elemento sem descrição, uma relação sem rótulo — e soma tudo num selo \"⚠ N pendências\" na barra. Ele não interrompe: você abre quando quiser, vê a lista, e escolhe \"resolver\", que leva direto ao campo certo, ou \"ignorar\", para as vezes em que a lacuna é proposital.",
+          "Nada aqui é validação obrigatória: o modelo é seu, incompleto ou não, e exportável do jeito que estiver.",
+        ],
+      },
+      {
+        h: "Levando o modelo embora",
+        body: [
+          "SVG e PNG, em duas vezes a resolução, exportam a view atual como imagem, prontos para colar num documento ou apresentação. Structurizr DSL exporta o modelo inteiro na linguagem do Structurizr, a ferramenta de referência do próprio criador do C4 model, útil se seu time já usa ou quer migrar pra lá. Mermaid C4 exporta a view atual como diagrama Mermaid, que o [GitHub e o GitLab renderizam direto no README](https://mermaid.js.org/intro/).",
+          "Salvar modelo (.json) baixa o cadastro inteiro para reabrir depois, aqui ou em outro computador, pelo botão de pasta. A ferramenta também salva sozinha no seu navegador a cada mudança — fechar a aba e voltar mantém o que você tinha, mas só nesse navegador; para levar pra outro lugar, use o .json.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        q: "O que é o C4 model?",
+        a: "É uma forma de documentar arquitetura de software em quatro diagramas com zoom crescente — Panorama, Contexto, Container e Componente — usando uma notação pequena e fixa: pessoa, sistema, container, componente e relação rotulada. Foi criado por Simon Brown como alternativa ao diagrama de caixa-e-seta sem padrão.",
+      },
+      {
+        q: "Preciso desenhar os quatro níveis?",
+        a: "Não. Muitos modelos param no Container, que é o nível mais usado no dia a dia técnico. Componente é opcional e o menos mantido na prática, porque muda com frequência conforme o código evolui.",
+      },
+      {
+        q: "O que é uma relação elevada?",
+        a: "Uma relação que você declarou entre dois elementos de um nível mais fino, por exemplo dois containers, e que a ferramenta mostra automaticamente entre os sistemas correspondentes num nível mais alto, com linha tracejada. Você declara uma vez; ela aparece sozinha nos níveis acima.",
+      },
+      {
+        q: "A forma da caixa, como o cilindro do banco de dados, é C4 oficial?",
+        a: "É uma convenção comum em ferramentas de C4, incluindo o Structurizr, para dar uma pista visual rápida do tipo de tecnologia sem poluir o rótulo. O C4 model em si não exige forma nenhuma — um retângulo já é válido. Aqui a forma é conveniência: deduzida da tecnologia que você digita, e sempre trocável à mão.",
+      },
+      {
+        q: "Dá para abrir o modelo salvo em outro dia, ou em outro computador?",
+        a: "Dá. A ferramenta salva sozinha no navegador a cada mudança, então fechar a aba e voltar mantém o modelo. Para levar para outro computador ou arquivar, use \"salvar modelo (.json)\" e depois \"abrir modelo (.json)\" onde precisar.",
+      },
+      {
+        q: "O que é o Structurizr DSL que a ferramenta exporta?",
+        a: "É a linguagem de texto do Structurizr, a ferramenta de referência do criador do C4 model, para descrever o mesmo tipo de modelo em código. Exportar para ela serve para quem já usa Structurizr ou quer versionar a arquitetura como texto, do jeito que se versiona código.",
+      },
+      {
+        q: "Funciona no celular?",
+        a: "Não. Esta ferramenta precisa de mais espaço de tela para o canvas e a árvore de elementos funcionarem bem, então fica disponível só no desktop.",
+      },
+    ],
+    refs: [
+      {
+        label: "c4model.com — The C4 model for visualising software architecture",
+        href: "https://c4model.com/",
+        note: "Site oficial de Simon Brown, criador do C4 model: os quatro níveis, a notação e o raciocínio por trás de cada um.",
+      },
+      {
+        label: "Structurizr DSL — referência da linguagem",
+        href: "https://docs.structurizr.com/dsl",
+        note: "Documentação completa da linguagem que o botão \"baixar Structurizr DSL\" desta ferramenta gera.",
+      },
+      {
+        label: "Documentação do Structurizr",
+        href: "https://docs.structurizr.com/",
+        note: "A ferramenta de referência do C4 model, para quem quiser abrir o DSL exportado aqui e continuar editando por lá.",
+      },
+    ],
+  },
+
   xml: {
     intro:
       "O formatador de XML reindenta documentos XML com a hierarquia correta de tags, incluindo os casos que costumam quebrar formatadores simples: atributos longos, elementos vazios auto fechados e conteúdo misto.",
