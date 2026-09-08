@@ -7,6 +7,7 @@ import { edgeLine, type Box, type LayoutResult } from "@/lib/tools/c4/layout";
 import { usePanZoom } from "@/lib/hooks/usePanZoom";
 import { ElementShape } from "./ElementShape";
 import { truncate } from "@/lib/tools/c4/text";
+import { C4Toolbar } from "./C4Toolbar";
 import styles from "./c4.module.css";
 
 /** Largura média do IBM Plex Mono em px por caractere, na escala do desenho. */
@@ -19,12 +20,27 @@ interface Props {
   onOpen?: (id: string) => void;
   onMove?: (id: string, pos: { x: number; y: number }) => void;
   svgRef?: RefObject<SVGSVGElement | null>;
+  frameRef?: RefObject<HTMLDivElement | null>;
+  onToggleFullscreen: () => void;
+  onAutoLayout: () => void;
+  canAutoLayout: boolean;
 }
 
-export function C4Canvas({ view, model, layout, onOpen, onMove, svgRef }: Props) {
+export function C4Canvas({
+  view,
+  model,
+  layout,
+  onOpen,
+  onMove,
+  svgRef,
+  frameRef,
+  onToggleFullscreen,
+  onAutoLayout,
+  canAutoLayout,
+}: Props) {
   // a chave de refit muda quando entra ou sai um nó, e ao trocar de view; não
   // muda ao arrastar, senão a tela pularia no meio do arrasto
-  const { t, grabbing, viewportRef, pointerHandlers } = usePanZoom(
+  const { t, grabbing, viewportRef, fit, zoom100, zoomBy, pointerHandlers } = usePanZoom(
     { w: layout.width, h: layout.height },
     `${view.id}:${view.nodes.length}`,
   );
@@ -58,7 +74,7 @@ export function C4Canvas({ view, model, layout, onOpen, onMove, svgRef }: Props)
   };
 
   return (
-    <div className={styles.canvas}>
+    <div className={styles.canvas} ref={frameRef}>
       <div
         ref={viewportRef}
         {...pointerHandlers}
@@ -156,6 +172,29 @@ export function C4Canvas({ view, model, layout, onOpen, onMove, svgRef }: Props)
             );
           })}
         </svg>
+      </div>
+
+      <C4Toolbar
+        scale={t.scale}
+        fit={fit}
+        zoom100={zoom100}
+        zoomBy={zoomBy}
+        onToggleFullscreen={onToggleFullscreen}
+        onAutoLayout={onAutoLayout}
+        canAutoLayout={canAutoLayout}
+      />
+
+      <div className={styles.canvasFooter}>
+        <span className="mono-label mono-label--wide" style={{ whiteSpace: "nowrap", flex: "0 0 auto" }}>
+          {"// diagrama"}
+        </span>
+        <span className={styles.metaText}>
+          {view.nodes.length} {view.nodes.length === 1 ? "elemento" : "elementos"}
+        </span>
+        <div style={{ flex: "1 1 0", minWidth: 8 }} />
+        <span className={styles.metaText}>
+          arraste para mover · scroll para zoom · duplo clique desce um nível
+        </span>
       </div>
 
       {empty && <div className={styles.placeholder}>{"// o diagrama aparece aqui conforme você responde"}</div>}

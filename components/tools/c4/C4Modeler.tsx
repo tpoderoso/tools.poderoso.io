@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileCode, FileText, FolderOpen, Image as ImageIcon, Save, Sparkles, Workflow } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
@@ -49,6 +49,15 @@ export function C4Modeler() {
   const [model, setModel] = useState(emptyModel);
   const [viewId, setViewId] = useState<ViewId>("landscape");
   const svgRef = useRef<SVGSVGElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+
+  // mesma guarda do MermaidViewer: sair se já está em fullscreen, senão entrar.
+  // O catch é obrigatório: em iframe ou com a permissão negada a promise rejeita
+  // e a ferramenta tem que continuar utilizável em janela normal.
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else frameRef.current?.requestFullscreen().catch(() => {});
+  }, []);
 
   // carrega uma vez, no cliente: localStorage não existe no servidor
   useEffect(() => {
@@ -259,7 +268,18 @@ export function C4Modeler() {
             <SuggestionCard model={model} suggestion={pending[0]} onModel={onModel} />
             <ModelTree model={model} onModel={onModel} onFocus={focusOn} />
           </aside>
-          <C4Canvas view={view} model={model} layout={layout} onOpen={open} onMove={move} svgRef={svgRef} />
+          <C4Canvas
+            view={view}
+            model={model}
+            layout={layout}
+            onOpen={open}
+            onMove={move}
+            svgRef={svgRef}
+            frameRef={frameRef}
+            onToggleFullscreen={toggleFullscreen}
+            onAutoLayout={() => {}}
+            canAutoLayout={false}
+          />
         </div>
       </div>
     </ToolPanel>
