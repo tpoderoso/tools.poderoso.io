@@ -8,6 +8,7 @@ import { usePanZoom } from "@/lib/hooks/usePanZoom";
 import { ElementShape } from "./ElementShape";
 import { truncate } from "@/lib/tools/c4/text";
 import { C4Toolbar } from "./C4Toolbar";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import styles from "./c4.module.css";
 
 /** Largura média do IBM Plex Mono em px por caractere, na escala do desenho. */
@@ -27,6 +28,9 @@ interface Props {
   onAutoLayout: () => void;
   canAutoLayout: boolean;
   onAddChild: (parentId: string) => void;
+  onStart: () => void;
+  onExample: () => void;
+  onOpenFile: (f: File) => void;
 }
 
 export function C4Canvas({
@@ -43,6 +47,9 @@ export function C4Canvas({
   onAutoLayout,
   canAutoLayout,
   onAddChild,
+  onStart,
+  onExample,
+  onOpenFile,
 }: Props) {
   // a chave de refit muda quando entra ou sai um nó, e ao trocar de view; não
   // muda ao arrastar, senão a tela pularia no meio do arrasto
@@ -246,7 +253,30 @@ export function C4Canvas({
         </span>
       </div>
 
-      {empty && <div className={styles.placeholder}>{"// o diagrama aparece aqui conforme você responde"}</div>}
+      {empty && (
+        <div className={styles.placeholder}>
+          <div className={styles.emptyCard} onPointerDown={(e) => e.stopPropagation()}>
+            <span className={styles.emptyTitle}>{"// nenhum sistema ainda"}</span>
+            <PrimaryButton onClick={onStart}>começar do zero</PrimaryButton>
+            <button type="button" className="mmd-tool-btn" style={{ padding: "0 10px", fontSize: 12 }} onClick={onExample}>
+              ver um exemplo
+            </button>
+            <label className="mmd-tool-btn" style={{ padding: "0 10px", fontSize: 12, display: "grid", placeItems: "center", cursor: "pointer" }}>
+              abrir .json
+              <input
+                type="file"
+                accept="application/json,.json"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) onOpenFile(f);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

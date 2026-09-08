@@ -301,6 +301,9 @@ export function C4Modeler() {
               if (!el) return;
               setDrawer({ mode: "create", kind: el.kind === "system" ? "container" : "component", parent: parentId });
             }}
+            onStart={() => setDrawer({ mode: "create" })}
+            onExample={() => setModel(exampleModel())}
+            onOpenFile={openJson}
           />
           {drawer && <ElementDrawer model={model} state={drawer} onModel={onModel} onClose={() => setDrawer(null)} />}
         </div>
