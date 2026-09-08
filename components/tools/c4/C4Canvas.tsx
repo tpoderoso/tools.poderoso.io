@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
+import { useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { byId, childrenOf, type C4Model } from "@/lib/tools/c4/model";
 import type { C4View } from "@/lib/tools/c4/views";
 import { edgeLine, type Box, type LayoutResult } from "@/lib/tools/c4/layout";
@@ -31,6 +31,7 @@ interface Props {
   onStart: () => void;
   onExample: () => void;
   onOpenFile: (f: File) => void;
+  onRelate: (from: string, to: string) => void;
 }
 
 export function C4Canvas({
@@ -50,6 +51,7 @@ export function C4Canvas({
   onStart,
   onExample,
   onOpenFile,
+  onRelate,
 }: Props) {
   // a chave de refit muda quando entra ou sai um nó, e ao trocar de view; não
   // muda ao arrastar, senão a tela pularia no meio do arrasto
@@ -86,6 +88,17 @@ export function C4Canvas({
     dragRef.current = null;
   };
 
+  /** Ligação em curso: a origem e onde o cursor está, em coordenadas do
+   *  desenho (não de tela) — por isso o delta é dividido pela escala. */
+  const [linking, setLinking] = useState<{ from: string; x: number; y: number } | null>(null);
+
+  const toDrawing = (clientX: number, clientY: number) => {
+    const vp = viewportRef.current;
+    if (!vp) return { x: 0, y: 0 };
+    const r = vp.getBoundingClientRect();
+    return { x: (clientX - r.left - t.x) / t.scale, y: (clientY - r.top - t.y) / t.scale };
+  };
+
   // distingue "clique parado no fundo" de "clique residual ao soltar um pan":
   // usePanZoom já captura o ponteiro e arrasta a partir de 3px, mas não suprime
   // o click nativo que o navegador dispara ao soltar no mesmo elemento — sem
@@ -116,6 +129,11 @@ export function C4Canvas({
     onSelect(null);
   };
 
+  const onViewportPointerUp = () => {
+    setLinking(null);
+    pointerHandlers.onPointerUp();
+  };
+
   return (
     <div className={styles.canvas} ref={frameRef}>
       <div
@@ -123,6 +141,7 @@ export function C4Canvas({
         {...pointerHandlers}
         onPointerDown={onViewportPointerDown}
         onPointerMove={onViewportPointerMove}
+        onPointerUp={onViewportPointerUp}
         onClick={onViewportClick}
         className={styles.viewport}
         style={{ cursor: grabbing ? "grabbing" : "grab" }}
@@ -200,6 +219,23 @@ export function C4Canvas({
             );
           })}
 
+          {linking && (() => {
+            const a = boxOf.get(linking.from);
+            if (!a) return null;
+            return (
+              <line
+                x1={a.x + a.w}
+                y1={a.y + a.h / 2}
+                x2={linking.x}
+                y2={linking.y}
+                strokeWidth={1.5}
+                strokeDasharray="5 4"
+                markerEnd="url(#c4-arrow)"
+                style={{ stroke: "var(--color-accent-yellow)", pointerEvents: "none" }}
+              />
+            );
+          })()}
+
           {layout.boxes.map((box) => {
             const el = byId(model, box.id);
             if (!el) return null;
@@ -215,8 +251,15 @@ export function C4Canvas({
                     : childrenOf(model, box.id).length
                 }
                 onPointerDown={(e) => startDrag(e, box)}
-                onPointerMove={moveDrag}
-                onPointerUp={endDrag}
+                onPointerMove={(e) => {
+                  moveDrag(e);
+                  if (linking) setLinking((l) => (l ? { ...l, ...toDrawing(e.clientX, e.clientY) } : l));
+                }}
+                onPointerUp={() => {
+                  if (linking && linking.from !== box.id) onRelate(linking.from, box.id);
+                  setLinking(null);
+                  endDrag();
+                }}
                 onSelect={() => onSelect(box.id)}
                 onOpen={() => onOpen?.(box.id)}
                 onAddChild={
@@ -224,6 +267,7 @@ export function C4Canvas({
                     ? () => onAddChild(box.id)
                     : undefined
                 }
+                onStartLink={(e) => setLinking({ from: box.id, ...toDrawing(e.clientX, e.clientY) })}
               />
             );
           })}

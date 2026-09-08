@@ -303,6 +303,16 @@ g:hover > .addBadge {
   opacity: 1;
 }
 
+/* alça de ligação: só aparece no hover da caixa, mesma exceção sancionada do
+   :hover que o .addBadge já usa */
+.linkHandle {
+  opacity: 0;
+  transition: opacity 0.12s ease-out;
+}
+g:hover > .linkHandle {
+  opacity: 1;
+}
+
 /* ---- drawer de cadastro ---- */
 @keyframes drawerIn {
   from {

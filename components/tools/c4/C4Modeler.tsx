@@ -6,7 +6,7 @@ import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
 import { toastError } from "@/components/ui/Toaster";
 import { exampleModel } from "@/lib/tools/c4/example";
-import { byId, childrenOf, clearLayout, emptyModel, removeElement, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
+import { addRelation, byId, childrenOf, clearLayout, emptyModel, removeElement, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
 import { suggest } from "@/lib/tools/c4/suggest";
 import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
@@ -151,6 +151,19 @@ export function C4Modeler() {
   };
 
   const onModel = (fn: (m: C4Model) => C4Model) => setModel(fn);
+
+  /** Cria a relação se ela for legal. `addRelation` já recusa ancestral,
+   *  descendente e auto-relação lançando — aqui a rejeição é silenciosa de
+   *  propósito: o feedback é a linha elástica sumir sem virar seta. */
+  const relate = (from: string, to: string) => {
+    setModel((m) => {
+      try {
+        return addRelation(m, { from, to, label: "" });
+      } catch {
+        return m;
+      }
+    });
+  };
 
   /** Abre a view em que o elemento aparece: componente vai para a view do
    *  container que o contém, container para a do sistema, o resto fica no Landscape. */
@@ -317,6 +330,7 @@ export function C4Modeler() {
             onStart={() => setDrawer({ mode: "create" })}
             onExample={() => setModel(exampleModel())}
             onOpenFile={openJson}
+            onRelate={relate}
           />
           {drawer && (
             <ElementDrawer model={model} state={drawer} onModel={onModel} onOpenDrawer={setDrawer} onClose={() => setDrawer(null)} />

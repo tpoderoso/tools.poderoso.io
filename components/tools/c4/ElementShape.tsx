@@ -147,6 +147,7 @@ interface Props {
   onSelect: () => void;
   onOpen?: () => void;
   onAddChild?: () => void;
+  onStartLink?: (e: ReactPointerEvent<SVGGElement>) => void;
 }
 
 export function ElementShape({
@@ -160,6 +161,7 @@ export function ElementShape({
   onSelect,
   onOpen,
   onAddChild,
+  onStartLink,
 }: Props) {
   const shape = shapeFor(el);
   const color = el.external && el.kind === "system" ? "var(--color-muted)" : KIND_COLOR[el.kind];
@@ -195,6 +197,20 @@ export function ElementShape({
           strokeWidth={1}
           strokeDasharray="4 3"
           style={{ fill: "none", stroke: "var(--color-accent-yellow)" }}
+        />
+      )}
+      {onStartLink && (
+        <circle
+          className={styles.linkHandle}
+          cx={box.x + box.w}
+          cy={box.y + box.h / 2}
+          r={5}
+          strokeWidth={1.5}
+          style={{ fill: "var(--color-bg)", stroke: color, cursor: "crosshair" }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            onStartLink(e);
+          }}
         />
       )}
       {childCount > 0 && onOpen && (
