@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FileCode, FileText, FolderOpen, Image as ImageIcon, Save, Sparkles, Workflow } from "lucide-react";
+import { AlertTriangle, FileCode, FileText, FolderOpen, Image as ImageIcon, Save, Sparkles, Workflow } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
 import { toastError } from "@/components/ui/Toaster";
 import { exampleModel } from "@/lib/tools/c4/example";
 import { byId, childrenOf, clearLayout, emptyModel, removeElement, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
+import { suggest } from "@/lib/tools/c4/suggest";
 import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
 import { toMermaidC4, toStructurizrDsl } from "@/lib/tools/c4/export";
@@ -81,6 +82,7 @@ export function C4Modeler() {
   }, [model]);
 
   const views = useMemo(() => availableViews(model), [model]);
+  const pending = useMemo(() => suggest(model), [model]);
   // se a view atual deixou de existir (o elemento em foco sumiu), cai no landscape
   const active: ViewId = views.some((v) => v.id === viewId) ? viewId : "landscape";
   // elemento removido pela árvore não pode continuar "selecionado"
@@ -198,6 +200,17 @@ export function C4Modeler() {
             onChange={(v) => setViewId(v as ViewId)}
             options={views.map((v) => ({ value: v.id, label: v.title }))}
           />
+          {pending.length > 0 && (
+            <button
+              type="button"
+              className={styles.issueBadge}
+              title="ver o que falta no modelo"
+              onClick={() => setDrawer({ mode: "issues" })}
+            >
+              <AlertTriangle size={12} />
+              {`${pending.length} ${pending.length === 1 ? "pendência" : "pendências"}`}
+            </button>
+          )}
           <div style={{ flex: "1 1 0", minWidth: 8 }} />
           <div className="mmd-btn-group">
             <button
@@ -305,7 +318,9 @@ export function C4Modeler() {
             onExample={() => setModel(exampleModel())}
             onOpenFile={openJson}
           />
-          {drawer && <ElementDrawer model={model} state={drawer} onModel={onModel} onClose={() => setDrawer(null)} />}
+          {drawer && (
+            <ElementDrawer model={model} state={drawer} onModel={onModel} onOpenDrawer={setDrawer} onClose={() => setDrawer(null)} />
+          )}
         </div>
       </div>
     </ToolPanel>

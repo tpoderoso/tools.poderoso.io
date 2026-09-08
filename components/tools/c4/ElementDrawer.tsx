@@ -7,11 +7,13 @@ import {
   addRelation,
   ancestorsOf,
   byId,
+  dismiss,
   removeRelation,
   updateElement,
   type C4Model,
   type ElementKind,
 } from "@/lib/tools/c4/model";
+import { suggest, type Suggestion } from "@/lib/tools/c4/suggest";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { Select } from "@/components/ui/Select";
 import { ElementForm, type ElementField, type ElementFormValues } from "./ElementForm";
@@ -38,10 +40,11 @@ interface Props {
   model: C4Model;
   state: DrawerState;
   onModel: (fn: (m: C4Model) => C4Model) => void;
+  onOpenDrawer: (s: DrawerState) => void;
   onClose: () => void;
 }
 
-export function ElementDrawer({ model, state, onModel, onClose }: Props) {
+export function ElementDrawer({ model, state, onModel, onOpenDrawer, onClose }: Props) {
   // Escape fecha de qualquer modo. Registrado no document porque o foco pode
   // estar num input dentro do drawer ou no backdrop.
   useEffect(() => {
@@ -58,7 +61,7 @@ export function ElementDrawer({ model, state, onModel, onClose }: Props) {
       <aside className={styles.drawer} role="dialog" aria-label="cadastro de elemento">
         {state.mode === "create" && <CreateFlow model={model} state={state} onModel={onModel} onClose={onClose} />}
         {state.mode === "edit" && <EditForm model={model} state={state} onModel={onModel} onClose={onClose} />}
-        {/* mode "issues" chega na Task 11 */}
+        {state.mode === "issues" && <IssueList model={model} onModel={onModel} onOpen={onOpenDrawer} onClose={onClose} />}
       </aside>
     </>
   );
@@ -249,6 +252,7 @@ function EditForm({
         <ElementForm
           key={el.id}
           autoFocus
+          autoFocusField={state.focusField}
           submitLabel="salvar"
           fields={fieldsFor(el.kind)}
           initial={{
@@ -315,6 +319,57 @@ function EditForm({
         >
           ligar
         </PrimaryButton>
+      </div>
+    </>
+  );
+}
+
+/** Lista de pendências: cada sugestão do motor (Task 10) vira uma linha com
+ *  frase declarativa (`issue`, não `question`) e duas ações. */
+function IssueList({
+  model,
+  onModel,
+  onOpen,
+  onClose,
+}: {
+  model: C4Model;
+  onModel: (fn: (m: C4Model) => C4Model) => void;
+  onOpen: (s: DrawerState) => void;
+  onClose: () => void;
+}) {
+  const items = suggest(model);
+
+  /** Cada tipo de sugestão sabe em que tela do drawer ela se resolve. */
+  const resolve = (s: Suggestion) => {
+    const a = s.action;
+    if (a.type === "add") onOpen({ mode: "create", kind: a.kind, parent: a.parent, external: a.external });
+    else if (a.type === "edit") onOpen({ mode: "edit", id: a.elementId, focusField: a.field });
+    else if (a.type === "relate") onOpen({ mode: "edit", id: a.elementId });
+    else onOpen({ mode: "edit", id: model.relations.find((r) => r.id === a.relationId)?.from ?? "" });
+  };
+
+  return (
+    <>
+      <Head title="pendências" step={`${items.length}`} onClose={onClose} />
+      <div className={styles.drawerBody}>
+        {items.length === 0 && <p className={styles.hint}>Nada pendente. O modelo está completo.</p>}
+        {items.map((s) => (
+          <div key={s.id} className={styles.issueRow}>
+            <span style={{ minWidth: 0 }}>{s.issue}</span>
+            <span style={{ flex: "1 1 0" }} />
+            <button type="button" className="mmd-tool-btn" style={{ padding: "0 8px", fontSize: 11 }} onClick={() => resolve(s)}>
+              resolver
+            </button>
+            <button
+              type="button"
+              className="mmd-tool-btn"
+              style={{ padding: "0 8px", fontSize: 11 }}
+              onClick={() => onModel((m) => dismiss(m, s.id))}
+            >
+              ignorar
+            </button>
+          </div>
+        ))}
       </div>
     </>
   );

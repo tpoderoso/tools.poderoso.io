@@ -37,12 +37,15 @@ interface Props {
   initial?: Partial<ElementFormValues>;
   submitLabel: string;
   autoFocus?: boolean;
+  /** Foca este campo específico em vez do primeiro da lista — usado quando a
+   *  pendência resolvida aponta para um campo puntual (ex.: tecnologia). */
+  autoFocusField?: ElementField;
   onSubmit: (v: ElementFormValues) => void;
 }
 
 /** Formulário genérico de elemento. Quem chama escolhe os campos, porque a
  *  pergunta do card às vezes quer só um deles (por exemplo, só a tecnologia). */
-export function ElementForm({ fields, initial, submitLabel, autoFocus, onSubmit }: Props) {
+export function ElementForm({ fields, initial, submitLabel, autoFocus, autoFocusField, onSubmit }: Props) {
   const blank: ElementFormValues = {
     name: initial?.name ?? "",
     description: initial?.description ?? "",
@@ -103,7 +106,7 @@ export function ElementForm({ fields, initial, submitLabel, autoFocus, onSubmit 
             <span className="mono-label">{LABELS[f]}</span>
             <input
               className={styles.input}
-              autoFocus={autoFocus && i === 0}
+              autoFocus={autoFocusField ? f === autoFocusField : autoFocus && i === 0}
               value={v[f]}
               placeholder={PLACEHOLDERS[f]}
               onChange={(e) => setV({ ...v, [f]: e.target.value })}
