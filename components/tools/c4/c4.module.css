@@ -22,13 +22,6 @@
   min-height: 40px; /* reservado: o seletor de view muda de largura conforme o modelo cresce */
 }
 
-.exportGroup {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
 .canvas {
   position: relative;
   flex: 1;
@@ -189,21 +182,10 @@
   text-align: left;
   cursor: pointer;
 }
-.ghost {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 11px;
-  color: var(--color-muted);
-  cursor: pointer;
-}
-.dismiss:hover,
-.ghost:hover {
+.dismiss:hover {
   color: var(--color-accent-cyan);
 }
-.dismiss:focus-visible,
-.ghost:focus-visible {
+.dismiss:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 3px;

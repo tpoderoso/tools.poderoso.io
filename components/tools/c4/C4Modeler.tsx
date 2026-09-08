@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FileCode, FileText, FolderOpen, Image as ImageIcon, Save, Sparkles, Workflow } from "lucide-react";
 import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
 import { toastError } from "@/components/ui/Toaster";
@@ -187,43 +188,59 @@ export function C4Modeler() {
             options={views.map((v) => ({ value: v.id, label: v.title }))}
           />
           <div style={{ flex: "1 1 0", minWidth: 8 }} />
-          <button
-            type="button"
-            className={styles.ghost}
-            onClick={() => {
-              if (model.elements.length > 0 && !confirm("Isso substitui o modelo atual pelo exemplo. Continuar?"))
-                return;
-              setModel(exampleModel());
-            }}
-          >
-            ver um exemplo
-          </button>
-          <div className={styles.exportGroup}>
-            <button type="button" className={styles.ghost} onClick={exportSvg}>svg</button>
-            <button type="button" className={styles.ghost} onClick={exportPng}>png</button>
+          <div className="mmd-btn-group">
             <button
               type="button"
-              className={styles.ghost}
+              title="ver um exemplo"
+              className="mmd-tool-btn"
+              style={{ width: 32 }}
+              onClick={() => {
+                if (model.elements.length > 0 && !confirm("Isso substitui o modelo atual pelo exemplo. Continuar?"))
+                  return;
+                setModel(exampleModel());
+              }}
+            >
+              <Sparkles size={15} style={{ verticalAlign: "middle" }} />
+            </button>
+          </div>
+          <div className="mmd-btn-group">
+            <button type="button" title="baixar .svg" className="mmd-tool-btn" style={{ width: 32 }} onClick={exportSvg}>
+              <FileCode size={15} style={{ verticalAlign: "middle" }} />
+            </button>
+            <button type="button" title="baixar .png (2x)" className="mmd-tool-btn" style={{ width: 32 }} onClick={exportPng}>
+              <ImageIcon size={15} style={{ verticalAlign: "middle" }} />
+            </button>
+            <button
+              type="button"
+              title="baixar Structurizr DSL"
+              className="mmd-tool-btn"
+              style={{ width: 32 }}
               onClick={() => exportText(toStructurizrDsl(model), `${model.name}.dsl`, "text/plain")}
             >
-              structurizr
+              <FileText size={15} style={{ verticalAlign: "middle" }} />
             </button>
             <button
               type="button"
-              className={styles.ghost}
+              title="baixar Mermaid C4"
+              className="mmd-tool-btn"
+              style={{ width: 32 }}
               onClick={() => exportText(toMermaidC4(model, active), `c4-${active}.mmd`, "text/plain")}
             >
-              mermaid
+              <Workflow size={15} style={{ verticalAlign: "middle" }} />
             </button>
+          </div>
+          <div className="mmd-btn-group">
             <button
               type="button"
-              className={styles.ghost}
+              title="salvar modelo (.json)"
+              className="mmd-tool-btn"
+              style={{ width: 32 }}
               onClick={() => exportText(JSON.stringify(model, null, 2), `${model.name}.c4.json`, "application/json")}
             >
-              salvar
+              <Save size={15} style={{ verticalAlign: "middle" }} />
             </button>
-            <label className={styles.ghost} style={{ cursor: "pointer" }}>
-              abrir
+            <label title="abrir modelo (.json)" className="mmd-tool-btn" style={{ width: 32, display: "grid", placeItems: "center", cursor: "pointer" }}>
+              <FolderOpen size={15} style={{ verticalAlign: "middle" }} />
               <input
                 type="file"
                 accept="application/json,.json"
