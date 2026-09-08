@@ -1,167 +1,104 @@
 "use client";
 
-import { Fragment, useState } from "react";
-import { Plus, X } from "lucide-react";
-import { addElement, childrenOf, removeElement, type C4Model, type ElementKind } from "@/lib/tools/c4/model";
-import { ElementForm, type ElementField, type ElementFormValues } from "./ElementForm";
+import { AppWindow, Box, Container, Database, Folder, Layers, Package, Pencil, Plus, Smartphone, Terminal, User, X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { childrenOf, type C4Element, type C4Model } from "@/lib/tools/c4/model";
+import { shapeFor, type Shape } from "@/lib/tools/c4/shape";
 import styles from "./c4.module.css";
+
+/** Ícone por forma. "system" não é uma forma — o sistema usa Box, tratado
+ *  fora desta tabela, porque shapeFor sempre devolve "default" para ele. */
+const ICON: Record<Shape, LucideIcon> = {
+  person: User,
+  default: Container,
+  database: Database,
+  queue: Layers,
+  browser: AppWindow,
+  mobile: Smartphone,
+  cli: Terminal,
+  folder: Folder,
+  blob: Package,
+};
 
 interface Props {
   model: C4Model;
-  onModel: (fn: (m: C4Model) => C4Model) => void;
-  /** clicar num item leva o diagrama para a view onde ele aparece */
-  onFocus: (id: string) => void;
+  selected: string | null;
+  onSelect: (id: string) => void;
+  onEdit: (id: string) => void;
+  onAdd: () => void;
+  onRemove: (id: string) => void;
 }
 
-/** Chave do formulário aberto: o tipo a criar mais o pai, quando houver. */
-type Adding = { kind: ElementKind; parent?: string } | null;
-
-export function ModelTree({ model, onModel, onFocus }: Props) {
-  const [adding, setAdding] = useState<Adding>(null);
-
-  const persons = model.elements.filter((e) => e.kind === "person");
-  const systems = model.elements.filter((e) => e.kind === "system");
-
-  const openForm = (kind: ElementKind, parent?: string) =>
-    setAdding((a) => (a?.kind === kind && a?.parent === parent ? null : { kind, parent }));
-
-  const submit = (kind: ElementKind, parent: string | undefined, v: ElementFormValues) => {
-    onModel((m) =>
-      addElement(m, {
-        kind,
-        name: v.name,
-        description: v.description,
-        technology: v.technology || undefined,
-        external: v.external,
-        parent,
-        tags: v.shape === "default" ? undefined : [v.shape],
-      }),
-    );
-    setAdding(null);
-  };
-
-  const form = (kind: ElementKind, parent?: string) =>
-    adding?.kind === kind && adding?.parent === parent ? (
-      <ElementForm
-        autoFocus
-        submitLabel="adicionar"
-        fields={fieldsFor(kind)}
-        onSubmit={(v) => submit(kind, parent, v)}
-      />
-    ) : null;
-
-  const item = (id: string, name: string, meta: string, strong = false) => (
-    <li key={id} className={styles.treeItem}>
-      <button
-        type="button"
-        className={strong ? `${styles.treeName} ${styles.treeNameStrong}` : styles.treeName}
-        onClick={() => onFocus(id)}
-      >
-        {name}
-      </button>
-      <span className={styles.treeMeta}>{meta}</span>
-      <span className={styles.treeSpacer} />
-      <button
-        type="button"
-        className={styles.treeDelBtn}
-        aria-label={`remover ${name}`}
-        title={`remover ${name}`}
-        onClick={() => onModel((m) => removeElement(m, id))}
-      >
-        <X size={13} />
-      </button>
-    </li>
-  );
+export function ModelTree({ model, selected, onSelect, onEdit, onAdd, onRemove }: Props) {
+  const roots = model.elements.filter((e) => !e.parent);
 
   return (
     <div className={styles.tree}>
-      <Section title="pessoas" count={persons.length} onAdd={() => openForm("person")}>
-        <ul className={styles.treeList}>
-          {persons.map((p) => item(p.id, p.name, p.external ? "externa" : "", true))}
-        </ul>
-        {form("person")}
-      </Section>
+      <header className={styles.treeHead}>
+        <span className="mono-label mono-label--wide">{"// modelo"}</span>
+        <span className={styles.treeCount}>{model.elements.length}</span>
+        <span className={styles.treeSpacer} />
+        <button type="button" className={styles.treeAddBtn} aria-label="adicionar elemento" title="adicionar elemento" onClick={onAdd}>
+          <Plus size={13} />
+        </button>
+      </header>
 
-      <Section title="sistemas" count={systems.length} onAdd={() => openForm("system")}>
-        <ul className={styles.treeList}>
-          {systems.map((s) => (
-            <Fragment key={s.id}>
-              {item(s.id, s.name, s.external ? "externo" : "", true)}
-              {!s.external && (
-                <li>
-                  <div className={styles.treeNest}>
-                    <ul className={styles.treeList}>
-                      {childrenOf(model, s.id).map((c) => (
-                        <Fragment key={c.id}>
-                          {item(c.id, c.name, c.technology ?? "")}
-                          <li>
-                            <div className={styles.treeNest}>
-                              <ul className={styles.treeList}>
-                                {childrenOf(model, c.id).map((k) => item(k.id, k.name, k.technology ?? ""))}
-                              </ul>
-                              <button
-                                type="button"
-                                className={styles.treeAddChild}
-                                onClick={() => openForm("component", c.id)}
-                              >
-                                <Plus size={12} />
-                                componente
-                              </button>
-                              {form("component", c.id)}
-                            </div>
-                          </li>
-                        </Fragment>
-                      ))}
-                    </ul>
-                    <button
-                      type="button"
-                      className={styles.treeAddChild}
-                      onClick={() => openForm("container", s.id)}
-                    >
-                      <Plus size={12} />
-                      container
-                    </button>
-                    {form("container", s.id)}
-                  </div>
-                </li>
-              )}
-            </Fragment>
-          ))}
-        </ul>
-        {form("system")}
-      </Section>
+      {roots.length === 0 && <p className={styles.hint}>Nada ainda. Use o + para adicionar.</p>}
+
+      <ul className={styles.treeList}>
+        {roots.map((e) => (
+          <Node key={e.id} model={model} el={e} selected={selected} onSelect={onSelect} onEdit={onEdit} onRemove={onRemove} />
+        ))}
+      </ul>
     </div>
   );
 }
 
-function fieldsFor(kind: ElementKind): ElementField[] {
-  if (kind === "container" || kind === "component") return ["name", "description", "technology", "shape"];
-  if (kind === "system" || kind === "person") return ["name", "description", "external"];
-  return ["name", "description"];
-}
-
-function Section({
-  title,
-  count,
-  onAdd,
-  children,
+function Node({
+  model,
+  el,
+  selected,
+  onSelect,
+  onEdit,
+  onRemove,
 }: {
-  title: string;
-  count: number;
-  onAdd: () => void;
-  children: React.ReactNode;
+  model: C4Model;
+  el: C4Element;
+  selected: string | null;
+  onSelect: (id: string) => void;
+  onEdit: (id: string) => void;
+  onRemove: (id: string) => void;
 }) {
+  const kids = childrenOf(model, el.id);
+  // sistema e pessoa usam ícone por kind; o resto usa a forma deduzida
+  const Icon = el.kind === "system" ? Box : ICON[shapeFor(el)];
+  const meta = el.external ? (el.kind === "person" ? "externa" : "externo") : (el.technology ?? "");
+
   return (
-    <section className={styles.treeSection}>
-      <header className={styles.treeHead}>
-        <span className="mono-label mono-label--wide">{`// ${title}`}</span>
-        <span className={styles.treeCount}>{count}</span>
-        <span className={styles.treeSpacer} />
-        <button type="button" className={styles.treeAddBtn} aria-label={`adicionar ${title}`} title={`adicionar ${title}`} onClick={onAdd}>
-          <Plus size={13} />
+    <>
+      <li className={selected === el.id ? `${styles.treeItem} ${styles.treeItemOn}` : styles.treeItem}>
+        <button type="button" className={styles.treeName} onClick={() => onSelect(el.id)}>
+          <Icon size={13} style={{ flex: "0 0 auto" }} />
+          <span>{el.name}</span>
         </button>
-      </header>
-      {children}
-    </section>
+        <span className={styles.treeMeta}>{meta}</span>
+        <span className={styles.treeSpacer} />
+        <button type="button" className={styles.treeDelBtn} aria-label={`editar ${el.name}`} title={`editar ${el.name}`} onClick={() => onEdit(el.id)}>
+          <Pencil size={12} />
+        </button>
+        <button type="button" className={styles.treeDelBtn} aria-label={`remover ${el.name}`} title={`remover ${el.name}`} onClick={() => onRemove(el.id)}>
+          <X size={13} />
+        </button>
+      </li>
+      {kids.length > 0 && (
+        <li>
+          <ul className={`${styles.treeList} ${styles.treeNest}`}>
+            {kids.map((k) => (
+              <Node key={k.id} model={model} el={k} selected={selected} onSelect={onSelect} onEdit={onEdit} onRemove={onRemove} />
+            ))}
+          </ul>
+        </li>
+      )}
+    </>
   );
 }

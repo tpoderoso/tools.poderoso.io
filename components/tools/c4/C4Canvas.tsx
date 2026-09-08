@@ -26,6 +26,7 @@ interface Props {
   onToggleFullscreen: () => void;
   onAutoLayout: () => void;
   canAutoLayout: boolean;
+  onAddChild: (parentId: string) => void;
 }
 
 export function C4Canvas({
@@ -41,6 +42,7 @@ export function C4Canvas({
   onToggleFullscreen,
   onAutoLayout,
   canAutoLayout,
+  onAddChild,
 }: Props) {
   // a chave de refit muda quando entra ou sai um nó, e ao trocar de view; não
   // muda ao arrastar, senão a tela pularia no meio do arrasto
@@ -210,6 +212,11 @@ export function C4Canvas({
                 onPointerUp={endDrag}
                 onSelect={() => onSelect(box.id)}
                 onOpen={() => onOpen?.(box.id)}
+                onAddChild={
+                  (el.kind === "system" && !el.external) || el.kind === "container"
+                    ? () => onAddChild(box.id)
+                    : undefined
+                }
               />
             );
           })}

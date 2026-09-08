@@ -5,6 +5,7 @@ import { shapeFor, type Shape } from "@/lib/tools/c4/shape";
 import { truncate, wrap } from "@/lib/tools/c4/text";
 import type { C4Element, ElementKind } from "@/lib/tools/c4/model";
 import type { Box } from "@/lib/tools/c4/layout";
+import styles from "./c4.module.css";
 
 const KIND_COLOR: Record<ElementKind, string> = {
   person: "var(--color-secondary)",
@@ -145,6 +146,7 @@ interface Props {
   onPointerUp: () => void;
   onSelect: () => void;
   onOpen?: () => void;
+  onAddChild?: () => void;
 }
 
 export function ElementShape({
@@ -157,6 +159,7 @@ export function ElementShape({
   onPointerUp,
   onSelect,
   onOpen,
+  onAddChild,
 }: Props) {
   const shape = shapeFor(el);
   const color = el.external && el.kind === "system" ? "var(--color-muted)" : KIND_COLOR[el.kind];
@@ -220,6 +223,31 @@ export function ElementShape({
             style={{ fill: color }}
           >
             {`⊞ ${childCount}`}
+          </text>
+        </g>
+      )}
+      {childCount === 0 && onAddChild && (
+        <g
+          className={styles.addBadge}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddChild();
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          <rect
+            x={box.x + box.w - 86}
+            y={ty + 6}
+            width={78}
+            height={18}
+            rx={4}
+            strokeWidth={1}
+            strokeDasharray="3 2"
+            style={{ fill: "var(--color-bg)", stroke: "var(--color-faint)" }}
+          />
+          <text x={box.x + box.w - 47} y={ty + 19} fontSize={10} textAnchor="middle" style={{ fill: "var(--color-faint)" }}>
+            + detalhar
           </text>
         </g>
       )}

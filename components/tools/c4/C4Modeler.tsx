@@ -6,15 +6,14 @@ import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
 import { toastError } from "@/components/ui/Toaster";
 import { exampleModel } from "@/lib/tools/c4/example";
-import { byId, childrenOf, clearLayout, emptyModel, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
+import { byId, childrenOf, clearLayout, emptyModel, removeElement, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
 import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
-import { suggest } from "@/lib/tools/c4/suggest";
 import { toMermaidC4, toStructurizrDsl } from "@/lib/tools/c4/export";
 import { downloadBlob, svgToPngBlob } from "@/lib/tools/mermaidExport";
 import { C4Canvas } from "./C4Canvas";
 import { ModelTree } from "./ModelTree";
-import { SuggestionCard } from "./SuggestionCard";
+import { ElementDrawer, type DrawerState } from "./ElementDrawer";
 import styles from "./c4.module.css";
 
 const STORAGE_KEY = "tools.poderoso.io/c4";
@@ -49,6 +48,7 @@ export function C4Modeler() {
   const [model, setModel] = useState(emptyModel);
   const [viewId, setViewId] = useState<ViewId>("landscape");
   const [selected, setSelected] = useState<string | null>(null);
+  const [drawer, setDrawer] = useState<DrawerState | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
 
@@ -148,7 +148,6 @@ export function C4Modeler() {
       .catch(() => toastError("Não foi possível ler o arquivo."));
   };
 
-  const pending = useMemo(() => suggest(model), [model]);
   const onModel = (fn: (m: C4Model) => C4Model) => setModel(fn);
 
   /** Abre a view em que o elemento aparece: componente vai para a view do
@@ -268,8 +267,17 @@ export function C4Modeler() {
         </div>
         <div className={styles.split}>
           <aside className={styles.panel}>
-            <SuggestionCard model={model} suggestion={pending[0]} onModel={onModel} />
-            <ModelTree model={model} onModel={onModel} onFocus={focusOn} />
+            <ModelTree
+              model={model}
+              selected={selectedAlive}
+              onSelect={(id) => {
+                setSelected(id);
+                focusOn(id);
+              }}
+              onEdit={(id) => setDrawer({ mode: "edit", id })}
+              onAdd={() => setDrawer({ mode: "create" })}
+              onRemove={(id) => onModel((m) => removeElement(m, id))}
+            />
           </aside>
           <C4Canvas
             view={view}
@@ -288,7 +296,13 @@ export function C4Modeler() {
               setModel((m) => clearLayout(m, active));
             }}
             canAutoLayout={Object.keys(model.layout[active] ?? {}).length > 0}
+            onAddChild={(parentId) => {
+              const el = byId(model, parentId);
+              if (!el) return;
+              setDrawer({ mode: "create", kind: el.kind === "system" ? "container" : "component", parent: parentId });
+            }}
           />
+          {drawer && <ElementDrawer model={model} state={drawer} onModel={onModel} onClose={() => setDrawer(null)} />}
         </div>
       </div>
     </ToolPanel>
