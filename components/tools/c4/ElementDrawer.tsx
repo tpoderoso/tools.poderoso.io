@@ -119,7 +119,7 @@ function CreateFlow({
         technology: v.technology || undefined,
         external: state.external ?? v.external,
         parent: state.parent,
-        tags: v.shape === "default" ? undefined : [v.shape],
+        tags: [v.shape],
       });
       const created = next.elements[next.elements.length - 1];
       if (!to || !label.trim()) return next;
@@ -207,7 +207,7 @@ function CreateFlow({
           </button>
         )}
         <span style={{ flex: "1 1 0" }} />
-        {step >= 3 && (
+        {step === 4 && (
           <PrimaryButton disabled={!values?.name.trim()} onClick={() => values && finish(values)}>
             concluir
           </PrimaryButton>
@@ -269,7 +269,7 @@ function EditForm({
                 description: v.description,
                 technology: v.technology || undefined,
                 external: v.external,
-                tags: v.shape === "default" ? undefined : [v.shape],
+                tags: [v.shape],
               }),
             );
             onClose();

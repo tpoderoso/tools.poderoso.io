@@ -56,7 +56,7 @@ export function ElementForm({ fields, initial, submitLabel, autoFocus, autoFocus
   const [v, setV] = useState(blank);
   /** Enquanto a pessoa não escolher forma à mão, a forma acompanha a
    *  tecnologia. No instante em que ela escolhe, o palpite para de mandar. */
-  const [shapeTouched, setShapeTouched] = useState(initial?.shape !== undefined);
+  const [shapeTouched, setShapeTouched] = useState(initial?.shape !== undefined && initial.shape !== "default");
   const guessed = shapeTouched ? v.shape : shapeFor({ kind: "container", technology: v.technology });
 
   const canSubmit = !fields.includes("name") || v.name.trim().length > 0;

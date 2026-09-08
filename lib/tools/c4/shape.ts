@@ -21,8 +21,8 @@ const KEYWORDS: readonly (readonly [Shape, readonly string[]])[] = [
   ["queue", ["kafka", "sqs", "rabbit", "pubsub", "pub/sub", "nats", "sns", "event hub", "kinesis"]],
   ["blob", ["s3", "bucket", "blob", "gcs", "cloud storage", "minio"]],
   ["mobile", ["react native", "ios", "android", "flutter", "swift", "kotlin", "mobile"]],
-  ["browser", ["react", "next", "vue", "angular", "svelte", "spa", "single-page"]],
-  ["cli", ["cli", "cron", "worker", "batch", "daemon", "script", "shell", "console"]],
+  ["browser", ["react", "next", "vue", "angular", "svelte", "single-page"]],
+  ["cli", ["cli", "cron", "worker", "batch", "daemon", "shell", "console"]],
   ["folder", ["ldap", "active directory", "file system", "filesystem", "nfs"]],
 ];
 
@@ -76,4 +76,7 @@ if (process.env.NODE_ENV !== "production") {
   eq(shapeFor(c("Elixir")), "default", "tecnologia desconhecida vira padrão");
   eq(shapeFor(c()), "default", "sem tecnologia vira padrão");
   eq(shapeFor(c(undefined, ["person"])), "default", "tag 'person' não se aplica a container");
+  eq(shapeFor(c("TypeScript")), "default", "TypeScript não é terminal");
+  eq(shapeFor(c("JavaScript")), "default", "JavaScript não é terminal");
+  eq(shapeFor(c("Apache Spark")), "default", "Spark não é browser (evitar 'spa' por substring)");
 }
