@@ -170,6 +170,18 @@ export function setPosition(
   };
 }
 
+/**
+ * Descarta as posições arrastadas de uma view, devolvendo o comando ao
+ * autoLayout. Retorna o próprio modelo quando não há nada a limpar — assim
+ * quem chama pode comparar por identidade para decidir se pede confirmação.
+ */
+export function clearLayout(model: C4Model, viewId: string): C4Model {
+  if (!model.layout[viewId]) return model;
+  const layout = { ...model.layout };
+  delete layout[viewId];
+  return { ...model, layout };
+}
+
 export function dismiss(model: C4Model, suggestionId: string): C4Model {
   if (model.dismissed.includes(suggestionId)) return model;
   return { ...model, dismissed: [...model.dismissed, suggestionId] };
@@ -341,4 +353,14 @@ if (process.env.NODE_ENV !== "production") {
 
   eq(sanitizeModel(null), null, "sanitizeModel rejeita não-objeto");
   eq(sanitizeModel({ version: 2, elements: [], relations: [] }), null, "sanitizeModel rejeita versão errada");
+
+  // clearLayout: apaga as posições de UMA view, sem tocar nas outras
+  {
+    const base = emptyModel();
+    const comPos = setPosition(setPosition(base, "landscape", "a", { x: 1, y: 2 }), "container:s", "b", { x: 3, y: 4 });
+    const limpo = clearLayout(comPos, "landscape");
+    if (limpo.layout.landscape !== undefined) throw new Error("c4/model clearLayout: a view limpa continuou no layout");
+    if (limpo.layout["container:s"]?.b?.x !== 3) throw new Error("c4/model clearLayout: mexeu na view errada");
+    if (clearLayout(base, "landscape") !== base) throw new Error("c4/model clearLayout: view sem posição deveria ser no-op");
+  }
 }

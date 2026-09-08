@@ -6,7 +6,7 @@ import { ToolPanel } from "@/components/ui/ToolPanel";
 import { Select } from "@/components/ui/Select";
 import { toastError } from "@/components/ui/Toaster";
 import { exampleModel } from "@/lib/tools/c4/example";
-import { byId, childrenOf, emptyModel, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
+import { byId, childrenOf, clearLayout, emptyModel, sanitizeModel, setPosition, type C4Model, type ViewId } from "@/lib/tools/c4/model";
 import { availableViews, buildView, parseViewId } from "@/lib/tools/c4/views";
 import { autoLayout } from "@/lib/tools/c4/layout";
 import { suggest } from "@/lib/tools/c4/suggest";
@@ -277,8 +277,12 @@ export function C4Modeler() {
             svgRef={svgRef}
             frameRef={frameRef}
             onToggleFullscreen={toggleFullscreen}
-            onAutoLayout={() => {}}
-            canAutoLayout={false}
+            onAutoLayout={() => {
+              const positioned = Object.keys(model.layout[active] ?? {}).length;
+              if (positioned && !confirm("Isso descarta as posições que você arrastou nesta view. Continuar?")) return;
+              setModel((m) => clearLayout(m, active));
+            }}
+            canAutoLayout={Object.keys(model.layout[active] ?? {}).length > 0}
           />
         </div>
       </div>
