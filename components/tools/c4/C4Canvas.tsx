@@ -77,14 +77,46 @@ export function C4Canvas({
     dragRef.current = null;
   };
 
+  // distingue "clique parado no fundo" de "clique residual ao soltar um pan":
+  // usePanZoom já captura o ponteiro e arrasta a partir de 3px, mas não suprime
+  // o click nativo que o navegador dispara ao soltar no mesmo elemento — sem
+  // isso, arrastar o fundo pra olhar outra parte do diagrama apaga a seleção.
+  const panStart = useRef<{ x: number; y: number } | null>(null);
+  const panMoved = useRef(false);
+
+  const onViewportPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    panStart.current = { x: e.clientX, y: e.clientY };
+    panMoved.current = false;
+    pointerHandlers.onPointerDown(e);
+  };
+
+  const onViewportPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (panStart.current) {
+      const dx = e.clientX - panStart.current.x;
+      const dy = e.clientY - panStart.current.y;
+      if (Math.abs(dx) + Math.abs(dy) >= 3) panMoved.current = true;
+    }
+    pointerHandlers.onPointerMove(e);
+  };
+
+  const onViewportClick = () => {
+    if (panMoved.current) {
+      panMoved.current = false;
+      return;
+    }
+    onSelect(null);
+  };
+
   return (
     <div className={styles.canvas} ref={frameRef}>
       <div
         ref={viewportRef}
         {...pointerHandlers}
+        onPointerDown={onViewportPointerDown}
+        onPointerMove={onViewportPointerMove}
+        onClick={onViewportClick}
         className={styles.viewport}
         style={{ cursor: grabbing ? "grabbing" : "grab" }}
-        onClick={() => onSelect(null)}
       >
         <svg
           ref={svgRef}
