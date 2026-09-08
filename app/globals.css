@@ -278,6 +278,26 @@ textarea {
   color: var(--color-fg);
 }
 
+/* botão secundário com texto (ex.: "colar da área de transferência", "ver o exemplo") */
+.btn-copy-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-muted-soft);
+  cursor: pointer;
+}
+
+.btn-copy-text:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-fg);
+}
+
 /* botões de barra de ferramentas (mermaid + markdown) */
 .mmd-icon-btn {
   display: flex;
@@ -704,13 +724,26 @@ textarea {
   font-size: 10.5px;
 }
 
+/* marca ferramentas com mobileDisabled (lib/nav.ts) na busca/índice/paleta */
+.desktop-only-tag {
+  color: var(--color-muted);
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 @media (max-width: 767px) {
   .tool-panel {
     padding: 16px;
   }
 
   .header-dots,
-  .header-visit-counter {
+  .header-visit-counter,
+  .header-cmdk-key,
+  .header-back-link-label {
     display: none;
   }
 

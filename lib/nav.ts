@@ -5,6 +5,7 @@ export type ToolId =
   | "sql"
   | "xsdval"
   | "mermaid"
+  | "c4"
   | "md"
   | "cpf"
   | "cnpj"
@@ -30,6 +31,8 @@ export interface NavItem {
   path: string;
   description: string;
   shortcut?: string;
+  /** Ferramenta não funciona bem em telas pequenas: fica visível (busca/índice) mas desabilitada no mobile. */
+  mobileDisabled?: boolean;
 }
 
 export interface NavGroup {
@@ -82,6 +85,7 @@ export const NAV_GROUPS: NavGroup[] = [
         path: "~/convert/epoch",
         description: "converte data/hora ↔ epoch e mostra em vários fusos GMT",
         shortcut: "g e",
+        mobileDisabled: true,
       },
       {
         id: "md",
@@ -90,6 +94,7 @@ export const NAV_GROUPS: NavGroup[] = [
         path: "~/view/markdown",
         description: "renderiza markdown colado, com controles de leitura",
         shortcut: "g m",
+        mobileDisabled: true,
       },
       {
         id: "mermaid",
@@ -97,6 +102,15 @@ export const NAV_GROUPS: NavGroup[] = [
         seoTitle: "Visualizador de diagramas Mermaid",
         path: "~/diagram/mermaid",
         description: "visualiza e navega diagramas Mermaid com zoom e arraste",
+        mobileDisabled: true,
+      },
+      {
+        id: "c4",
+        label: "C4 Model",
+        seoTitle: "Gerador de C4 Model online",
+        path: "~/diagram/c4",
+        description: "monta o C4 model do seu sistema respondendo perguntas",
+        mobileDisabled: true,
       },
     ],
   },

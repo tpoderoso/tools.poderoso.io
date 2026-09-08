@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="240" viewBox="0 0 480 240">
+  <style>
+    .m { font-family: "Liberation Mono","Noto Sans Mono",monospace; font-size: 13px; fill: #f8f8f2; }
+    .s { font-family: "Liberation Sans","Noto Sans",sans-serif; font-size: 10px; fill: #7f8bb5; }
+  </style>
+  <rect x="0.5" y="0.5" width="479" height="239" rx="10" fill="#191a21" stroke="#343746"/>
+
+  <!-- coluna 1 -->
+  <g>
+    <circle cx="34" cy="26" r="6" fill="none" stroke="#bd93f9" stroke-width="1.5"/>
+    <rect x="26" y="34" width="16" height="18" rx="6" fill="none" stroke="#bd93f9" stroke-width="1.5"/>
+    <text class="m" x="60" y="42">Pessoa</text>
+    <text class="s" x="60" y="56">quem usa o sistema</text>
+  </g>
+
+  <g>
+    <rect x="20" y="76" width="44" height="26" rx="4" fill="#282a36" stroke="#50fa7b" stroke-width="1.5"/>
+    <text class="m" x="76" y="95">Sistema</text>
+    <text class="s" x="76" y="109">o que você desenha</text>
+  </g>
+
+  <g>
+    <rect x="20" y="134" width="44" height="26" rx="4" fill="#282a36" stroke="#8290bd" stroke-width="1.5"/>
+    <text class="m" x="76" y="153">Sist. externo</text>
+    <text class="s" x="76" y="167">fora da sua empresa</text>
+  </g>
+
+  <g>
+    <rect x="20" y="192" width="44" height="26" rx="4" fill="#282a36" stroke="#8be9fd" stroke-width="1.5"/>
+    <text class="m" x="76" y="211">Container</text>
+    <text class="s" x="76" y="225">app, api, banco...</text>
+  </g>
+
+  <!-- coluna 2 -->
+  <g>
+    <rect x="252" y="18" width="44" height="26" rx="4" fill="#282a36" stroke="#ff79c6" stroke-width="1.5"/>
+    <text class="m" x="308" y="30">Componente</text>
+    <text class="s" x="308" y="44">peça de dentro do container</text>
+  </g>
+
+  <g>
+    <path d="M252 68 V88 A22 6 0 0 0 296 88 V68" fill="#282a36" stroke="#8be9fd" stroke-width="1.5"/>
+    <ellipse cx="274" cy="68" rx="22" ry="6" fill="#282a36" stroke="#8be9fd" stroke-width="1.5"/>
+    <text class="m" x="308" y="80">Banco de dados</text>
+    <text class="s" x="308" y="94">forma pela tecnologia</text>
+  </g>
+
+  <g>
+    <line x1="252" y1="136" x2="296" y2="136" stroke="#9aa0bf" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text class="m" x="308" y="132">Relação</text>
+    <text class="s" x="308" y="146">"consulta saldo"</text>
+  </g>
+
+  <g>
+    <line x1="252" y1="188" x2="296" y2="188" stroke="#9aa0bf" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+    <text class="m" x="308" y="184">Relação implícita</text>
+    <text class="s" x="308" y="198">elevada de um nível abaixo</text>
+  </g>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa0bf"/>
+    </marker>
+  </defs>
+</svg>

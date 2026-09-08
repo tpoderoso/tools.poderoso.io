@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="270" viewBox="0 0 460 270">
+  <style>
+    .m { font-family: "Liberation Mono","Noto Sans Mono",monospace; }
+    .s { font-family: "Liberation Sans","Noto Sans",sans-serif; }
+    .tag { font-size: 10px; fill: #7f8bb5; }
+    .lbl { font-size: 11px; fill: #cdd0de; }
+    .rel { font-size: 9.5px; fill: #9aa0bf; }
+  </style>
+  <rect x="0.5" y="0.5" width="459" height="269" rx="10" fill="#191a21" stroke="#343746"/>
+
+  <text class="s tag" x="20" y="26">Nível: Container — a relação é declarada aqui</text>
+
+  <!-- painel superior: container -->
+  <g>
+    <rect x="20" y="36" width="170" height="80" rx="6" fill="none" stroke="#50fa7b" stroke-width="1.3" stroke-dasharray="4 3"/>
+    <text class="m lbl" x="30" y="52" font-size="10" fill="#50fa7b">Checkout</text>
+    <rect x="34" y="62" width="60" height="26" rx="4" fill="#282a36" stroke="#8be9fd" stroke-width="1.5"/>
+    <text class="m lbl" x="64" y="79" text-anchor="middle" font-size="10">API</text>
+
+    <rect x="270" y="36" width="170" height="80" rx="6" fill="none" stroke="#50fa7b" stroke-width="1.3" stroke-dasharray="4 3"/>
+    <text class="m lbl" x="280" y="52" font-size="10" fill="#50fa7b">ERP</text>
+    <rect x="349" y="62" width="84" height="26" rx="4" fill="#282a36" stroke="#8be9fd" stroke-width="1.5"/>
+    <text class="m lbl" x="391" y="79" text-anchor="middle" font-size="9">Faturamento</text>
+
+    <line x1="94" y1="75" x2="349" y2="75" stroke="#9aa0bf" stroke-width="1.4" marker-end="url(#arrow1)"/>
+    <rect x="176" y="64" width="88" height="16" rx="3" fill="#191a21"/>
+    <text class="m rel" x="220" y="76" text-anchor="middle">confirma pedido</text>
+  </g>
+
+  <path d="M230 122 L230 142" stroke="#44475a" stroke-width="1.4"/>
+  <path d="M223 136 L230 144 L237 136" fill="none" stroke="#44475a" stroke-width="1.4"/>
+  <text class="s tag" x="240" y="140" font-size="9">a mesma relação sobe sozinha</text>
+
+  <text class="s tag" x="20" y="166">Nível: Landscape — aparece elevada, sem redigitar nada</text>
+
+  <!-- painel inferior: landscape -->
+  <g>
+    <rect x="60" y="180" width="80" height="40" rx="4" fill="#282a36" stroke="#50fa7b" stroke-width="1.5"/>
+    <text class="m lbl" x="100" y="204" text-anchor="middle" font-size="11">Checkout</text>
+
+    <rect x="320" y="180" width="80" height="40" rx="4" fill="#282a36" stroke="#50fa7b" stroke-width="1.5"/>
+    <text class="m lbl" x="360" y="204" text-anchor="middle" font-size="11">ERP</text>
+
+    <line x1="140" y1="200" x2="320" y2="200" stroke="#9aa0bf" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow2)"/>
+    <rect x="176" y="188" width="150" height="16" rx="3" fill="#191a21"/>
+    <text class="m rel" x="251" y="200" text-anchor="middle">confirma pedido (implícita)</text>
+  </g>
+
+  <defs>
+    <marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa0bf"/>
+    </marker>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa0bf"/>
+    </marker>
+  </defs>
+</svg>

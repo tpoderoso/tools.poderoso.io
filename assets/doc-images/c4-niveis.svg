@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="190" viewBox="0 0 560 190">
+  <style>
+    .m { font-family: "Liberation Mono","Noto Sans Mono",monospace; }
+    .s { font-family: "Liberation Sans","Noto Sans",sans-serif; }
+    .cap { font-size: 11px; fill: #7f8bb5; }
+    .lbl { font-size: 8.5px; fill: #cdd0de; }
+    .chev { stroke: #44475a; stroke-width: 2; fill: none; }
+  </style>
+  <rect width="560" height="190" fill="none"/>
+
+  <!-- painel 1: Panorama -->
+  <g>
+    <rect x="14" y="16" width="108" height="100" rx="8" fill="#191a21" stroke="#44475a" stroke-dasharray="4 3"/>
+    <circle cx="34" cy="36" r="4" fill="none" stroke="#bd93f9" stroke-width="1.3"/>
+    <rect x="29" y="41" width="10" height="12" rx="4" fill="none" stroke="#bd93f9" stroke-width="1.3"/>
+    <rect x="52" y="30" width="60" height="20" rx="3" fill="#282a36" stroke="#50fa7b" stroke-width="1.3"/>
+    <text class="m lbl" x="82" y="43" text-anchor="middle">Checkout</text>
+    <rect x="52" y="60" width="60" height="20" rx="3" fill="#282a36" stroke="#50fa7b" stroke-width="1.3"/>
+    <text class="m lbl" x="82" y="73" text-anchor="middle">ERP</text>
+    <rect x="52" y="90" width="60" height="18" rx="3" fill="#282a36" stroke="#8290bd" stroke-width="1.3"/>
+    <text class="m lbl" x="82" y="102" text-anchor="middle">Pagamento</text>
+    <path d="M39 47 L52 40" stroke="#44475a" stroke-width="1"/>
+    <path d="M82 50 L82 60" stroke="#44475a" stroke-width="1"/>
+    <path d="M82 80 L82 90" stroke="#44475a" stroke-width="1"/>
+  </g>
+  <path class="chev" d="M128 66 L140 66 M134 60 L140 66 L134 72"/>
+
+  <!-- painel 2: Contexto -->
+  <g>
+    <rect x="146" y="16" width="108" height="100" rx="8" fill="#191a21" stroke="#44475a" stroke-dasharray="4 3"/>
+    <circle cx="166" cy="34" r="4" fill="none" stroke="#bd93f9" stroke-width="1.3"/>
+    <rect x="161" y="39" width="10" height="12" rx="4" fill="none" stroke="#bd93f9" stroke-width="1.3"/>
+    <rect x="168" y="58" width="66" height="26" rx="3" fill="#282a36" stroke="#50fa7b" stroke-width="1.6"/>
+    <text class="m lbl" x="201" y="74" text-anchor="middle">Checkout</text>
+    <rect x="184" y="96" width="52" height="18" rx="3" fill="#282a36" stroke="#8290bd" stroke-width="1.3"/>
+    <text class="m lbl" x="210" y="108" text-anchor="middle">Pagamento</text>
+    <path d="M171 51 L185 60" stroke="#44475a" stroke-width="1"/>
+    <path d="M201 84 L210 96" stroke="#44475a" stroke-width="1"/>
+  </g>
+  <path class="chev" d="M260 66 L272 66 M266 60 L272 66 L266 72"/>
+
+  <!-- painel 3: Container -->
+  <g>
+    <rect x="278" y="16" width="120" height="100" rx="8" fill="#191a21" stroke="#44475a" stroke-dasharray="4 3"/>
+    <rect x="286" y="26" width="104" height="82" rx="6" fill="none" stroke="#44475a" stroke-dasharray="3 3"/>
+    <rect x="294" y="34" width="42" height="20" rx="3" fill="#282a36" stroke="#8be9fd" stroke-width="1.3"/>
+    <text class="m lbl" x="315" y="47" text-anchor="middle">Web</text>
+    <rect x="294" y="62" width="42" height="20" rx="3" fill="#282a36" stroke="#8be9fd" stroke-width="1.3"/>
+    <text class="m lbl" x="315" y="75" text-anchor="middle">API</text>
+    <path d="M346 44 Q352 44 352 50 L352 72 Q352 78 346 78" fill="none" stroke="#8be9fd" stroke-width="1.3"/>
+    <ellipse cx="365" cy="50" rx="16" ry="5" fill="#282a36" stroke="#8be9fd" stroke-width="1.3"/>
+    <path d="M349 50 V72 A16 5 0 0 0 381 72 V50" fill="#282a36" stroke="#8be9fd" stroke-width="1.3"/>
+    <text class="m lbl" x="365" y="66" text-anchor="middle">Banco</text>
+    <path d="M336 44 L349 50" stroke="#44475a" stroke-width="1"/>
+    <path d="M336 72 L349 66" stroke="#44475a" stroke-width="1"/>
+  </g>
+  <path class="chev" d="M404 66 L416 66 M410 60 L416 66 L410 72"/>
+
+  <!-- painel 4: Componente -->
+  <g>
+    <rect x="422" y="16" width="124" height="100" rx="8" fill="#191a21" stroke="#44475a" stroke-dasharray="4 3"/>
+    <rect x="430" y="26" width="108" height="82" rx="6" fill="none" stroke="#44475a" stroke-dasharray="3 3"/>
+    <rect x="438" y="38" width="90" height="18" rx="3" fill="#282a36" stroke="#ff79c6" stroke-width="1.3"/>
+    <text class="m lbl" x="483" y="50" text-anchor="middle">Pedido</text>
+    <rect x="438" y="62" width="90" height="18" rx="3" fill="#282a36" stroke="#ff79c6" stroke-width="1.3"/>
+    <text class="m lbl" x="483" y="74" text-anchor="middle">Cobrança</text>
+    <path d="M483 56 L483 62" stroke="#44475a" stroke-width="1"/>
+  </g>
+
+  <text class="s cap" x="68" y="132" text-anchor="middle">Panorama</text>
+  <text class="s cap" x="200" y="132" text-anchor="middle">Contexto</text>
+  <text class="s cap" x="338" y="132" text-anchor="middle">Container</text>
+  <text class="s cap" x="484" y="132" text-anchor="middle">Componente</text>
+  <text class="s" x="68" y="146" text-anchor="middle" font-size="9" fill="#7f8bb5">todos os sistemas</text>
+  <text class="s" x="200" y="146" text-anchor="middle" font-size="9" fill="#7f8bb5">um sistema e vizinhos</text>
+  <text class="s" x="338" y="146" text-anchor="middle" font-size="9" fill="#7f8bb5">de que partes é feito</text>
+  <text class="s" x="484" y="146" text-anchor="middle" font-size="9" fill="#7f8bb5">dentro de um container</text>
+</svg>

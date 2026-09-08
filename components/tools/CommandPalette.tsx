@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useToolSearch } from "@/lib/hooks/useToolSearch";
 import { useOpenTool } from "@/lib/hooks/useOpenTool";
+import { useIsMobile } from "@/lib/hooks/useIsMobile";
 
 /**
  * Overlay flutuante do Ctrl+K: filtra o índice e navega pra ferramenta.
@@ -14,6 +15,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState(0);
   const groups = useToolSearch(query);
   const openTool = useOpenTool();
+  const isMobile = useIsMobile();
   const selectedRef = useRef<HTMLDivElement>(null);
 
   const items = groups.flatMap((g) => g.items);
@@ -23,6 +25,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
   }, [selected]);
 
   function open(item: (typeof items)[number]) {
+    if (isMobile && item.mobileDisabled) return;
     openTool(item);
     onClose();
   }
@@ -121,29 +124,41 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
               {group.items.map((t) => {
                 const idx = items.indexOf(t);
                 const isSelected = idx === selected;
+                const disabled = isMobile && t.mobileDisabled;
                 return (
                   <div
                     key={t.id}
                     ref={isSelected ? selectedRef : undefined}
                     onClick={() => open(t)}
                     onMouseMove={() => setSelected(idx)}
-                    title={t.description}
+                    title={disabled ? "disponível só no desktop" : t.description}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: 10,
                       padding: "7px 18px",
-                      cursor: "pointer",
-                      color: isSelected ? "var(--color-primary)" : "var(--color-muted-soft)",
-                      background: isSelected ? "var(--color-primary-tint-strong)" : "transparent",
+                      cursor: disabled ? "not-allowed" : "pointer",
+                      color: disabled
+                        ? "var(--color-muted)"
+                        : isSelected
+                          ? "var(--color-primary)"
+                          : "var(--color-muted-soft)",
+                      background: !disabled && isSelected ? "var(--color-primary-tint-strong)" : "transparent",
+                      opacity: disabled ? 0.6 : 1,
                     }}
                   >
-                    <span style={{ color: "var(--color-primary)" }}>&gt;</span>
+                    <span style={{ color: disabled ? "var(--color-muted)" : "var(--color-primary)" }}>&gt;</span>
                     <span>{t.label}</span>
-                    {t.shortcut && (
-                      <span style={{ marginLeft: "auto", color: "var(--color-muted)", fontSize: 11 }}>
-                        {t.shortcut}
+                    {disabled ? (
+                      <span className="desktop-only-tag" style={{ marginLeft: "auto" }}>
+                        desktop
                       </span>
+                    ) : (
+                      t.shortcut && (
+                        <span style={{ marginLeft: "auto", color: "var(--color-muted)", fontSize: 11 }}>
+                          {t.shortcut}
+                        </span>
+                      )
                     )}
                   </div>
                 );
