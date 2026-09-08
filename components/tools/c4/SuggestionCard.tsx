@@ -26,7 +26,7 @@ interface Props {
 export function SuggestionCard({ model, suggestion, onModel }: Props) {
   if (!suggestion) {
     return (
-      <div className={styles.card}>
+      <div className={styles.card} key="done">
         <p className={styles.question}>Modelo completo.</p>
         <p className={styles.hint}>Use a árvore abaixo para adicionar o que quiser.</p>
       </div>
@@ -36,7 +36,7 @@ export function SuggestionCard({ model, suggestion, onModel }: Props) {
   const a = suggestion.action;
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} key={suggestion.id}>
       <p className={styles.question}>{suggestion.question}</p>
 
       {a.type === "add" && (

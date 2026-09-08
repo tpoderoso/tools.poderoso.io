@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import { Plus, X } from "lucide-react";
 import { addElement, childrenOf, removeElement, type C4Model, type ElementKind } from "@/lib/tools/c4/model";
 import { ElementForm, type ElementField, type ElementFormValues } from "./ElementForm";
 import styles from "./c4.module.css";
@@ -48,19 +49,25 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
       />
     ) : null;
 
-  const item = (id: string, name: string, meta: string) => (
+  const item = (id: string, name: string, meta: string, strong = false) => (
     <li key={id} className={styles.treeItem}>
-      <button type="button" className={styles.treeName} onClick={() => onFocus(id)}>
+      <button
+        type="button"
+        className={strong ? `${styles.treeName} ${styles.treeNameStrong}` : styles.treeName}
+        onClick={() => onFocus(id)}
+      >
         {name}
       </button>
       <span className={styles.treeMeta}>{meta}</span>
+      <span className={styles.treeSpacer} />
       <button
         type="button"
-        className={styles.treeDel}
+        className={styles.treeDelBtn}
         aria-label={`remover ${name}`}
+        title={`remover ${name}`}
         onClick={() => onModel((m) => removeElement(m, id))}
       >
-        ×
+        <X size={13} />
       </button>
     </li>
   );
@@ -68,7 +75,9 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
   return (
     <div className={styles.tree}>
       <Section title="pessoas" count={persons.length} onAdd={() => openForm("person")}>
-        <ul className={styles.treeList}>{persons.map((p) => item(p.id, p.name, p.external ? "externa" : ""))}</ul>
+        <ul className={styles.treeList}>
+          {persons.map((p) => item(p.id, p.name, p.external ? "externa" : "", true))}
+        </ul>
         {form("person")}
       </Section>
 
@@ -76,7 +85,7 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
         <ul className={styles.treeList}>
           {systems.map((s) => (
             <Fragment key={s.id}>
-              {item(s.id, s.name, s.external ? "externo" : "")}
+              {item(s.id, s.name, s.external ? "externo" : "", true)}
               {!s.external && (
                 <li>
                   <div className={styles.treeNest}>
@@ -91,10 +100,11 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
                               </ul>
                               <button
                                 type="button"
-                                className={styles.treeAdd}
+                                className={styles.treeAddChild}
                                 onClick={() => openForm("component", c.id)}
                               >
-                                + componente
+                                <Plus size={12} />
+                                componente
                               </button>
                               {form("component", c.id)}
                             </div>
@@ -102,8 +112,13 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
                         </Fragment>
                       ))}
                     </ul>
-                    <button type="button" className={styles.treeAdd} onClick={() => openForm("container", s.id)}>
-                      + container
+                    <button
+                      type="button"
+                      className={styles.treeAddChild}
+                      onClick={() => openForm("container", s.id)}
+                    >
+                      <Plus size={12} />
+                      container
                     </button>
                     {form("container", s.id)}
                   </div>
@@ -140,9 +155,9 @@ function Section({
       <header className={styles.treeHead}>
         <span className="mono-label mono-label--wide">{`// ${title}`}</span>
         <span className={styles.treeCount}>{count}</span>
-        <div style={{ flex: "1 1 0" }} />
-        <button type="button" className={styles.treeAdd} onClick={onAdd}>
-          +
+        <span className={styles.treeSpacer} />
+        <button type="button" className={styles.treeAddBtn} aria-label={`adicionar ${title}`} title={`adicionar ${title}`} onClick={onAdd}>
+          <Plus size={13} />
         </button>
       </header>
       {children}
