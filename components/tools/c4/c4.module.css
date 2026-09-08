@@ -16,10 +16,28 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 6px 16px;
   border-bottom: 1px solid var(--color-border);
   flex: 0 0 auto;
-  min-height: 40px; /* reservado: o seletor de view muda de largura conforme o modelo cresce */
+  min-height: 36px; /* reservado: o seletor de view muda de largura conforme o modelo cresce */
+}
+
+/* breadcrumb + descrição na mesma linha da barra (sem o padding de 28px do
+   ToolPanel genérico, que este tool dispensa — mesmo padrão do mermaid) */
+.barDash {
+  color: var(--color-faint);
+  font-size: 12px;
+}
+.barDesc {
+  color: var(--color-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .barDash,
+  .barDesc {
+    display: none;
+  }
 }
 
 .canvas {
@@ -98,13 +116,13 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(280px, 30%) 1fr;
+  grid-template-columns: minmax(220px, 22%) 1fr;
 }
 
 .panel {
   border-right: 1px solid var(--color-border);
   overflow-y: auto;
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 16px;

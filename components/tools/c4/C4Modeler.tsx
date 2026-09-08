@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, FileCode, FileText, FolderOpen, Image as ImageIcon, Save, Sparkles, Workflow } from "lucide-react";
-import { ToolPanel } from "@/components/ui/ToolPanel";
+import { AlertTriangle, FileCode, FilePlus2, FileText, FolderOpen, Image as ImageIcon, Save, Sparkles, Workflow } from "lucide-react";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Select } from "@/components/ui/Select";
 import { toastError } from "@/components/ui/Toaster";
 import { exampleModel } from "@/lib/tools/c4/example";
@@ -152,6 +152,16 @@ export function C4Modeler() {
 
   const onModel = (fn: (m: C4Model) => C4Model) => setModel(fn);
 
+  /** Descarta o modelo inteiro pra começar do zero. Fecha o drawer junto: um
+   *  `create` com `parent` de um elemento que acabou de sumir travaria o
+   *  `addElement` na hora de concluir. */
+  const handleNew = () => {
+    if (model.elements.length > 0 && !confirm("Isso apaga o modelo atual. Continuar?")) return;
+    setModel(emptyModel());
+    setSelected(null);
+    setDrawer(null);
+  };
+
   /** Cria a relação se ela for legal. `addRelation` já recusa ancestral,
    *  descendente e auto-relação lançando — aqui a rejeição é silenciosa de
    *  propósito: o feedback é a linha elástica sumir sem virar seta. */
@@ -190,153 +200,158 @@ export function C4Modeler() {
   }, [active, model]);
 
   return (
-    <ToolPanel path="~/diagram/c4" description="monta o C4 model do seu sistema respondendo perguntas">
-      <div className={styles.modeler}>
-        <div className={styles.bar}>
-          <nav className={styles.trail} aria-label="nível do diagrama">
-            {trail.map((step, i) => (
-              <span key={step.id}>
-                {i > 0 && <span className={styles.trailSep}>{"/"}</span>}
-                {step.id === active ? (
-                  <span className={styles.trailHere}>{step.label}</span>
-                ) : (
-                  <button type="button" className={styles.trailLink} onClick={() => setViewId(step.id)}>
-                    {step.label}
-                  </button>
-                )}
-              </span>
-            ))}
-          </nav>
-          <Select
-            title="nível do diagrama"
-            value={active}
-            onChange={(v) => setViewId(v as ViewId)}
-            options={views.map((v) => ({ value: v.id, label: v.title }))}
-          />
-          {pending.length > 0 && (
-            <button
-              type="button"
-              className={styles.issueBadge}
-              title="ver o que falta no modelo"
-              onClick={() => setDrawer({ mode: "issues" })}
-            >
-              <AlertTriangle size={12} />
-              {`${pending.length} ${pending.length === 1 ? "pendência" : "pendências"}`}
-            </button>
-          )}
-          <div style={{ flex: "1 1 0", minWidth: 8 }} />
-          <div className="mmd-btn-group">
-            <button
-              type="button"
-              title="ver um exemplo"
-              className="mmd-tool-btn"
-              style={{ width: 32 }}
-              onClick={() => {
-                if (model.elements.length > 0 && !confirm("Isso substitui o modelo atual pelo exemplo. Continuar?"))
-                  return;
-                setModel(exampleModel());
-              }}
-            >
-              <Sparkles size={15} style={{ verticalAlign: "middle" }} />
-            </button>
-          </div>
-          <div className="mmd-btn-group">
-            <button type="button" title="baixar .svg" className="mmd-tool-btn" style={{ width: 32 }} onClick={exportSvg}>
-              <FileCode size={15} style={{ verticalAlign: "middle" }} />
-            </button>
-            <button type="button" title="baixar .png (2x)" className="mmd-tool-btn" style={{ width: 32 }} onClick={exportPng}>
-              <ImageIcon size={15} style={{ verticalAlign: "middle" }} />
-            </button>
-            <button
-              type="button"
-              title="baixar Structurizr DSL"
-              className="mmd-tool-btn"
-              style={{ width: 32 }}
-              onClick={() => exportText(toStructurizrDsl(model), `${model.name}.dsl`, "text/plain")}
-            >
-              <FileText size={15} style={{ verticalAlign: "middle" }} />
-            </button>
-            <button
-              type="button"
-              title="baixar Mermaid C4"
-              className="mmd-tool-btn"
-              style={{ width: 32 }}
-              onClick={() => exportText(toMermaidC4(model, active), `c4-${active}.mmd`, "text/plain")}
-            >
-              <Workflow size={15} style={{ verticalAlign: "middle" }} />
-            </button>
-          </div>
-          <div className="mmd-btn-group">
-            <button
-              type="button"
-              title="salvar modelo (.json)"
-              className="mmd-tool-btn"
-              style={{ width: 32 }}
-              onClick={() => exportText(JSON.stringify(model, null, 2), `${model.name}.c4.json`, "application/json")}
-            >
-              <Save size={15} style={{ verticalAlign: "middle" }} />
-            </button>
-            <label title="abrir modelo (.json)" className="mmd-tool-btn" style={{ width: 32, display: "grid", placeItems: "center", cursor: "pointer" }}>
-              <FolderOpen size={15} style={{ verticalAlign: "middle" }} />
-              <input
-                type="file"
-                accept="application/json,.json"
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) openJson(f);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-          </div>
+    <div className={styles.modeler}>
+      <h1 className="visually-hidden">Gerador de C4 Model online</h1>
+      <div className={styles.bar}>
+        <Breadcrumb path="~/diagram/c4" />
+        <span className={styles.barDash}>·</span>
+        <span className={styles.barDesc}>monta o C4 model do seu sistema respondendo perguntas</span>
+        <nav className={styles.trail} aria-label="nível do diagrama">
+          {trail.map((step, i) => (
+            <span key={step.id}>
+              {i > 0 && <span className={styles.trailSep}>{"/"}</span>}
+              {step.id === active ? (
+                <span className={styles.trailHere}>{step.label}</span>
+              ) : (
+                <button type="button" className={styles.trailLink} onClick={() => setViewId(step.id)}>
+                  {step.label}
+                </button>
+              )}
+            </span>
+          ))}
+        </nav>
+        <Select
+          title="nível do diagrama"
+          value={active}
+          onChange={(v) => setViewId(v as ViewId)}
+          options={views.map((v) => ({ value: v.id, label: v.title }))}
+        />
+        {pending.length > 0 && (
+          <button
+            type="button"
+            className={styles.issueBadge}
+            title="ver o que falta no modelo"
+            onClick={() => setDrawer({ mode: "issues" })}
+          >
+            <AlertTriangle size={12} />
+            {`${pending.length} ${pending.length === 1 ? "pendência" : "pendências"}`}
+          </button>
+        )}
+        <div style={{ flex: "1 1 0", minWidth: 8 }} />
+        <div className="mmd-btn-group">
+          <button type="button" title="novo (limpa o modelo atual)" className="mmd-tool-btn" style={{ width: 32 }} onClick={handleNew}>
+            <FilePlus2 size={15} style={{ verticalAlign: "middle" }} />
+          </button>
+          <button
+            type="button"
+            title="ver um exemplo"
+            className="mmd-tool-btn"
+            style={{ width: 32 }}
+            onClick={() => {
+              if (model.elements.length > 0 && !confirm("Isso substitui o modelo atual pelo exemplo. Continuar?"))
+                return;
+              setModel(exampleModel());
+            }}
+          >
+            <Sparkles size={15} style={{ verticalAlign: "middle" }} />
+          </button>
         </div>
-        <div className={styles.split}>
-          <aside className={styles.panel}>
-            <ModelTree
-              model={model}
-              selected={selectedAlive}
-              onSelect={(id) => {
-                setSelected(id);
-                focusOn(id);
+        <div className="mmd-btn-group">
+          <button type="button" title="baixar .svg" className="mmd-tool-btn" style={{ width: 32 }} onClick={exportSvg}>
+            <FileCode size={15} style={{ verticalAlign: "middle" }} />
+          </button>
+          <button type="button" title="baixar .png (2x)" className="mmd-tool-btn" style={{ width: 32 }} onClick={exportPng}>
+            <ImageIcon size={15} style={{ verticalAlign: "middle" }} />
+          </button>
+          <button
+            type="button"
+            title="baixar Structurizr DSL"
+            className="mmd-tool-btn"
+            style={{ width: 32 }}
+            onClick={() => exportText(toStructurizrDsl(model), `${model.name}.dsl`, "text/plain")}
+          >
+            <FileText size={15} style={{ verticalAlign: "middle" }} />
+          </button>
+          <button
+            type="button"
+            title="baixar Mermaid C4"
+            className="mmd-tool-btn"
+            style={{ width: 32 }}
+            onClick={() => exportText(toMermaidC4(model, active), `c4-${active}.mmd`, "text/plain")}
+          >
+            <Workflow size={15} style={{ verticalAlign: "middle" }} />
+          </button>
+        </div>
+        <div className="mmd-btn-group">
+          <button
+            type="button"
+            title="salvar modelo (.json)"
+            className="mmd-tool-btn"
+            style={{ width: 32 }}
+            onClick={() => exportText(JSON.stringify(model, null, 2), `${model.name}.c4.json`, "application/json")}
+          >
+            <Save size={15} style={{ verticalAlign: "middle" }} />
+          </button>
+          <label title="abrir modelo (.json)" className="mmd-tool-btn" style={{ width: 32, display: "grid", placeItems: "center", cursor: "pointer" }}>
+            <FolderOpen size={15} style={{ verticalAlign: "middle" }} />
+            <input
+              type="file"
+              accept="application/json,.json"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) openJson(f);
+                e.target.value = "";
               }}
-              onEdit={(id) => setDrawer({ mode: "edit", id })}
-              onAdd={() => setDrawer({ mode: "create" })}
-              onRemove={(id) => onModel((m) => removeElement(m, id))}
             />
-          </aside>
-          <C4Canvas
-            view={view}
-            model={model}
-            layout={layout}
-            onOpen={open}
-            onMove={move}
-            selected={selectedAlive}
-            onSelect={setSelected}
-            svgRef={svgRef}
-            frameRef={frameRef}
-            onToggleFullscreen={toggleFullscreen}
-            onAutoLayout={() => {
-              const positioned = Object.keys(model.layout[active] ?? {}).length;
-              if (positioned && !confirm("Isso descarta as posições que você arrastou nesta view. Continuar?")) return;
-              setModel((m) => clearLayout(m, active));
-            }}
-            canAutoLayout={Object.keys(model.layout[active] ?? {}).length > 0}
-            onAddChild={(parentId) => {
-              const el = byId(model, parentId);
-              if (!el) return;
-              setDrawer({ mode: "create", kind: el.kind === "system" ? "container" : "component", parent: parentId });
-            }}
-            onStart={() => setDrawer({ mode: "create" })}
-            onExample={() => setModel(exampleModel())}
-            onOpenFile={openJson}
-            onRelate={relate}
-          />
-          {drawer && (
-            <ElementDrawer model={model} state={drawer} onModel={onModel} onOpenDrawer={setDrawer} onClose={() => setDrawer(null)} />
-          )}
+          </label>
         </div>
       </div>
-    </ToolPanel>
+      <div className={styles.split}>
+        <aside className={styles.panel}>
+          <ModelTree
+            model={model}
+            selected={selectedAlive}
+            onSelect={(id) => {
+              setSelected(id);
+              focusOn(id);
+            }}
+            onEdit={(id) => setDrawer({ mode: "edit", id })}
+            onAdd={() => setDrawer({ mode: "create" })}
+            onRemove={(id) => onModel((m) => removeElement(m, id))}
+          />
+        </aside>
+        <C4Canvas
+          view={view}
+          model={model}
+          layout={layout}
+          onOpen={open}
+          onMove={move}
+          selected={selectedAlive}
+          onSelect={setSelected}
+          svgRef={svgRef}
+          frameRef={frameRef}
+          onToggleFullscreen={toggleFullscreen}
+          onAutoLayout={() => {
+            const positioned = Object.keys(model.layout[active] ?? {}).length;
+            if (positioned && !confirm("Isso descarta as posições que você arrastou nesta view. Continuar?")) return;
+            setModel((m) => clearLayout(m, active));
+          }}
+          canAutoLayout={Object.keys(model.layout[active] ?? {}).length > 0}
+          onAddChild={(parentId) => {
+            const el = byId(model, parentId);
+            if (!el) return;
+            setDrawer({ mode: "create", kind: el.kind === "system" ? "container" : "component", parent: parentId });
+          }}
+          onStart={() => setDrawer({ mode: "create" })}
+          onExample={() => setModel(exampleModel())}
+          onOpenFile={openJson}
+          onRelate={relate}
+        />
+        {drawer && (
+          <ElementDrawer model={model} state={drawer} onModel={onModel} onOpenDrawer={setDrawer} onClose={() => setDrawer(null)} />
+        )}
+      </div>
+    </div>
   );
 }
