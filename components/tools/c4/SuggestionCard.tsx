@@ -54,6 +54,7 @@ export function SuggestionCard({ model, suggestion, onModel }: Props) {
                 technology: v.technology || undefined,
                 external: a.external ?? v.external,
                 parent: a.parent,
+                tags: v.shape === "default" ? undefined : [v.shape],
               }),
             )
           }
@@ -100,7 +101,7 @@ export function SuggestionCard({ model, suggestion, onModel }: Props) {
 }
 
 function fieldsForAdd(kind: string, external: boolean | undefined): ElementField[] {
-  if (kind === "container" || kind === "component") return ["name", "description", "technology"];
+  if (kind === "container" || kind === "component") return ["name", "description", "technology", "shape"];
   // a pergunta de abertura já sabe que o sistema é seu, então não pergunta de novo
   if (kind === "system" && external === undefined) return ["name", "description", "external"];
   return ["name", "description"];

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { Select } from "@/components/ui/Select";
+import { SHAPE_OPTIONS, shapeFor, type Shape } from "@/lib/tools/c4/shape";
 import styles from "./c4.module.css";
 
 export interface ElementFormValues {
@@ -9,6 +11,7 @@ export interface ElementFormValues {
   description: string;
   technology: string;
   external: boolean;
+  shape: Shape;
 }
 
 export type ElementField = keyof ElementFormValues;
@@ -18,6 +21,7 @@ const LABELS: Record<ElementField, string> = {
   description: "o que faz",
   technology: "tecnologia",
   external: "é de fora da sua empresa",
+  shape: "forma no diagrama",
 };
 
 const PLACEHOLDERS: Record<ElementField, string> = {
@@ -25,6 +29,7 @@ const PLACEHOLDERS: Record<ElementField, string> = {
   description: "carrinho e pagamento",
   technology: "Node, React, Postgres",
   external: "",
+  shape: "",
 };
 
 interface Props {
@@ -43,8 +48,13 @@ export function ElementForm({ fields, initial, submitLabel, autoFocus, onSubmit 
     description: initial?.description ?? "",
     technology: initial?.technology ?? "",
     external: initial?.external ?? false,
+    shape: initial?.shape ?? "default",
   };
   const [v, setV] = useState(blank);
+  /** Enquanto a pessoa não escolher forma à mão, a forma acompanha a
+   *  tecnologia. No instante em que ela escolhe, o palpite para de mandar. */
+  const [shapeTouched, setShapeTouched] = useState(initial?.shape !== undefined);
+  const guessed = shapeTouched ? v.shape : shapeFor({ kind: "container", technology: v.technology });
 
   const canSubmit = !fields.includes("name") || v.name.trim().length > 0;
 
@@ -59,8 +69,10 @@ export function ElementForm({ fields, initial, submitLabel, autoFocus, onSubmit 
           description: v.description.trim(),
           technology: v.technology.trim(),
           external: v.external,
+          shape: guessed,
         });
-        setV({ name: "", description: "", technology: "", external: false });
+        setV({ name: "", description: "", technology: "", external: false, shape: "default" });
+        setShapeTouched(false);
       }}
     >
       {fields.map((f, i) =>
@@ -73,6 +85,19 @@ export function ElementForm({ fields, initial, submitLabel, autoFocus, onSubmit 
             />
             <span>{LABELS[f]}</span>
           </label>
+        ) : f === "shape" ? (
+          <div key={f} className={styles.field}>
+            <span className="mono-label">{LABELS[f]}</span>
+            <Select
+              value={guessed}
+              onChange={(s) => {
+                setShapeTouched(true);
+                setV({ ...v, shape: s as Shape });
+              }}
+              options={SHAPE_OPTIONS}
+              title="forma no diagrama"
+            />
+          </div>
         ) : (
           <label key={f} className={styles.field}>
             <span className="mono-label">{LABELS[f]}</span>

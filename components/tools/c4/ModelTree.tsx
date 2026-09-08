@@ -34,6 +34,7 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
         technology: v.technology || undefined,
         external: v.external,
         parent,
+        tags: v.shape === "default" ? undefined : [v.shape],
       }),
     );
     setAdding(null);
@@ -134,7 +135,7 @@ export function ModelTree({ model, onModel, onFocus }: Props) {
 }
 
 function fieldsFor(kind: ElementKind): ElementField[] {
-  if (kind === "container" || kind === "component") return ["name", "description", "technology"];
+  if (kind === "container" || kind === "component") return ["name", "description", "technology", "shape"];
   if (kind === "system" || kind === "person") return ["name", "description", "external"];
   return ["name", "description"];
 }
