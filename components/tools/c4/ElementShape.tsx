@@ -151,6 +151,7 @@ export function ElementShape({
   box,
   element: el,
   selected,
+  childCount,
   onPointerDown,
   onPointerMove,
   onPointerUp,
@@ -179,9 +180,49 @@ export function ElementShape({
         onOpen?.();
       }}
       style={{ cursor: "pointer" }}
-      opacity={selected ? 1 : 0.94}
     >
       <Outline shape={shape} box={box} color={color} />
+      {selected && (
+        <rect
+          x={box.x - 5}
+          y={box.y - 5}
+          width={box.w + 10}
+          height={box.h + 10}
+          rx={12}
+          strokeWidth={1}
+          strokeDasharray="4 3"
+          style={{ fill: "none", stroke: "var(--color-accent-yellow)" }}
+        />
+      )}
+      {childCount > 0 && onOpen && (
+        <g
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen();
+          }}
+          style={{ cursor: "zoom-in" }}
+        >
+          <rect
+            x={box.x + box.w - 46}
+            y={ty + 6}
+            width={38}
+            height={18}
+            rx={4}
+            strokeWidth={1}
+            style={{ fill: "var(--color-bg)", stroke: color }}
+          />
+          <text
+            x={box.x + box.w - 27}
+            y={ty + 19}
+            fontSize={10}
+            textAnchor="middle"
+            style={{ fill: color }}
+          >
+            {`⊞ ${childCount}`}
+          </text>
+        </g>
+      )}
       <text x={tx} y={ty + 26} fontSize={13} style={{ fill: color }}>
         {truncate(el.name, inner)}
       </text>

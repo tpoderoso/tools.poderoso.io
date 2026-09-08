@@ -48,6 +48,7 @@ function inlineCssVars(svg: string): string {
 export function C4Modeler() {
   const [model, setModel] = useState(emptyModel);
   const [viewId, setViewId] = useState<ViewId>("landscape");
+  const [selected, setSelected] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
 
@@ -82,6 +83,8 @@ export function C4Modeler() {
   const views = useMemo(() => availableViews(model), [model]);
   // se a view atual deixou de existir (o elemento em foco sumiu), cai no landscape
   const active: ViewId = views.some((v) => v.id === viewId) ? viewId : "landscape";
+  // elemento removido pela árvore não pode continuar "selecionado"
+  const selectedAlive = selected && byId(model, selected) ? selected : null;
   const view = useMemo(() => buildView(model, active), [model, active]);
   const layout = useMemo(() => autoLayout(view, model, model.layout[active] ?? {}), [view, model, active]);
 
@@ -274,6 +277,8 @@ export function C4Modeler() {
             layout={layout}
             onOpen={open}
             onMove={move}
+            selected={selectedAlive}
+            onSelect={setSelected}
             svgRef={svgRef}
             frameRef={frameRef}
             onToggleFullscreen={toggleFullscreen}

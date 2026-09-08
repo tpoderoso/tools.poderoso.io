@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
-import { byId, type C4Model } from "@/lib/tools/c4/model";
+import { byId, childrenOf, type C4Model } from "@/lib/tools/c4/model";
 import type { C4View } from "@/lib/tools/c4/views";
 import { edgeLine, type Box, type LayoutResult } from "@/lib/tools/c4/layout";
 import { usePanZoom } from "@/lib/hooks/usePanZoom";
@@ -19,6 +19,8 @@ interface Props {
   layout: LayoutResult;
   onOpen?: (id: string) => void;
   onMove?: (id: string, pos: { x: number; y: number }) => void;
+  selected: string | null;
+  onSelect: (id: string | null) => void;
   svgRef?: RefObject<SVGSVGElement | null>;
   frameRef?: RefObject<HTMLDivElement | null>;
   onToggleFullscreen: () => void;
@@ -32,6 +34,8 @@ export function C4Canvas({
   layout,
   onOpen,
   onMove,
+  selected,
+  onSelect,
   svgRef,
   frameRef,
   onToggleFullscreen,
@@ -80,6 +84,7 @@ export function C4Canvas({
         {...pointerHandlers}
         className={styles.viewport}
         style={{ cursor: grabbing ? "grabbing" : "grab" }}
+        onClick={() => onSelect(null)}
       >
         <svg
           ref={svgRef}
@@ -162,11 +167,16 @@ export function C4Canvas({
                 key={box.id}
                 box={box}
                 element={el}
-                childCount={model.elements.filter((e) => e.parent === box.id).length}
+                selected={selected === box.id}
+                childCount={
+                  el.kind === "person" || (el.kind === "system" && el.external) || el.kind === "component"
+                    ? 0
+                    : childrenOf(model, box.id).length
+                }
                 onPointerDown={(e) => startDrag(e, box)}
                 onPointerMove={moveDrag}
                 onPointerUp={endDrag}
-                onSelect={() => {}}
+                onSelect={() => onSelect(box.id)}
                 onOpen={() => onOpen?.(box.id)}
               />
             );
