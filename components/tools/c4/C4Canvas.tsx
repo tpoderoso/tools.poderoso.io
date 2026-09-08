@@ -1,50 +1,15 @@
 "use client";
 
 import { useRef, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
-import { byId, type C4Model, type ElementKind } from "@/lib/tools/c4/model";
+import { byId, type C4Model } from "@/lib/tools/c4/model";
 import type { C4View } from "@/lib/tools/c4/views";
 import { edgeLine, type Box, type LayoutResult } from "@/lib/tools/c4/layout";
 import { usePanZoom } from "@/lib/hooks/usePanZoom";
+import { ElementShape, truncate } from "./ElementShape";
 import styles from "./c4.module.css";
-
-const KIND_COLOR: Record<ElementKind, string> = {
-  person: "var(--color-secondary)",
-  system: "var(--color-primary)",
-  container: "var(--color-accent-cyan)",
-  component: "var(--color-accent-pink)",
-};
-
-const KIND_LABEL: Record<ElementKind, string> = {
-  person: "Pessoa",
-  system: "Sistema",
-  container: "Container",
-  component: "Componente",
-};
 
 /** Largura média do IBM Plex Mono em px por caractere, na escala do desenho. */
 const CHAR_W = 6.4;
-
-function truncate(text: string, maxChars: number): string {
-  return text.length <= maxChars ? text : `${text.slice(0, Math.max(0, maxChars - 1))}…`;
-}
-
-/** Quebra em até `maxLines` linhas de `perLine` caracteres, truncando o resto. */
-function wrap(text: string, perLine: number, maxLines: number): string[] {
-  const out: string[] = [];
-  let rest = text.trim();
-  while (rest && out.length < maxLines) {
-    if (rest.length <= perLine) {
-      out.push(rest);
-      break;
-    }
-    const cut = rest.lastIndexOf(" ", perLine);
-    const at = cut > perLine * 0.5 ? cut : perLine;
-    out.push(rest.slice(0, at));
-    rest = rest.slice(at).trim();
-  }
-  if (rest && out.length === maxLines) out[maxLines - 1] = truncate(`${out[maxLines - 1]} ${rest}`, perLine);
-  return out;
-}
 
 interface Props {
   view: C4View;
@@ -172,78 +137,27 @@ export function C4Canvas({ view, model, layout, onOpen, onMove, svgRef }: Props)
             );
           })}
 
-          {layout.boxes.map((box) => (
-            <ElementBox
-              key={box.id}
-              box={box}
-              model={model}
-              onOpen={onOpen}
-              onPointerDown={(e) => startDrag(e, box)}
-              onPointerMove={moveDrag}
-              onPointerUp={endDrag}
-            />
-          ))}
+          {layout.boxes.map((box) => {
+            const el = byId(model, box.id);
+            if (!el) return null;
+            return (
+              <ElementShape
+                key={box.id}
+                box={box}
+                element={el}
+                childCount={model.elements.filter((e) => e.parent === box.id).length}
+                onPointerDown={(e) => startDrag(e, box)}
+                onPointerMove={moveDrag}
+                onPointerUp={endDrag}
+                onSelect={() => {}}
+                onOpen={() => onOpen?.(box.id)}
+              />
+            );
+          })}
         </svg>
       </div>
 
       {empty && <div className={styles.placeholder}>{"// o diagrama aparece aqui conforme você responde"}</div>}
     </div>
-  );
-}
-
-function ElementBox({
-  box,
-  model,
-  onOpen,
-  onPointerDown,
-  onPointerMove,
-  onPointerUp,
-}: {
-  box: Box;
-  model: C4Model;
-  onOpen?: (id: string) => void;
-  onPointerDown: (e: ReactPointerEvent<SVGGElement>) => void;
-  onPointerMove: (e: ReactPointerEvent<SVGGElement>) => void;
-  onPointerUp: () => void;
-}) {
-  const el = byId(model, box.id);
-  if (!el) return null;
-
-  const color = el.external && el.kind === "system" ? "var(--color-muted)" : KIND_COLOR[el.kind];
-  const inner = Math.floor((box.w - 24) / CHAR_W);
-  const meta = [KIND_LABEL[el.kind] + (el.external ? " externo" : ""), el.technology].filter(Boolean).join(": ");
-
-  return (
-    <g
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        onOpen?.(box.id);
-      }}
-      style={{ cursor: onOpen ? "pointer" : "default" }}
-    >
-      <rect
-        x={box.x}
-        y={box.y}
-        width={box.w}
-        height={box.h}
-        rx={8}
-        strokeWidth={1.5}
-        style={{ fill: "var(--background-secondary)", stroke: color }}
-      />
-      <text x={box.x + 12} y={box.y + 26} fontSize={13} style={{ fill: color }}>
-        {truncate(el.name, inner)}
-      </text>
-      <text x={box.x + 12} y={box.y + 44} fontSize={10} style={{ fill: "var(--color-faint)" }}>
-        {truncate(`[${meta}]`, inner)}
-      </text>
-      {wrap(el.description, inner, 2).map((line, i) => (
-        <text key={i} x={box.x + 12} y={box.y + 66 + i * 14} fontSize={11} style={{ fill: "var(--color-muted-soft)" }}>
-          {line}
-        </text>
-      ))}
-    </g>
   );
 }

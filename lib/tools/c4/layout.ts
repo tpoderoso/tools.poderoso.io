@@ -32,7 +32,9 @@ export interface LayoutResult {
  * O texto que não couber é truncado no componente.
  */
 const SIZE = {
-  person: { w: 240, h: 120 },
+  // 150 e não 120: a forma de pessoa reserva 42px no topo para a cabeça
+  // (ver INSET em components/tools/c4/ElementShape.tsx)
+  person: { w: 240, h: 150 },
   system: { w: 240, h: 120 },
   container: { w: 220, h: 110 },
   component: { w: 220, h: 110 },
